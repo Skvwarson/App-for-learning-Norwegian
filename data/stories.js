@@ -1,0 +1,163 @@
+// Graded readers – short original stories, each built mostly from words of
+// the units before it (comprehensible input, "i + 1"). Sentence pairs: [no, en].
+
+export const STORIES = [
+  {
+    id: 's01', unit: 'u01', title: 'Jeg heter Emma', level: 'A1',
+    sentences: [
+      ['Hei! Jeg heter Emma.', 'Hi! My name is Emma.'],
+      ['Jeg lærer norsk.', 'I’m learning Norwegian.'],
+      ['Jeg snakker litt norsk, men ikke mye.', 'I speak a little Norwegian, but not much.'],
+      ['I dag treffer jeg Lars.', 'Today I’m meeting Lars.'],
+      ['Lars snakker veldig bra engelsk, men vi snakker norsk.', 'Lars speaks very good English, but we speak Norwegian.'],
+      ['«Hvordan går det?» spør Lars.', '“How’s it going?” Lars asks.'],
+      ['«Det går bra, takk!» sier jeg.', '“It’s going well, thanks!” I say.'],
+      ['Lars er hyggelig.', 'Lars is nice.'],
+      ['«Ha det bra, Emma!»', '“Bye, Emma!”'],
+      ['«Ha det! Vi sees!»', '“Bye! See you!”'],
+    ],
+  },
+  {
+    id: 's02', unit: 'u02', title: 'Språkkafeen', level: 'A1',
+    sentences: [
+      ['Hver onsdag går Emma på språkkafé.', 'Every Wednesday Emma goes to a language café.'],
+      ['Der snakker hun norsk med mange folk.', 'There she speaks Norwegian with lots of people.'],
+      ['Sofie kommer fra Tromsø.', 'Sofie is from Tromsø.'],
+      ['Ahmed kommer fra Syria, og nå bor han i Oslo.', 'Ahmed is from Syria, and now he lives in Oslo.'],
+      ['Maria kommer fra Spania. Hun jobber på et sykehus.', 'Maria is from Spain. She works at a hospital.'],
+      ['Alle lærer norsk.', 'Everyone is learning Norwegian.'],
+      ['«Hva betyr ‹koselig›?» spør Maria.', '“What does ‘koselig’ mean?” Maria asks.'],
+      ['Sofie smiler. «Det er vanskelig å forklare!»', 'Sofie smiles. “It’s hard to explain!”'],
+      ['Emma liker språkkafeen veldig godt.', 'Emma likes the language café very much.'],
+    ],
+  },
+  {
+    id: 's03', unit: 'u03', title: 'En travel uke', level: 'A1',
+    sentences: [
+      ['På mandag jobber Emma.', 'On Monday Emma works.'],
+      ['På tirsdag har hun norskkurs klokka seks.', 'On Tuesday she has a Norwegian class at six.'],
+      ['På onsdag går hun på språkkafé.', 'On Wednesday she goes to the language café.'],
+      ['På torsdag har hun tid, og hun ringer mamma.', 'On Thursday she has time, and she calls mum.'],
+      ['På fredag går hun på kino med Lars.', 'On Friday she goes to the cinema with Lars.'],
+      ['Filmen begynner klokka halv åtte.', 'The film starts at half past seven.'],
+      ['Billetten koster hundre og tjue kroner.', 'The ticket costs a hundred and twenty kroner.'],
+      ['På lørdag og søndag slapper hun av.', 'On Saturday and Sunday she relaxes.'],
+    ],
+  },
+  {
+    id: 's04', unit: 'u04', title: 'Den beste skolebollen', level: 'A1',
+    sentences: [
+      ['Emma og Sofie er på en kafé.', 'Emma and Sofie are at a café.'],
+      ['Emma vil gjerne ha en kaffe og en skolebolle.', 'Emma would like a coffee and a custard bun.'],
+      ['Sofie drikker te.', 'Sofie drinks tea.'],
+      ['«Kan jeg få et glass vann også?» spør Sofie.', '“Can I also have a glass of water?” Sofie asks.'],
+      ['Kafeen er liten, men den er veldig koselig.', 'The café is small, but it’s very cosy.'],
+      ['Kaffen er god, og skolebollen er kjempegod!', 'The coffee is good, and the custard bun is super good!'],
+      ['«Dette er den beste skolebollen i Oslo,» sier Emma.', '“This is the best custard bun in Oslo,” says Emma.'],
+      ['Det blir hundre og tjue kroner. Emma betaler med kort.', 'That comes to 120 kroner. Emma pays by card.'],
+    ],
+  },
+  {
+    id: 's05', unit: 'u05', title: 'Familien til Lars', level: 'A1',
+    sentences: [
+      ['Lars er enebarn.', 'Lars is an only child.'],
+      ['Foreldrene hans bor i Bergen.', 'His parents live in Bergen.'],
+      ['Moren hans heter Kari, og faren hans heter Per.', 'His mother is called Kari and his father is called Per.'],
+      ['Kari er lærer, og Per er lege.', 'Kari is a teacher and Per is a doctor.'],
+      ['Lars har også en bestemor.', 'Lars also has a grandmother.'],
+      ['Hun er åttifem år gammel, men hun går på tur hver dag!', 'She is eighty-five years old, but she goes for a walk every day!'],
+      ['Lars ringer familien sin hver søndag.', 'Lars calls his family every Sunday.'],
+    ],
+  },
+  {
+    id: 's06', unit: 'u06', title: 'Emmas dag', level: 'A1',
+    sentences: [
+      ['Emma står opp klokka sju.', 'Emma gets up at seven.'],
+      ['Hun dusjer og spiser frokost.', 'She showers and eats breakfast.'],
+      ['Så tar hun trikken til jobben.', 'Then she takes the tram to work.'],
+      ['Hun jobber på et kontor i sentrum.', 'She works in an office in the city centre.'],
+      ['Klokka elleve spiser hun lunsj med kollegene sine.', 'At eleven she eats lunch with her colleagues.'],
+      ['Etter jobben trener hun.', 'After work she exercises.'],
+      ['Om kvelden lager hun middag og leser en bok.', 'In the evening she makes dinner and reads a book.'],
+      ['Klokka elleve legger hun seg. Hun er trøtt!', 'At eleven she goes to bed. She is tired!'],
+    ],
+  },
+  {
+    id: 's07', unit: 'u07', title: 'Den nye jakken', level: 'A1',
+    sentences: [
+      ['Det er november, og det er kaldt i Oslo.', 'It’s November, and it’s cold in Oslo.'],
+      ['Emma trenger en varm jakke.', 'Emma needs a warm jacket.'],
+      ['Hun går til en butikk i sentrum.', 'She goes to a shop in the city centre.'],
+      ['Det er mange fine jakker der, men de er dyre!', 'There are many nice jackets there, but they are expensive!'],
+      ['Endelig finner hun en blå jakke.', 'Finally she finds a blue jacket.'],
+      ['Den er varm, fin og ikke så dyr.', 'It’s warm, nice and not that expensive.'],
+      ['Hun prøver den. Den passer perfekt!', 'She tries it on. It fits perfectly!'],
+      ['«Den tar jeg,» sier Emma.', '“I’ll take it,” says Emma.'],
+    ],
+  },
+  {
+    id: 's08', unit: 'u08', title: 'Toget til Bergen', level: 'A2',
+    sentences: [
+      ['Emma skal besøke Bergen.', 'Emma is going to visit Bergen.'],
+      ['Hun går til jernbanestasjonen.', 'She walks to the train station.'],
+      ['Hun går rett fram, over brua og til høyre.', 'She goes straight ahead, over the bridge and to the right.'],
+      ['Toget går klokka åtte.', 'The train leaves at eight.'],
+      ['Turen tar sju timer, men utsikten er fantastisk!', 'The trip takes seven hours, but the view is fantastic!'],
+      ['Hun ser fjell, vann og små røde hus.', 'She sees mountains, lakes and small red houses.'],
+      ['I Bergen regner det, selvfølgelig.', 'In Bergen it’s raining, of course.'],
+      ['Men Emma har en ny, varm jakke!', 'But Emma has a new, warm jacket!'],
+    ],
+  },
+  {
+    id: 's09', unit: 'u09', title: 'Søndagstur', level: 'A2',
+    sentences: [
+      ['På søndag går Lars og Emma på tur i skogen.', 'On Sunday Lars and Emma go hiking in the forest.'],
+      ['Lars har med matpakke og en termos med kakao.', 'Lars brings a packed lunch and a thermos of hot chocolate.'],
+      ['De går i tre timer.', 'They walk for three hours.'],
+      ['Emma er litt sliten, men glad.', 'Emma is a little tired, but happy.'],
+      ['Midt i skogen ligger et lite vann.', 'In the middle of the forest there is a small lake.'],
+      ['De sitter ved vannet og spiser.', 'They sit by the lake and eat.'],
+      ['«Dette er koselig,» sier Emma.', '“This is lovely,” says Emma.'],
+      ['«Ja, dette er typisk norsk,» svarer Lars.', '“Yes, this is typically Norwegian,” Lars answers.'],
+    ],
+  },
+  {
+    id: 's10', unit: 'u10', title: 'Fire årstider', level: 'A2',
+    sentences: [
+      ['I Norge er det fire årstider.', 'In Norway there are four seasons.'],
+      ['Om vinteren er det kaldt og mørkt, og det snør mye.', 'In winter it’s cold and dark, and it snows a lot.'],
+      ['Mange går på ski.', 'Many people go skiing.'],
+      ['Om våren blir det lysere og varmere.', 'In spring it gets lighter and warmer.'],
+      ['Om sommeren er det lyst nesten hele natta.', 'In summer it’s light almost all night.'],
+      ['Om høsten regner det ofte, og bladene blir gule og røde.', 'In autumn it often rains, and the leaves turn yellow and red.'],
+      ['Emma liker sommeren best.', 'Emma likes summer best.'],
+      ['Hva liker du best?', 'What do you like best?'],
+    ],
+  },
+  {
+    id: 's11', unit: 'u11', title: 'Helga til Jonas', level: 'A2',
+    sentences: [
+      ['I helga var Jonas i Trondheim.', 'At the weekend Jonas was in Trondheim.'],
+      ['Han besøkte søsteren sin.', 'He visited his sister.'],
+      ['På lørdag gikk de i byen og spiste på en restaurant.', 'On Saturday they went into town and ate at a restaurant.'],
+      ['Maten var veldig god.', 'The food was very good.'],
+      ['På søndag regnet det, så de så en film hjemme.', 'On Sunday it rained, so they watched a film at home.'],
+      ['Om kvelden tok Jonas toget tilbake til Oslo.', 'In the evening Jonas took the train back to Oslo.'],
+      ['Han var trøtt, men fornøyd.', 'He was tired but happy.'],
+    ],
+  },
+  {
+    id: 's12', unit: 'u12', title: 'Hva er kos?', level: 'A2',
+    sentences: [
+      ['Mange nordmenn snakker om kos.', 'Many Norwegians talk about “kos”.'],
+      ['Kos er ikke lett å oversette.', '“Kos” isn’t easy to translate.'],
+      ['Det er liksom å ha det hyggelig og varmt sammen med andre.', 'It’s sort of having a nice, warm time together with others.'],
+      ['Fredagskos er når familien spiser taco og ser på TV på fredag.', '“Friday kos” is when the family eats tacos and watches TV on Friday.'],
+      ['Søndagskos kan være en tur og en kopp kakao.', '“Sunday kos” can be a walk and a cup of hot chocolate.'],
+      ['Emma synes kos er en fin tradisjon.', 'Emma thinks “kos” is a nice tradition.'],
+      ['Nå koser hun seg også!', 'Now she’s enjoying herself too!'],
+    ],
+  },
+];
+
+export const storyById = (id) => STORIES.find((s) => s.id === id);
