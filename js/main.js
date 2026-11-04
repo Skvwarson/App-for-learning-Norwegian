@@ -19,6 +19,7 @@ import { progressView } from './views/progress.js';
 import { scienceView } from './views/science.js';
 import { settingsView } from './views/settings.js';
 import { maybeOnboard } from './views/onboarding.js';
+import { onVoiceProblem } from './core/speech.js';
 
 load();
 G.reconcileStreak();
@@ -113,6 +114,20 @@ G.on('comeback', ({ days }) => {
       h('div.row.wrap.center', h('a.btn.primary', { href: '#/review/quick', onclick: () => m.close() }, '⚡ 2-minute restart'), h('button.btn', { onclick: () => m.close() }, 'Close'))));
     G.unlock('comeback');
   }, 600);
+});
+
+// ---------- Voice problems ----------
+const voiceWarned = new Set();
+onVoiceProblem(({ kind, message }) => {
+  const key = kind === 'cloud' ? `cloud:${message}` : kind;
+  if (voiceWarned.has(key)) return;
+  voiceWarned.add(key);
+  const fix = h('a', { href: '#/settings', style: { color: 'inherit', fontWeight: '700', textDecoration: 'underline' } }, 'Fix it in Settings → Voice');
+  if (kind === 'no-voice') {
+    toast(h('span', h('b', 'No Norwegian voice on this device.'), h('br'), 'Audio is muted so you don’t learn wrong pronunciation. ', fix), { icon: '🔇', kind: 'warn', ms: 7000 });
+  } else {
+    toast(h('span', h('b', 'Premium voice failed: '), message, h('br'), fix), { icon: '🔇', kind: 'warn', ms: 8000 });
+  }
 });
 
 // ---------- Start ----------

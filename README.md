@@ -34,11 +34,21 @@ python3 -m http.server 8123
 Then open <http://localhost:8123>. ES modules don't load from `file://`, so you need a local server.
 
 ### Norwegian voice
-Listening and speaking use your browser's built-in speech engine. If you hear no Norwegian voice, install one:
-- **iPhone/iPad:** Settings → Accessibility → Spoken Content → Voices → Norwegian
-- **Android:** Google Speech Services / "Text-to-speech" → install Norsk (bokmål)
-- **Windows:** Settings → Time & language → Speech → add Norwegian
-- **macOS:** System Settings → Accessibility → Spoken Content → System voice → Manage voices → Norwegian
+Choose where audio comes from in **Settings → Voice**:
+
+| Source | Quality | Cost | Setup |
+|---|---|---|---|
+| **This device** | from robotic to very good, depending on the voice | free | install a Norwegian voice (below) |
+| **ElevenLabs** | most natural | free monthly allowance, then paid | API key from elevenlabs.io (uses the Flash v2.5 model, which supports Norwegian) |
+| **Google Cloud** | very good neural nb-NO voices | free monthly quota covers this whole course | Google Cloud project with the Text-to-Speech API and an API key |
+
+Cloud audio is generated once per sentence and saved on your device, so replays are free and work offline. The app never lets an English voice read Norwegian (that's how "Vi sees" becomes "six sees"). If there's no Norwegian voice, audio is muted and you're shown how to fix it.
+
+Free device voices:
+- **Windows:** use **Microsoft Edge**, which usually includes natural-sounding Norwegian voices. Brave, Chrome and Firefox only see Windows' own voices: Settings → Time & language → Speech → Add voices → Norsk (bokmål).
+- **iPhone/iPad:** Settings → Accessibility → Spoken Content → Voices → Norwegian → "Nora (Enhanced)"
+- **Mac:** System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian
+- **Android:** Settings → Text-to-speech → Google → install voice data → Norsk (bokmål)
 
 Speech recognition (the 🎙 buttons) works in Chrome, Edge and Safari.
 
@@ -72,7 +82,8 @@ Everything is saved in your browser (localStorage for progress, IndexedDB for im
 ```
 index.html, css/app.css, manifest.webmanifest, sw.js   app shell, styles, PWA
 js/core/   fsrs.js (scheduler) · text.js (tokenising, answer checking, lemmas) · deck.js · store.js
-           gamify.js (XP, streaks, missions) · course.js · pdf.js (import) · lexicon.js · speech.js · tutor.js (AI)
+           gamify.js (XP, streaks, missions) · course.js · pdf.js (import) · lexicon.js · tutor.js (AI)
+           speech.js (device voices, ElevenLabs / Google Cloud voices with caching, speech recognition)
 js/views/  one file per screen (home, learn, lesson, review, read, import, speak, roleplay, practice, words, progress, science, settings)
 js/ui/     dom helpers, reusable widgets, router
 data/      units.js (course) · stories.js · dictionary.js (glossary) · habits.js (missions, achievements)

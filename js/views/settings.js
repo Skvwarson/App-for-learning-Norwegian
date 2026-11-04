@@ -2,7 +2,7 @@
 
 import { h, toast, download, confirmModal, add } from '../ui/dom.js';
 import { settings, update, exportData, importData, resetAll } from '../core/store.js';
-import { norwegianVoices, speak, ttsAvailable } from '../core/speech.js';
+import { voiceCard } from './voice-settings.js';
 import { MODELS } from '../core/tutor.js';
 import { openPlanModal } from './onboarding.js';
 import { navigate } from '../ui/router.js';
@@ -13,11 +13,6 @@ export function settingsView(root) {
   const field = (label, control, help) => h('label.field', h('span.field-label', label), control, help ? h('span.small.muted', help) : null);
   const num = (k, min, max, step = 1) => h('input.input', { type: 'number', min, max, step, value: s[k], onchange: (e) => set(k, Math.max(min, Math.min(max, Number(e.target.value) || s[k]))) });
   const check = (k) => h('input', { type: 'checkbox', checked: !!s[k], onchange: (e) => set(k, e.target.checked) });
-
-  const voices = norwegianVoices();
-  const voiceSel = h('select.input', { onchange: (e) => set('voiceURI', e.target.value) },
-    h('option', { value: '' }, voices.length ? 'Automatic (best Norwegian voice)' : 'No Norwegian voice found'),
-    ...voices.map((v) => h('option', { value: v.voiceURI, selected: v.voiceURI === s.voiceURI }, `${v.name} (${v.lang})`)));
 
   const retention = h('input', { type: 'range', min: 0.8, max: 0.95, step: 0.01, value: s.retention, oninput: (e) => { retLabel.textContent = `${Math.round(e.target.value * 100)}%`; }, onchange: (e) => set('retention', Number(e.target.value)) });
   const retLabel = h('b', `${Math.round(s.retention * 100)}%`);
@@ -48,14 +43,7 @@ export function settingsView(root) {
         h('option', { value: 'recognition', selected: s.reviewMode === 'recognition' }, 'Recognition only (easiest)'))),
       h('label.row', check('autoAdvance'), ' Flow mode: move on automatically after a correct typed answer'),
       h('label.row', check('autoplay'), ' Play audio automatically')),
-    h('div.card.stack',
-      h('div.kicker', '🔊 Voice & sound'),
-      ttsAvailable() ? field('Norwegian voice', voiceSel, voices.length ? null : 'Install a Norwegian voice in your system settings (e.g. iOS: Settings → Accessibility → Spoken Content → Voices → Norwegian; Windows: Settings → Time & language → Speech; Android: Google TTS → Install voice data → Norsk).') : h('p.small.muted', 'Speech synthesis isn’t available in this browser.'),
-      field('Speaking rate', h('input', { type: 'range', min: 0.5, max: 1.2, step: 0.05, value: s.ttsRate, onchange: (e) => set('ttsRate', Number(e.target.value)) })),
-      h('button.btn.ghost', { onclick: () => speak('Hei! Hyggelig å treffe deg. Jeg snakker norsk.') }, '▶ Test voice'),
-      h('label.row', check('sound'), ' Sound effects'),
-      h('label.row', check('haptics'), ' Vibration (phones)'),
-      h('label.row', check('shadowing'), ' Show shadowing microphones on dialogue lines')),
+    voiceCard({ s, set, field, check }),
     h('div.card.stack',
       h('div.kicker', '🤖 AI conversation partner (optional)'),
       field('Claude API key', h('input.input', { type: 'password', value: s.aiKey, placeholder: 'sk-ant-…', autocomplete: 'off', onchange: (e) => set('aiKey', e.target.value.trim()) }),

@@ -429,6 +429,12 @@ table.mini td.big { font-size: 1.6rem; font-family: var(--font-no); color: var(-
 .dot.known { background: color-mix(in srgb, var(--ok) 60%, #9ad7b5); }
 .dot.mature { background: var(--ok); }
 .dot.suspended { background: transparent; border: 2px solid var(--muted); }
+.dot.bad { background: var(--bad); }
+.voice-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.voice-status .dot { flex: none; }
+.provider-choices .choice { font-family: var(--font); font-size: 1rem; padding: 12px 14px; }
+.provider-block[hidden] { display: none; }
+.voice-card { border-left: 4px solid var(--accent); display: flex; flex-direction: column; gap: 6px; }
 
 /* ---------- progress ---------- */
 .level-card { display: flex; flex-direction: column; gap: 10px; }

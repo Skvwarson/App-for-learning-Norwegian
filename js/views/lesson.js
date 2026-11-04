@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, canListen, listen } from '../core/speech.js';
+import { speak, canListen, listen, stopSpeaking, canSpeakNorwegian } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { similarity } from '../core/text.js';
@@ -95,7 +95,7 @@ function listenStep(el, unit, next) {
   });
   const playAll = h('button.btn', {
     onclick: async () => {
-      if (playing) { playing = false; speechSynthesis?.cancel(); playAll.textContent = '▶ Play conversation'; return; }
+      if (playing) { playing = false; stopSpeaking(); playAll.textContent = '▶ Play conversation'; return; }
       playing = true; playAll.textContent = '■ Stop';
       for (let i = 0; i < unit.dialogue.length && playing; i++) {
         lines.forEach((l) => l.classList.toggle('playing', l === lines[i]));
@@ -114,7 +114,7 @@ function listenStep(el, unit, next) {
     h('div.row.wrap', playAll, showAll),
     h('div.dialogue', ...lines),
     h('div.row.end', h('button.btn.primary.big', { onclick: () => { addXp(10, 'listen'); next(); } }, 'I’ve listened ▸'))));
-  return () => { playing = false; speechSynthesis?.cancel(); };
+  return () => { playing = false; stopSpeaking(); };
 }
 
 function wordsStep(el, unit, next) {
@@ -264,7 +264,7 @@ function practiceStep(el, unit, next) {
   const lines = shuffle(unit.dialogue.filter(([, no]) => wordsOf(no).length >= 3 && wordsOf(no).length <= 8)).slice(0, 2);
   for (const [, no, en] of lines) tasks.push({ type: 'tiles', no, en });
   // Listening
-  if ('speechSynthesis' in window) for (const w of unitWords.slice(4, 6)) tasks.push({ type: 'listen', w });
+  if (canSpeakNorwegian()) for (const w of unitWords.slice(4, 6)) tasks.push({ type: 'listen', w });
   // Interleaving: older cards from earlier units
   const older = shuffle(allCards().filter((c) => c.unit && c.unit < unit.id && c.srs.state === State.Review)).slice(0, 3);
   for (const c of older) tasks.push({ type: 'produce', w: { no: c.no, en: c.en, alt: c.alt }, old: true });
