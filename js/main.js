@@ -141,7 +141,15 @@ start($('#view'), {
 setTimeout(maybeOnboard, 300);
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.hostname.match(/^(localhost|127\.)/)) {
-  navigator.serviceWorker.register('./sw.js').catch(() => { /* offline support is optional */ });
+  // When an update is installed, switch to it right away – but never in the middle of a lesson or review.
+  const hadController = !!navigator.serviceWorker.controller;
+  let pendingReload = false;
+  const reloadWhenIdle = () => {
+    if (!document.body.classList.contains('focus')) location.reload();
+    else if (!pendingReload) { pendingReload = true; addEventListener('hashchange', reloadWhenIdle); }
+  };
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) reloadWhenIdle(); });
+  navigator.serviceWorker.register('./sw.js').then((reg) => reg.update()).catch(() => { /* offline support is optional */ });
 }
 
 // Ask the browser to keep our data (prevents eviction on some platforms).

@@ -96,7 +96,7 @@ tests/     unit tests (node --test) and a Playwright end-to-end smoke test
 npm test          # unit tests: scheduler, answer checking, PDF parsing, course-content validation …
 npm run test:e2e  # browser walkthrough with screenshots (needs Playwright + a server on :8123)
 ```
-When you change app files, bump `VERSION` in `sw.js` so installed copies pick up the update.
+When you change app files, bump `VERSION` in `sw.js` and `APP_VERSION` in `js/core/version.js`. The service worker is network-first, so online users get updates on their next visit (the app reloads itself once, never mid-lesson); the cache is only used offline.
 
 ## Credits
 Course texts, stories and glossary were written for this project. Scheduling uses the open FSRS-5 algorithm ([open-spaced-repetition](https://github.com/open-spaced-repetition)). PDF reading uses Mozilla pdf.js (Apache-2.0).
