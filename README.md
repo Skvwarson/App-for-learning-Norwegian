@@ -45,12 +45,12 @@ Choose where audio comes from in **Settings → Voice**:
 Cloud audio is generated once per sentence and saved on your device, so replays are free and work offline. The app never lets an English voice read Norwegian (that's how "Vi sees" becomes "six sees"). If there's no Norwegian voice, audio is muted and you're shown how to fix it.
 
 Free device voices:
-- **Windows:** use **Microsoft Edge**, which usually includes natural-sounding Norwegian voices. Brave, Chrome and Firefox only see Windows' own voices: Settings → Time & language → Speech → Add voices → Norsk (bokmål).
+- **Windows:** use **Microsoft Edge**, which usually includes natural-sounding Norwegian voices and supports the microphone. Brave and Chrome only see Windows' older built-in voices, so an installed Norwegian voice pack usually doesn't show up in them, and Brave has no speech recognition at all.
 - **iPhone/iPad:** Settings → Accessibility → Spoken Content → Voices → Norwegian → "Nora (Enhanced)"
 - **Mac:** System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian
 - **Android:** Settings → Text-to-speech → Google → install voice data → Norsk (bokmål)
 
-Speech recognition (the 🎙 buttons) works in Chrome, Edge and Safari.
+Speech recognition (the 🎙 buttons) works in Edge, Chrome and Safari, not in Brave or Firefox. When you answer by speaking, the app shows what it heard and how closely it matched.
 
 ## A daily routine that gets you talking fast
 1. **Reviews first** (5–10 min): press the big button on the home screen. On a busy day, press "⚡ Just 2 minutes" to keep the habit going.

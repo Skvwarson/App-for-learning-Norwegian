@@ -283,7 +283,27 @@ export async function listCloudVoices(p, key) {
 
 // ---------- Speech recognition ----------
 const Rec = hasWindow ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
-export const canListen = () => !!Rec;
+/** Brave ships the SpeechRecognition API but no recognition service behind it, so it never hears anything. */
+// (On iPhone/iPad every browser runs Safari's engine, so this doesn't apply there.)
+export const isBrave = () => hasWindow && !!navigator.brave && !/iPhone|iPad|iPod/.test(navigator.userAgent);
+export const canListen = () => !!Rec && !isBrave();
+
+/** Why the microphone can't work here (empty string if it can). */
+export function listenBlocker() {
+  if (isBrave()) return 'Brave doesn’t include speech recognition, so the microphone can’t hear you here. Open the app in Microsoft Edge or Chrome (or Safari on iPhone) to practise speaking.';
+  if (!Rec) return 'This browser doesn’t support speech recognition. Use Microsoft Edge or Chrome on a computer, or Safari on iPhone.';
+  return '';
+}
+
+const REC_ERRORS = {
+  'not-allowed': 'Microphone access was blocked. Allow the microphone for this site (click the icon left of the address bar) and try again.',
+  'service-not-allowed': 'Speech recognition is turned off. On iPhone: Settings → General → Keyboard → turn on Enable Dictation.',
+  'audio-capture': 'No microphone was found. Check that one is connected and allowed.',
+  'no-speech': 'I didn’t hear anything. Speak a little louder and closer to the microphone.',
+  network: 'Speech recognition needs an internet connection (and isn’t available in Brave). Check you’re online, or use Edge or Chrome.',
+  'language-not-supported': 'This browser can’t recognise Norwegian. Try Edge, Chrome or Safari.',
+};
+export const recognitionErrorText = (code) => REC_ERRORS[code] || `Speech recognition error: ${code}`;
 
 /**
  * Listen once in Norwegian. Resolves with an array of alternative transcripts
@@ -291,7 +311,8 @@ export const canListen = () => !!Rec;
  */
 export function listen({ timeoutMs = 8000 } = {}) {
   return new Promise((resolve, reject) => {
-    if (!Rec) return reject(new Error('Speech recognition is not supported in this browser (try Chrome, Edge or Safari).'));
+    const blocker = listenBlocker();
+    if (blocker) return reject(new Error(blocker));
     stopSpeaking();
     const r = new Rec();
     r.lang = 'nb-NO';
@@ -305,7 +326,7 @@ export function listen({ timeoutMs = 8000 } = {}) {
       for (const res of e.results) for (const alt of res) alts.push(alt.transcript.trim());
       resolve(alts);
     };
-    r.onerror = (e) => { if (!settled) { settled = true; clearTimeout(t); reject(new Error(e.error === 'not-allowed' ? 'Microphone permission was denied.' : `Speech recognition error: ${e.error}`)); } };
+    r.onerror = (e) => { if (!settled) { settled = true; clearTimeout(t); reject(new Error(recognitionErrorText(e.error))); } };
     r.onend = () => { if (!settled) { settled = true; clearTimeout(t); resolve([]); } };
     try { r.start(); } catch (e) { reject(e); }
   });

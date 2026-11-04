@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, canListen, listen, stopSpeaking, canSpeakNorwegian } from '../core/speech.js';
+import { speak, listen, listenBlocker, stopSpeaking, canSpeakNorwegian } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { similarity } from '../core/text.js';
@@ -71,11 +71,15 @@ function listenStep(el, unit, next) {
   let playing = false;
   const lines = unit.dialogue.map(([sp, no, en], i) => {
     const enEl = h('div.line-en.hidden', en);
-    const shadow = canListen() && settings().shadowing ? h('button.icon-btn.mic', {
+    const shadow = settings().shadowing ? h('button.icon-btn.mic', {
       title: 'Shadow: repeat this line', 'aria-label': 'Repeat this line out loud',
       onclick: async (e) => {
         e.stopPropagation();
-        const b = e.currentTarget; b.classList.add('live');
+        const b = e.currentTarget;
+        const blocker = listenBlocker();
+        if (blocker) { toast(blocker, { kind: 'warn', ms: 8000, icon: '🎙' }); return; }
+        b.classList.add('live');
+        toast('🎙 Listening… say the line', { ms: 2500 });
         try {
           const alts = await listen();
           const score = Math.max(0, ...alts.map((a) => similarity(a, no)));
@@ -295,18 +299,18 @@ function practiceStep(el, unit, next) {
     add(el, h('div.chunk-head', h('div.small.muted', `${i + 1} / ${list.length}${t.old ? ' · from an earlier unit' : ''}`), progressBar(i / list.length),
       combo.value >= 3 ? h('div.combo', `🔥 ×${combo.value}`) : null));
     if (t.type === 'cloze') {
-      const inp = answerInput({ onSubmit: (v) => { inp.setDisabled(true); const r = checkAnswer(v, t.cz.answer); after(r.verdict !== 'wrong', t.cz.answer, v); } });
+      const inp = answerInput({ expected: t.cz.answer, onSubmit: (v) => { inp.setDisabled(true); const r = checkAnswer(v, t.cz.answer); after(r.verdict !== 'wrong', t.cz.answer, v); } });
       add(el, h('div.prompt', h('div.small.muted', 'Fill the gap'),
         h('div.cloze.no', t.cz.before, h('span.gap', '_____'), t.cz.after),
         h('div.small.muted', `${t.ex.en} · (${t.w.en})`)), inp.el, fb);
     } else if (t.type === 'produce') {
-      const inp = answerInput({ onSubmit: (v, alts) => { inp.setDisabled(true); const best = [v, ...(alts || [])].find((x) => checkAnswer(x, t.w.no, t.w.alt).verdict !== 'wrong'); after(!!best, t.w.no, best ?? v); } });
+      const inp = answerInput({ expected: t.w.no, onSubmit: (v, alts) => { inp.setDisabled(true); const best = [v, ...(alts || [])].find((x) => checkAnswer(x, t.w.no, t.w.alt).verdict !== 'wrong'); after(!!best, t.w.no, best ?? v); } });
       add(el, h('div.prompt', h('div.small.muted', 'Say it in Norwegian'), h('div.prompt-big', t.w.en)), inp.el, fb);
     } else if (t.type === 'tiles') {
       const tw = tilesWidget(t.no.replace(/[.!?]$/, '').split(/\s+/), { shuffleFn: shuffle, onCheck: (v) => { tw.disable(); after(checkAnswer(v, t.no).verdict !== 'wrong', t.no, v); } });
       add(el, h('div.prompt', h('div.small.muted', 'Build the sentence'), h('div.prompt-big', t.en)), tw.el, fb);
     } else if (t.type === 'listen') {
-      const inp = answerInput({ placeholder: 'Type what you hear…', onSubmit: (v) => { inp.setDisabled(true); after(checkAnswer(v, t.w.no, t.w.alt).verdict !== 'wrong', t.w.no, v); } });
+      const inp = answerInput({ placeholder: 'Type what you hear…', expected: t.w.no, onSubmit: (v) => { inp.setDisabled(true); after(checkAnswer(v, t.w.no, t.w.alt).verdict !== 'wrong', t.w.no, v); } });
       add(el, h('div.prompt', h('div.small.muted', 'Listen and type'), h('button.btn.big.listen-btn', { onclick: () => speak(t.w.no) }, '🔊 Play again')), inp.el, fb);
       setTimeout(() => speak(t.w.no), 200);
     }

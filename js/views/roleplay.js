@@ -82,6 +82,7 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
     const fb = h('div.feedback');
     const inp = answerInput({
       placeholder: 'Say or type your answer…',
+      expected: model,
       onSubmit: (v, alts) => {
         const candidates = [v, ...(alts || [])].filter(Boolean);
         let verdict = 'wrong', said = v;

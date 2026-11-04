@@ -2,20 +2,24 @@
 
 import { h, clear, add, toast } from '../ui/dom.js';
 import {
-  norwegianVoices, voiceStatus, voicesReady, speak, listCloudVoices, clearAudioCache, voiceQuality,
+  isBrave, norwegianVoices, voiceStatus, voicesReady, speak, listCloudVoices, clearAudioCache, voiceQuality,
   PROVIDERS, DEFAULT_ELEVEN_VOICE, DEFAULT_GOOGLE_VOICE,
 } from '../core/speech.js';
 
 const TEST_SENTENCE = 'Hei! Vi sees i morgen. Hyggelig å treffe deg!';
 
 /** Advice for getting a good free Norwegian voice on this particular device/browser. */
-function deviceTip() {
+export function deviceTip() {
   const ua = navigator.userAgent;
   const isEdge = /Edg\//.test(ua);
+  const backup = ' Move your progress with Settings → Download backup, then Restore backup in the other browser.';
+  if (/Windows/.test(ua) && isBrave()) return `Brave can’t use Windows’ newer voice packs (even after you install Norwegian) and has no speech recognition. Open this app in Microsoft Edge: it has free natural Norwegian voices and the microphone works there.${backup}`;
+  if (/Windows/.test(ua) && !isEdge) return `This browser only sees Windows’ older built-in voices, so a newly installed Norwegian voice pack usually doesn’t show up. Open this app in Microsoft Edge – it has free natural Norwegian voices.${backup}`;
+  if (isEdge && !norwegianVoices().length) return 'Edge’s natural voices need an internet connection. Check you’re online, then restart Edge.';
+  if (isBrave()) return `Brave has few voices and no speech recognition. For the best experience use Safari on iPhone/Mac, Chrome on Android, or Edge on Windows.${backup}`;
   if (/iPhone|iPad|iPod/.test(ua)) return 'iPhone/iPad: Settings → Accessibility → Spoken Content → Voices → Norwegian → download “Nora (Enhanced)”. Then reload this page.';
   if (/Android/.test(ua)) return 'Android: Settings → search “Text-to-speech” → Google → install voice data → Norsk (bokmål). Then reload this page.';
   if (/Mac OS X/.test(ua)) return 'Mac: System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian → download “Nora (Enhanced)”. Then restart the browser.';
-  if (/Windows/.test(ua) && !isEdge) return 'Windows: open this app in Microsoft Edge – Edge usually includes free, natural-sounding Norwegian voices. Brave, Chrome and Firefox only see Windows’ own voices: Settings → Time & language → Speech → Add voices → Norsk (bokmål), then restart the browser.';
   return 'Install a Norwegian (bokmål) voice in your system’s text-to-speech settings, then restart the browser.';
 }
 

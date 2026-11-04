@@ -2,8 +2,8 @@
 // input with microphone, word tiles, multiple choice, rating buttons.
 
 import { h, clear, modal, toast, sfx, haptic, add } from './dom.js';
-import { tokenize, normalize, words, escapeHtml } from '../core/text.js';
-import { speak, canListen, listen } from '../core/speech.js';
+import { tokenize, normalize, words, escapeHtml, similarity } from '../core/text.js';
+import { speak, listen, listenBlocker } from '../core/speech.js';
 import { lookup, externalLinks } from '../core/lexicon.js';
 import { addCard, wordStatus, knowledgeMap, markKnown, previewRatings, lemmaKey } from '../core/deck.js';
 import { formatDelay } from '../core/fsrs.js';
@@ -82,7 +82,8 @@ export function wordSheet(word, { sentence = '', translation = '', src = 'reader
 }
 
 /** Text input with optional microphone. onSubmit(value, alternatives) */
-export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mic = true, autofocus = true } = {}) {
+/** expected: string or () => string – when given, a spoken answer also shows a % match. */
+export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mic = true, autofocus = true, expected } = {}) {
   const input = h('input.input.answer', {
     placeholder, autocomplete: 'off', autocapitalize: 'off', spellcheck: false, lang: 'nb',
     onkeydown: (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); submit(); } },
@@ -94,20 +95,37 @@ export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mi
     onmousedown: (e) => e.preventDefault(),
     onclick: () => { const p = input.selectionStart ?? input.value.length; input.value = input.value.slice(0, p) + c + input.value.slice(input.selectionEnd ?? p); input.focus(); input.setSelectionRange(p + 1, p + 1); },
   }, c)));
-  const micBtn = mic && canListen() ? h('button.icon-btn.mic', {
+  // What the microphone heard, and how close it was to the expected answer.
+  const heard = h('div.heard.small', { 'aria-live': 'polite' });
+  const micBtn = mic ? h('button.icon-btn.mic', {
     type: 'button', title: 'Answer by speaking', 'aria-label': 'Speak your answer',
     onclick: async () => {
+      const blocker = listenBlocker();
+      if (blocker) { clear(heard); add(heard, h('span.bad', blocker)); return; }
       micBtn.classList.add('live');
+      clear(heard); add(heard, h('span.listening', '🎙 Listening… speak now'));
       try {
         alts = await listen();
-        if (alts.length) { input.value = alts[0]; submit(); } else toast('I didn’t catch that – try again.');
-      } catch (e) { toast(e.message, { kind: 'warn' }); }
+        clear(heard);
+        if (alts.length) {
+          const exp = typeof expected === 'function' ? expected() : expected;
+          const score = exp ? Math.round(Math.max(...alts.map((a) => similarity(a, exp))) * 100) : null;
+          add(heard, '🎙 Heard: ', h('b.no', `«${alts[0]}»`),
+            score != null ? h('span.match', { class: score >= 85 ? 'good' : score >= 60 ? 'fair' : 'low' }, ` · ${score}% match`) : null);
+          input.value = alts[0];
+          submit();
+        } else {
+          add(heard, '🎙 I didn’t catch that – try again, a little louder and closer to the microphone.');
+        }
+      } catch (e) {
+        clear(heard); add(heard, h('span.bad', e.message));
+      }
       micBtn.classList.remove('live');
     },
   }, '🎙') : null;
   const el = h('div.answer-row', input, micBtn, h('button.btn.primary', { type: 'button', onclick: submit }, 'Check'));
   if (autofocus) setTimeout(() => input.focus({ preventScroll: true }), 50);
-  return { el: h('div.stack.tight', el, letters), input, setDisabled: (d) => { input.disabled = d; el.querySelectorAll('button').forEach((b) => (b.disabled = d)); } };
+  return { el: h('div.stack.tight', el, heard, letters), input, setDisabled: (d) => { input.disabled = d; el.querySelectorAll('button').forEach((b) => (b.disabled = d)); } };
 }
 
 /** Word-order tiles. onCheck(string) */
