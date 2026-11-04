@@ -3,6 +3,7 @@
 import { h, toast, download, confirmModal, add } from '../ui/dom.js';
 import { settings, update, exportData, importData, resetAll } from '../core/store.js';
 import { voiceCard } from './voice-settings.js';
+import { APP_VERSION } from '../core/version.js';
 import { MODELS } from '../core/tutor.js';
 import { openPlanModal } from './onboarding.js';
 import { navigate } from '../ui/router.js';
@@ -56,5 +57,5 @@ export function settingsView(root) {
         h('button.btn', { onclick: () => download(`norsk-backup-${new Date().toISOString().slice(0, 10)}.json`, exportData(), 'application/json') }, '⬇ Download backup'),
         h('button.btn', { onclick: () => fileIn.click() }, '⬆ Restore backup'), fileIn,
         h('button.btn.danger', { onclick: async () => { if (await confirmModal('Delete ALL progress, cards and settings in this browser? This cannot be undone.', { ok: 'Delete everything', danger: true })) { resetAll(); location.hash = '#/'; location.reload(); } } }, 'Reset everything'))),
-    h('p.small.muted.center', 'Norsk Nå · open source · works offline once loaded')));
+    h('p.small.muted.center', `Norsk Nå · version ${APP_VERSION} · works offline once loaded`)));
 }
