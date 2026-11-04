@@ -1,0 +1,14 @@
+{
+  "name": "norsk-na",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Learn conversational Norwegian with spaced repetition, active recall, comprehensible input and your own textbooks.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8123",
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "node tests/make-sample-pdf.cjs tests/sample.pdf && node tests/e2e-smoke.cjs test-shots tests/sample.pdf",
+    "vendor": "bash scripts/vendor.sh"
+  },
+  "license": "MIT"
+}
