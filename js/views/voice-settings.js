@@ -13,10 +13,10 @@ export function deviceTip() {
   const ua = navigator.userAgent;
   const isEdge = /Edg\//.test(ua);
   const backup = ' Move your progress with Settings → Download backup, then Restore backup in the other browser.';
-  if (/Windows/.test(ua) && isBrave()) return `Brave can’t use Windows’ newer voice packs (even after you install Norwegian) and has no speech recognition. Open this app in Microsoft Edge: it has free natural Norwegian voices and the microphone works there.${backup}`;
+  if (/Windows/.test(ua) && isBrave()) return 'Brave can’t use Windows’ newer voice packs (even after you install Norwegian) and has no speech recognition of its own. Best fix in Brave: choose ElevenLabs above and add a free key – you get a natural Norwegian voice and a working microphone. (Microsoft Edge would also work, with free voices and microphone.)';
   if (/Windows/.test(ua) && !isEdge) return `This browser only sees Windows’ older built-in voices, so a newly installed Norwegian voice pack usually doesn’t show up. Open this app in Microsoft Edge – it has free natural Norwegian voices.${backup}`;
   if (isEdge && !norwegianVoices().length) return 'Edge’s natural voices need an internet connection. Check you’re online, then restart Edge.';
-  if (isBrave()) return `Brave has few voices and no speech recognition. For the best experience use Safari on iPhone/Mac, Chrome on Android, or Edge on Windows.${backup}`;
+  if (isBrave()) return 'Brave has few voices and no speech recognition of its own. Choose ElevenLabs above (free key) for a natural voice and a working microphone.';
   if (/iPhone|iPad|iPod/.test(ua)) return 'iPhone/iPad: Settings → Accessibility → Spoken Content → Voices → Norwegian → download “Nora (Enhanced)”. Then reload this page.';
   if (/Android/.test(ua)) return 'Android: Settings → search “Text-to-speech” → Google → install voice data → Norsk (bokmål). Then reload this page.';
   if (/Mac OS X/.test(ua)) return 'Mac: System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian → download “Nora (Enhanced)”. Then restart the browser.';
@@ -81,9 +81,9 @@ export function voiceCard({ s, set, field, check }) {
   };
 
   const eleven = cloudBlock('elevenlabs', 'elevenKey', 'elevenVoice', DEFAULT_ELEVEN_VOICE,
-    'The most natural-sounding option. Uses the Flash v2.5 model, which supports Norwegian. ElevenLabs’ free plan includes a monthly allowance; each sentence is generated once and saved on this device, so replays cost nothing.',
+    'The most natural-sounding option, and it also powers the 🎙 microphone in browsers without speech recognition (like Brave). Voice: Flash v2.5 model (supports Norwegian); microphone: Scribe v2. ElevenLabs’ free plan includes a monthly allowance; each sentence is generated once and saved on this device, so replays cost nothing.',
     [h('span', 'Sign up at ', h('a', { href: 'https://elevenlabs.io', target: '_blank', rel: 'noopener' }, 'elevenlabs.io'), '.'),
-      'Profile → API keys → Create key. Allow “Text to Speech” (and “Voices: read” so the voice list loads).',
+      'Profile → API keys → Create key. Allow “Text to Speech”, “Speech to Text” (for the microphone) and “Voices: read” (so the voice list loads).',
       'Paste it here and press “Save key & load voices”.',
       'Tip: in ElevenLabs’ Voice Library, search “Norwegian” and add a native voice to My Voices – it will then appear in the list here for the best accent.']);
 

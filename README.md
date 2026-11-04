@@ -39,7 +39,7 @@ Choose where audio comes from in **Settings → Voice**:
 | Source | Quality | Cost | Setup |
 |---|---|---|---|
 | **This device** | from robotic to very good, depending on the voice | free | install a Norwegian voice (below) |
-| **ElevenLabs** | most natural | free monthly allowance, then paid | API key from elevenlabs.io (uses the Flash v2.5 model, which supports Norwegian) |
+| **ElevenLabs** | most natural – and powers the 🎙 microphone in Brave | free monthly allowance, then paid | API key from elevenlabs.io (voice: Flash v2.5, which supports Norwegian; microphone: Scribe v2) |
 | **Google Cloud** | very good neural nb-NO voices | free monthly quota covers this whole course | Google Cloud project with the Text-to-Speech API and an API key |
 
 Cloud audio is generated once per sentence and saved on your device, so replays are free and work offline. The app never lets an English voice read Norwegian (that's how "Vi sees" becomes "six sees"). If there's no Norwegian voice, audio is muted and you're shown how to fix it.
@@ -50,7 +50,9 @@ Free device voices:
 - **Mac:** System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian
 - **Android:** Settings → Text-to-speech → Google → install voice data → Norsk (bokmål)
 
-Speech recognition (the 🎙 buttons) works in Edge, Chrome and Safari, not in Brave or Firefox. When you answer by speaking, the app shows what it heard and how closely it matched.
+Speech recognition (the 🎙 buttons) is built into Edge, Chrome and Safari. **Brave** (and Firefox) have none of their own; there, add an ElevenLabs key and the microphone records your answer and ElevenLabs transcribes it. When you answer by speaking, the app shows what it heard and how closely it matched.
+
+**Using only Brave on Windows?** Choose **ElevenLabs** in Settings → Voice. Brave can't use Windows' Norwegian voice pack, so this one free key gives you both a natural voice and a working microphone.
 
 ## A daily routine that gets you talking fast
 1. **Reviews first** (5–10 min): press the big button on the home screen. On a busy day, press "⚡ Just 2 minutes" to keep the habit going.

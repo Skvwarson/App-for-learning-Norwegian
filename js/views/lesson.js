@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, listen, listenBlocker, stopSpeaking, canSpeakNorwegian } from '../core/speech.js';
+import { speak, listen, listenBlocker, stopListening, stopSpeaking, canSpeakNorwegian } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { similarity } from '../core/text.js';
@@ -78,10 +78,10 @@ function listenStep(el, unit, next) {
         const b = e.currentTarget;
         const blocker = listenBlocker();
         if (blocker) { toast(blocker, { kind: 'warn', ms: 8000, icon: '🎙' }); return; }
+        if (b.classList.contains('live')) { stopListening(); return; }
         b.classList.add('live');
-        toast('🎙 Listening… say the line', { ms: 2500 });
         try {
-          const alts = await listen();
+          const alts = await listen({ onState: (st) => toast(st === 'processing' ? '⏳ Checking your pronunciation…' : '🎙 Listening… say the line', { ms: 2500 }) });
           const score = Math.max(0, ...alts.map((a) => similarity(a, no)));
           const pct = Math.round(score * 100);
           toast(pct >= 85 ? `🎉 ${pct}% – great pronunciation!` : pct >= 60 ? `👍 ${pct}% – nearly there. Listen once more and copy the melody.` : `Heard: “${alts[0] ?? '…'}”. Try again slowly.`, { ms: 3500 });

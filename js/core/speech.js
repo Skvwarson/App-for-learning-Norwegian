@@ -282,17 +282,24 @@ export async function listCloudVoices(p, key) {
 }
 
 // ---------- Speech recognition ----------
+// Two engines: the browser's own (Chrome, Edge, Safari – free), or ElevenLabs
+// speech-to-text (Scribe) with the same key as the voice – this is what makes the
+// microphone work in Brave, which has the API but no recognition service.
+
 const Rec = hasWindow ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
-/** Brave ships the SpeechRecognition API but no recognition service behind it, so it never hears anything. */
-// (On iPhone/iPad every browser runs Safari's engine, so this doesn't apply there.)
+// (On iPhone/iPad every browser runs Safari's engine, so the Brave limitation doesn't apply there.)
 export const isBrave = () => hasWindow && !!navigator.brave && !/iPhone|iPad|iPod/.test(navigator.userAgent);
-export const canListen = () => !!Rec && !isBrave();
+const nativeListen = () => !!Rec && !isBrave();
+const cloudListen = () => !!settings().elevenKey && hasWindow && !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined';
+export const canListen = () => nativeListen() || cloudListen();
+export const STT_MODEL = 'scribe_v2';
 
 /** Why the microphone can't work here (empty string if it can). */
 export function listenBlocker() {
-  if (isBrave()) return 'Brave doesn’t include speech recognition, so the microphone can’t hear you here. Open the app in Microsoft Edge or Chrome (or Safari on iPhone) to practise speaking.';
-  if (!Rec) return 'This browser doesn’t support speech recognition. Use Microsoft Edge or Chrome on a computer, or Safari on iPhone.';
-  return '';
+  if (canListen()) return '';
+  if (isBrave()) return 'Brave has no built-in speech recognition. To use the microphone in Brave, add a free ElevenLabs API key in Settings → Voice – the same key also gives you a natural Norwegian voice.';
+  if (!Rec) return 'This browser has no built-in speech recognition. Add an ElevenLabs API key in Settings → Voice to use the microphone here.';
+  return 'The microphone isn’t available in this browser.';
 }
 
 const REC_ERRORS = {
@@ -300,34 +307,111 @@ const REC_ERRORS = {
   'service-not-allowed': 'Speech recognition is turned off. On iPhone: Settings → General → Keyboard → turn on Enable Dictation.',
   'audio-capture': 'No microphone was found. Check that one is connected and allowed.',
   'no-speech': 'I didn’t hear anything. Speak a little louder and closer to the microphone.',
-  network: 'Speech recognition needs an internet connection (and isn’t available in Brave). Check you’re online, or use Edge or Chrome.',
-  'language-not-supported': 'This browser can’t recognise Norwegian. Try Edge, Chrome or Safari.',
+  network: 'Speech recognition needs an internet connection. Check you’re online and try again.',
+  'language-not-supported': 'This browser can’t recognise Norwegian. Add an ElevenLabs key in Settings → Voice to use its recognition instead.',
 };
 export const recognitionErrorText = (code) => REC_ERRORS[code] || `Speech recognition error: ${code}`;
 
+let stopActive = null;
+/** Finish listening now (e.g. a second tap on the microphone). */
+export function stopListening() { stopActive?.(); }
+
 /**
- * Listen once in Norwegian. Resolves with an array of alternative transcripts
- * (best first). Rejects with an Error if recognition is unavailable/denied.
+ * Listen once in Norwegian. Resolves with alternative transcripts (best first),
+ * or [] if nothing was heard. Rejects with an Error that explains the problem.
+ * onState('listening' | 'processing') lets the UI show progress.
  */
-export function listen({ timeoutMs = 8000 } = {}) {
+export function listen({ timeoutMs = 8000, onState = () => {} } = {}) {
+  const blocker = listenBlocker();
+  if (blocker) return Promise.reject(new Error(blocker));
+  stopSpeaking();
+  return nativeListen() ? listenNative(timeoutMs, onState) : listenCloud(timeoutMs, onState);
+}
+
+function listenNative(timeoutMs, onState) {
   return new Promise((resolve, reject) => {
-    const blocker = listenBlocker();
-    if (blocker) return reject(new Error(blocker));
-    stopSpeaking();
     const r = new Rec();
     r.lang = 'nb-NO';
     r.interimResults = false;
     r.maxAlternatives = 5;
     let settled = false;
-    const t = setTimeout(() => { try { r.stop(); } catch { /* */ } }, timeoutMs);
+    const stop = () => { try { r.stop(); } catch { /* */ } };
+    const t = setTimeout(stop, timeoutMs);
+    stopActive = stop;
+    const done = () => { settled = true; clearTimeout(t); stopActive = null; };
     r.onresult = (e) => {
-      settled = true; clearTimeout(t);
+      done();
       const alts = [];
       for (const res of e.results) for (const alt of res) alts.push(alt.transcript.trim());
       resolve(alts);
     };
-    r.onerror = (e) => { if (!settled) { settled = true; clearTimeout(t); reject(new Error(recognitionErrorText(e.error))); } };
-    r.onend = () => { if (!settled) { settled = true; clearTimeout(t); resolve([]); } };
-    try { r.start(); } catch (e) { reject(e); }
+    r.onerror = (e) => { if (!settled) { done(); reject(new Error(recognitionErrorText(e.error))); } };
+    r.onend = () => { if (!settled) { done(); resolve([]); } };
+    onState('listening');
+    try { r.start(); } catch (e) { done(); reject(e); }
   });
+}
+
+/** Record until you pause (or timeoutMs), then transcribe with ElevenLabs. */
+async function listenCloud(timeoutMs, onState) {
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  } catch (e) {
+    throw new Error(recognitionErrorText(e?.name === 'NotFoundError' ? 'audio-capture' : 'not-allowed'));
+  }
+  const recorder = new MediaRecorder(stream);
+  const chunks = [];
+  recorder.ondataavailable = (e) => { if (e.data?.size) chunks.push(e.data); };
+
+  // Simple voice-activity detection: stop ~1.2 s after you stop talking.
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = AC ? new AC() : null;
+  const analyser = ctx?.createAnalyser();
+  if (ctx) { analyser.fftSize = 1024; ctx.createMediaStreamSource(stream).connect(analyser); ctx.resume?.(); }
+  const buf = new Float32Array(1024);
+  const started = Date.now();
+  let spoke = !ctx, lastLoud = started, timer = null;
+
+  const audio = await new Promise((resolve) => {
+    const finish = () => {
+      clearInterval(timer);
+      stopActive = null;
+      if (recorder.state !== 'inactive') recorder.stop();
+    };
+    recorder.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      ctx?.close?.();
+      resolve(new Blob(chunks, { type: recorder.mimeType || 'audio/webm' }));
+    };
+    stopActive = () => { spoke = spoke || Date.now() - started > 600; finish(); };
+    timer = setInterval(() => {
+      const now = Date.now();
+      if (analyser) {
+        analyser.getFloatTimeDomainData(buf);
+        let sum = 0;
+        for (const v of buf) sum += v * v;
+        if (Math.sqrt(sum / buf.length) > 0.02) { spoke = true; lastLoud = now; }
+      }
+      if ((spoke && now - lastLoud > 1200) || now - started > timeoutMs || (!spoke && now - started > 5000)) finish();
+    }, 100);
+    recorder.start(250);
+    onState('listening');
+  });
+
+  if (!spoke || !audio.size) return []; // nothing said – don't spend credits
+  onState('processing');
+  const form = new FormData();
+  form.append('model_id', STT_MODEL);
+  form.append('language_code', 'no');
+  form.append('file', audio, `answer.${/ogg/.test(audio.type) ? 'ogg' : /mp4/.test(audio.type) ? 'm4a' : 'webm'}`);
+  const res = await request('ElevenLabs', 'https://api.elevenlabs.io/v1/speech-to-text', {
+    method: 'POST',
+    headers: { 'xi-api-key': settings().elevenKey },
+    body: form,
+  });
+  if (!res.ok) throw new Error(await httpError('ElevenLabs', res));
+  const { text = '' } = await res.json();
+  const clean = text.replace(/\([^)]*\)/g, '').trim(); // drop audio-event tags like (laughter)
+  return clean ? [clean] : [];
 }

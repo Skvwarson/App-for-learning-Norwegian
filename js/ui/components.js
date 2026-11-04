@@ -3,7 +3,7 @@
 
 import { h, clear, modal, toast, sfx, haptic, add } from './dom.js';
 import { tokenize, normalize, words, escapeHtml, similarity } from '../core/text.js';
-import { speak, listen, listenBlocker } from '../core/speech.js';
+import { speak, listen, listenBlocker, stopListening } from '../core/speech.js';
 import { lookup, externalLinks } from '../core/lexicon.js';
 import { addCard, wordStatus, knowledgeMap, markKnown, previewRatings, lemmaKey } from '../core/deck.js';
 import { formatDelay } from '../core/fsrs.js';
@@ -101,11 +101,15 @@ export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mi
     type: 'button', title: 'Answer by speaking', 'aria-label': 'Speak your answer',
     onclick: async () => {
       const blocker = listenBlocker();
-      if (blocker) { clear(heard); add(heard, h('span.bad', blocker)); return; }
+      if (blocker) { clear(heard); add(heard, h('span.bad', blocker), ' ', h('a', { href: '#/settings' }, 'Open Settings')); return; }
+      if (micBtn.classList.contains('live')) { stopListening(); return; } // second tap = done talking
       micBtn.classList.add('live');
-      clear(heard); add(heard, h('span.listening', '🎙 Listening… speak now'));
+      const state = (s) => {
+        clear(heard);
+        add(heard, h('span.listening', s === 'processing' ? '⏳ Checking what you said…' : '🎙 Listening… speak now (tap 🎙 again when done)'));
+      };
       try {
-        alts = await listen();
+        alts = await listen({ onState: state });
         clear(heard);
         if (alts.length) {
           const exp = typeof expected === 'function' ? expected() : expected;
