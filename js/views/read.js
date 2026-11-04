@@ -4,7 +4,7 @@
 import { h, clear, toast, progressBar, modal, confirmModal, sfx, add } from '../ui/dom.js';
 import { tappable, speakBtn } from '../ui/components.js';
 import { coverage, knowledgeMap, addCard } from '../core/deck.js';
-import { speak } from '../core/speech.js';
+import { speak, stopSpeaking } from '../core/speech.js';
 import { addXp, unlock } from '../core/gamify.js';
 import { getState, update, docs } from '../core/store.js';
 import { externalLinks } from '../core/lexicon.js';
@@ -79,7 +79,7 @@ export function storyView(root, { id }) {
   renderLines(); renderCov();
   const playBtn = h('button.btn', {
     onclick: async () => {
-      if (playing) { playing = false; speechSynthesis?.cancel(); playBtn.textContent = '▶ Read aloud'; return; }
+      if (playing) { playing = false; stopSpeaking(); playBtn.textContent = '▶ Read aloud'; return; }
       playing = true; playBtn.textContent = '■ Stop';
       const rows = [...lines.children];
       for (let i = 0; i < st.sentences.length && playing; i++) {
@@ -107,7 +107,7 @@ export function storyView(root, { id }) {
         navigate('#/read');
       },
     }, 'Finished reading ✓')));
-  return () => { playing = false; speechSynthesis?.cancel(); };
+  return () => { playing = false; stopSpeaking(); };
 }
 
 export function docView(root, { id, page }) {

@@ -6,7 +6,7 @@ import { h, clear, sfx, haptic, floatXp, confetti, progressBar, toast, add } fro
 import { tappable, speakBtn, answerInput, tilesWidget, ratingBar, diffView, genderTag, posHint } from '../ui/components.js';
 import { buildQueue, getCard, rateCard, markSeen, chooseExercise, deckStats, forecast, knowledgeMap } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, ttsAvailable, hasNorwegianVoice } from '../core/speech.js';
+import { speak, canSpeakNorwegian, stopSpeaking } from '../core/speech.js';
 import { addXp, createCombo, maybeBonus, reviewXp, unlock, checkWordAchievements, todayXp, dailyGoal } from '../core/gamify.js';
 import { State, Rating } from '../core/fsrs.js';
 import { settings, bump } from '../core/store.js';
@@ -98,7 +98,7 @@ export function reviewView(root, params = {}) {
     const { card, intro } = nxt;
     lastId = card.id;
     if (intro) return showIntro(card);
-    const ttsOk = ttsAvailable() && hasNorwegianVoice();
+    const ttsOk = canSpeakNorwegian();
     const type = adjust(chooseExercise(card, { ttsOk }), card);
     const t0 = Date.now();
     const ex = { recognize, produce, cloze, listen: listenEx, tiles }[type] ?? recognize;
@@ -327,7 +327,7 @@ export function reviewView(root, params = {}) {
   }
 
   show();
-  return () => { cleanupKeys?.(); clearTimeout(autoTimer); speechSynthesis?.cancel(); };
+  return () => { cleanupKeys?.(); clearTimeout(autoTimer); stopSpeaking(); };
 }
 
 export function deckSummary() { return deckStats(); }

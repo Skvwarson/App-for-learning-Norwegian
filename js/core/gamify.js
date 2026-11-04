@@ -9,10 +9,15 @@ const listeners = {};
 export function on(evt, fn) { (listeners[evt] ??= new Set()).add(fn); return () => listeners[evt].delete(fn); }
 function emit(evt, data) { for (const fn of listeners[evt] ?? []) { try { fn(data); } catch (e) { console.error(e); } } }
 
+const GAME_DEFAULTS = { xp: 0, freezes: 0, frozen: {}, achievements: {}, missions: {}, bestCombo: 0, xpDays: {}, plan: null, onboarded: false, mined: 0, chats: 0 };
+
 function game() {
   const s = getState();
-  s.game ??= { xp: 0, freezes: 0, frozen: {}, achievements: {}, missions: {}, bestCombo: 0, xpDays: {}, plan: null, onboarded: false, mined: 0, chats: 0 };
-  s.game.xpDays ??= {};
+  s.game ??= {};
+  // Fill any missing fields (older saves, restored backups) so nothing reads undefined.
+  for (const [k, v] of Object.entries(GAME_DEFAULTS)) {
+    if (s.game[k] == null) s.game[k] = v && typeof v === 'object' ? { ...v } : v;
+  }
   return s.game;
 }
 

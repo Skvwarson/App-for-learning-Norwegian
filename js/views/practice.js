@@ -3,7 +3,7 @@
 import { h, clear, sfx, haptic, progressBar, confetti, add } from '../ui/dom.js';
 import { answerInput, speakBtn } from '../ui/components.js';
 import { checkAnswer, normalize } from '../core/text.js';
-import { speak } from '../core/speech.js';
+import { speak, stopSpeaking } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 
 const ONES = ['null', 'en', 'to', 'tre', 'fire', 'fem', 'seks', 'sju', 'åtte', 'ni', 'ti', 'elleve', 'tolv', 'tretten', 'fjorten', 'femten', 'seksten', 'sytten', 'atten', 'nitten'];
@@ -102,5 +102,5 @@ export function practiceView(root, { kind }) {
     }
   };
   run();
-  return () => speechSynthesis?.cancel();
+  return () => stopSpeaking();
 }

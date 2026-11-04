@@ -8,6 +8,7 @@ import { levelInfo, todayXp, dailyGoal, streak, getGame, todaysMission, complete
 import { settings, getState, dayKey } from '../core/store.js';
 import { STORIES } from '../../data/stories.js';
 import { openPlanModal } from './onboarding.js';
+import { voicesReady, canSpeakNorwegian, voiceStatus } from '../core/speech.js';
 
 function greeting() {
   const hr = new Date().getHours();
@@ -68,6 +69,19 @@ export function homeView(root) {
 
   const plan = g.plan;
 
+  // If this device can't pronounce Norwegian (or only with a basic voice), say so up front.
+  const voiceSlot = h('div');
+  voicesReady().then(() => {
+    const st = voiceStatus();
+    if (canSpeakNorwegian() && st.quality >= 3) return;
+    add(voiceSlot, h('a.card.voice-card', { href: '#/settings' },
+      h('div.kicker', st.ok ? '🔊 Upgrade your Norwegian voice' : '🔇 Set up a Norwegian voice'),
+      h('p', st.ok
+        ? `You’re hearing a basic voice (${st.label}). Natural voices make listening practice much more useful.`
+        : 'This browser has no Norwegian voice, so audio is switched off rather than read by an English voice.'),
+      h('span.small.accent', 'Open voice settings ▸')));
+  });
+
   add(root, h('div.home.stack',
     h('div.hero.card',
       h('div.hero-top',
@@ -94,6 +108,7 @@ export function homeView(root) {
       h('div.checklist', ...checklist.map((c) => h('a.check-item', { href: c.href ?? '#/', onclick: c.onclick, class: c.done ? 'done' : '' },
         h('span.check', c.done ? '✓' : ''), h('span.check-label', c.label), h('span.small.muted', c.note))))),
 
+    voiceSlot,
     missionCard,
 
     h('a.card.unit-now', { href: `#/lesson/${unit.id}/${ul.step || 'intro'}` },

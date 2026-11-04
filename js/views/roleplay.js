@@ -4,7 +4,7 @@
 import { h, clear, sfx, haptic, confetti, add } from '../ui/dom.js';
 import { tappable, speakBtn, answerInput, diffView } from '../ui/components.js';
 import { normalize, foldDiacritics, similarity, levenshtein } from '../core/text.js';
-import { speak } from '../core/speech.js';
+import { speak, stopSpeaking } from '../core/speech.js';
 import { addXp, unlock, createCombo } from '../core/gamify.js';
 import { settings, update, getState } from '../core/store.js';
 import { unitById, UNITS } from '../core/course.js';
@@ -138,7 +138,7 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
   };
 
   step();
-  return () => { alive = false; speechSynthesis?.cancel(); };
+  return () => { alive = false; stopSpeaking(); };
 }
 
 export function roleplayView(root, { unitId }) {

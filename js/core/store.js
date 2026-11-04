@@ -10,6 +10,12 @@ export const DEFAULT_SETTINGS = Object.freeze({
   reviewMode: 'adaptive', // adaptive | production | recognition
   ttsRate: 0.9,
   voiceURI: '',
+  ttsProvider: 'device',  // device | elevenlabs | google
+  elevenKey: '',
+  elevenVoice: '',
+  googleKey: '',
+  googleVoice: '',
+  allowForeignVoice: false, // never let an English voice mangle Norwegian unless asked
   autoplay: true,
   dailyGoalXp: 100,       // daily XP goal (≈10 min); small goals make the habit easy
   theme: 'auto',
@@ -131,15 +137,15 @@ export function streak(ts = Date.now()) {
 }
 
 export function exportData() {
-  return JSON.stringify({ app: 'norsk-na', exportedAt: new Date().toISOString(), state: { ...getState(), settings: { ...getState().settings, aiKey: '' } } }, null, 1);
+  return JSON.stringify({ app: 'norsk-na', exportedAt: new Date().toISOString(), state: { ...getState(), settings: { ...getState().settings, aiKey: '', elevenKey: '', googleKey: '' } } }, null, 1);
 }
 
 export function importData(json) {
   const parsed = JSON.parse(json);
   const incoming = parsed.state ?? parsed;
   if (!incoming || typeof incoming.cards !== 'object') throw new Error('This file does not look like a Norsk Nå backup.');
-  const keepKey = getState().settings.aiKey;
-  state = { ...freshState(), ...incoming, settings: { ...DEFAULT_SETTINGS, ...(incoming.settings || {}), aiKey: keepKey } };
+  const { aiKey, elevenKey, googleKey } = getState().settings; // keys never travel in backups
+  state = { ...freshState(), ...incoming, settings: { ...DEFAULT_SETTINGS, ...(incoming.settings || {}), aiKey, elevenKey, googleKey } };
   save(true);
   for (const l of listeners) l(state);
 }
