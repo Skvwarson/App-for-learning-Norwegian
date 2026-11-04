@@ -9,6 +9,7 @@ import { settings, getState, dayKey } from '../core/store.js';
 import { STORIES } from '../../data/stories.js';
 import { openPlanModal } from './onboarding.js';
 import { voicesReady, canSpeakNorwegian, voiceStatus } from '../core/speech.js';
+import { deviceTip } from './voice-settings.js';
 
 function greeting() {
   const hr = new Date().getHours();
@@ -79,6 +80,7 @@ export function homeView(root) {
       h('p', st.ok
         ? `You’re hearing a basic voice (${st.label}). Natural voices make listening practice much more useful.`
         : 'This browser has no Norwegian voice, so audio is switched off rather than read by an English voice.'),
+      h('p.small', deviceTip()),
       h('span.small.accent', 'Open voice settings ▸')));
   });
 

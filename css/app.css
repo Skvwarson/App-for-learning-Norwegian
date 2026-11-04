@@ -321,6 +321,14 @@ table.mini td.big { font-size: 1.6rem; font-family: var(--font-no); color: var(-
 .tile.in { border-color: var(--accent); }
 .tile:active { transform: translateY(1px); }
 .hint { color: var(--warn); font-family: var(--font-no); min-height: 1em; }
+.heard:empty { display: none; }
+.heard { padding: 6px 10px; border-radius: 10px; background: var(--surface-2); }
+.heard .listening { color: var(--accent); font-weight: 600; animation: pulseText 1.2s ease-in-out infinite; }
+.heard .match { font-weight: 700; }
+.heard .match.good { color: var(--ok); }
+.heard .match.fair { color: var(--warn); }
+.heard .match.low, .heard .bad { color: var(--bad); }
+@keyframes pulseText { 50% { opacity: .45; } }
 .diff .same { color: var(--ok); }
 .diff .changed { color: var(--bad); font-weight: 700; text-decoration: underline wavy; text-underline-offset: 3px; }
 

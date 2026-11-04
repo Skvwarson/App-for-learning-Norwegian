@@ -131,6 +131,60 @@ const setSettings = (page, patch) => page.evaluate(async (p) => (await import('/
     await ctx.close();
   }
 
+  // 5. Brave on Windows: the microphone explains itself and the voice tip points to Edge.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' });
+    await ctx.addInitScript(fakeSpeech([{ name: 'Microsoft David', lang: 'en-US', voiceURI: 'david' }]));
+    await ctx.addInitScript(() => {
+      Object.defineProperty(navigator, 'brave', { value: { isBrave: () => Promise.resolve(true) } });
+      window.SpeechRecognition = window.webkitSpeechRecognition = class { start() { setTimeout(() => this.onerror && this.onerror({ error: 'network' }), 10); } stop() {} };
+      localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true } }));
+    });
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(BASE);
+    await page.waitForSelector('text=/Brave can’t use Windows’ newer voice packs/');
+    await page.evaluate(async () => {
+      const { answerInput } = await import('/js/ui/components.js');
+      document.querySelector('#view').append(answerInput({ expected: 'Jeg heter Alex', onSubmit: () => {} }).el);
+    });
+    await page.click('#view .mic');
+    await page.waitForSelector('.heard >> text=/Brave doesn’t include speech recognition/');
+    if (SHOTS) await page.screenshot({ path: `${SHOTS}/v4-brave.png`, fullPage: true });
+    assert.deepEqual(errors, []);
+    console.log('✓ Brave: microphone and voice explained, Edge suggested');
+    await ctx.close();
+  }
+
+  // 6. Working recognition: shows what was heard and the % match, then checks the answer.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await ctx.addInitScript(fakeSpeech([{ name: 'Nora', lang: 'nb-NO', voiceURI: 'nora' }]));
+    await ctx.addInitScript(() => {
+      window.SpeechRecognition = window.webkitSpeechRecognition = class { start() { setTimeout(() => this.onresult({ results: [[{ transcript: 'jeg heter Alex' }]] }), 300); } stop() {} };
+      localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true } }));
+    });
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(BASE);
+    await page.waitForSelector('.hero');
+    await page.evaluate(async () => {
+      const { answerInput } = await import('/js/ui/components.js');
+      window.__submitted = null;
+      document.querySelector('#view').prepend(answerInput({ expected: 'Jeg heter Alex.', onSubmit: (v) => { window.__submitted = v; } }).el);
+    });
+    await page.click('#view .mic');
+    await page.waitForSelector('.heard >> text=Listening… speak now');
+    await page.waitForSelector('.heard >> text=100% match');
+    assert.equal(await page.evaluate(() => window.__submitted), 'jeg heter Alex');
+    if (SHOTS) await page.screenshot({ path: `${SHOTS}/v5-heard.png` });
+    assert.deepEqual(errors, []);
+    console.log('✓ microphone shows what it heard + % match');
+    await ctx.close();
+  }
+
   await browser.close();
   console.log('All voice tests passed');
 })().catch((e) => { console.error('FAILED', e); process.exit(1); });

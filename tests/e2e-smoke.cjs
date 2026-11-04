@@ -7,6 +7,7 @@ const SHOTS = process.argv[2] || 'shots';
 const PDF = process.argv[3];
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:8123/';
 const errors = [];
+let lastPage = null;
 const log = (...a) => console.log('•', ...a);
 // Tiles re-render on every tap, so always click the current first one.
 async function tapAllTiles(page) {
@@ -17,6 +18,7 @@ async function tapAllTiles(page) {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
+  lastPage = page;
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   const shot = (n, full = false) => page.screenshot({ path: `${SHOTS}/${n}.png`, fullPage: full });
@@ -96,7 +98,7 @@ async function tapAllTiles(page) {
       const chk = await page.$('text=Check');
       if (chk) await chk.click();
     }
-    await page.waitForSelector('text=Continue ▸', { timeout: 3000 });
+    await page.waitForSelector('text=Continue ▸', { timeout: 8000 });
     await page.click('text=Continue ▸');
   }
   log('practice ok');
@@ -193,4 +195,9 @@ async function tapAllTiles(page) {
 
   console.log('ERRORS:', JSON.stringify(errors, null, 1));
   await browser.close();
-})().catch((e) => { console.error('FAILED', e); console.log('ERRORS:', JSON.stringify(errors, null, 1)); process.exit(1); });
+})().catch(async (e) => {
+  console.error('FAILED', e.message.split('\n')[0]);
+  console.log('ERRORS:', JSON.stringify(errors, null, 1));
+  if (lastPage) await lastPage.screenshot({ path: `${SHOTS}/zz-failure.png` }).catch(() => {});
+  process.exit(1);
+});

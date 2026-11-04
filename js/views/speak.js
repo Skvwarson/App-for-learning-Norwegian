@@ -6,7 +6,7 @@ import { UNITS, lesson } from '../core/course.js';
 import { roleplayBest } from './roleplay.js';
 import { settings, update } from '../core/store.js';
 import { createConversation, SCENARIOS, MODELS } from '../core/tutor.js';
-import { speak, canListen } from '../core/speech.js';
+import { speak, canListen, listenBlocker } from '../core/speech.js';
 import { addCard } from '../core/deck.js';
 import { addXp, unlock, getGame } from '../core/gamify.js';
 import { navigate } from '../ui/router.js';
@@ -21,7 +21,7 @@ export function speakView(root) {
       h('span.big-emoji', '💬'))),
     h('div.card.tip.small', canListen()
       ? '🎙 Tip: use the microphone. Say the answer out loud even when you type it – speaking aloud activates pronunciation memory (the “production effect”).'
-      : '🎙 Your browser doesn’t support speech recognition here (Chrome, Edge and Safari do). You can still type – and say each answer out loud anyway: the “production effect” makes spoken words stick better.'),
+      : h('span', h('b', '🎙 Microphone unavailable here. '), listenBlocker(), ' You can still type – and say each answer out loud anyway: the “production effect” makes spoken words stick better.')),
     h('h2', 'Role-plays'),
     h('div.stack', ...UNITS.map((u, i) => {
       const best = roleplayBest(u.id);

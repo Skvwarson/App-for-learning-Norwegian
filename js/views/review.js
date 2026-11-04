@@ -146,6 +146,7 @@ export function reviewView(root, params = {}) {
     const target = card.no.split('|')[0].replace(/\s*…\s*/g, ' … ').trim();
     const hintEl = h('div.hint');
     const inp = answerInput({
+      expected: target,
       onSubmit: (v, alts) => {
         const cands = [v, ...(alts || [])];
         const results = cands.map((x) => ({ x, r: checkAnswer(x, card.no, card.alt) }));
@@ -169,6 +170,7 @@ export function reviewView(root, params = {}) {
     const cz = makeCloze(card.ex.no, card.no.split('|')[0]);
     if (!cz) return produce(card, done);
     const inp = answerInput({
+      expected: cz.answer,
       onSubmit: (v, alts) => {
         let r = checkAnswer(v, cz.answer);
         let given = v;
@@ -192,6 +194,7 @@ export function reviewView(root, params = {}) {
     const target = card.no.split('|')[0];
     const inp = answerInput({
       placeholder: 'Type what you hear…',
+      expected: target,
       onSubmit: (v) => { inp.setDisabled(true); const r = checkAnswer(v, card.no, card.alt); done({ verdict: r.verdict, given: v, expected: target, note: r.note }); },
     });
     add(stage, h('div.card-face.stack',

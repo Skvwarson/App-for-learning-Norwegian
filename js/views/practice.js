@@ -90,6 +90,7 @@ export function practiceView(root, { kind }) {
     } else {
       inp = answerInput({
         placeholder: isTime ? 'e.g. halv sju' : 'Write it in Norwegian…',
+        expected: t.ans,
         onSubmit: (v, alts) => {
           inp.setDisabled(true);
           const ok = [v, ...(alts || [])].some((x) => [t.ans, ...t.alts].some((a) => squash(x) === squash(a) || checkAnswer(squash(x), squash(a)).verdict === 'correct'));
