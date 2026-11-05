@@ -58,6 +58,21 @@ const setSettings = (page, patch) => page.evaluate(async (p) => (await import('/
     await ctx.close();
   }
 
+  // 1b. Recorded dialogue lines play from audio/ even when the device has no Norwegian voice.
+  {
+    const { page, errors, ctx } = await freshPage(browser, [{ name: 'Microsoft David', lang: 'en-US', voiceURI: 'david' }]);
+    const requested = [];
+    page.on('request', (r) => { if (r.url().includes('/audio/')) requested.push(new URL(r.url()).pathname); });
+    const ok = await speak(page, 'Hei! Jeg heter Lars. Hva heter du?');
+    assert.equal(ok, true);
+    assert.deepEqual(requested, ['/audio/u01/01.mp3']);
+    assert.deepEqual(await page.evaluate(() => window.__spoken), []);
+    assert.equal(await page.evaluate(async () => (await import('/js/core/speech.js')).hasRecording('«Ha det!»')), true);
+    assert.deepEqual(errors, []);
+    console.log('✓ recorded dialogue line played from audio/u01');
+    await ctx.close();
+  }
+
   // 2. Several Norwegian voices: the natural one wins.
   {
     const { page, errors, ctx } = await freshPage(browser, [
