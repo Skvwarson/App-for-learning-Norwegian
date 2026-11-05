@@ -13,6 +13,8 @@
 // Speech recognition (the 🎙 buttons) is at the bottom.
 
 import { settings } from './store.js';
+import { normalize } from './text.js';
+import { recordingEntries } from '../../data/recordings.js';
 
 const hasWindow = typeof window !== 'undefined';
 const synth = hasWindow ? window.speechSynthesis : null;
@@ -120,6 +122,13 @@ export async function speak(text, { rate, pitch = 1 } = {}) {
   const t = clean(text);
   if (!t) return false;
   stopSpeaking();
+  // A real recording of this exact sentence beats any synthetic voice.
+  const recorded = recordingFor(t);
+  if (recorded) {
+    try {
+      return await playUrl(recorded, rate ?? 1); // natural speed unless slowed on purpose
+    } catch { /* missing file – fall back to a voice */ }
+  }
   const p = provider();
   const r = rate ?? settings().ttsRate ?? 0.9;
   if (p !== 'device') {
@@ -153,6 +162,29 @@ async function speakDevice(text, rate, pitch) {
     u.onerror = () => finish(false);
     setTimeout(() => finish(true), 1500 + text.length * 120); // some browsers never fire onend
     synth.speak(u);
+  });
+}
+
+// ---------- Recordings ----------
+const recKey = (text) => normalize(text);
+let recordingIndex = null;
+function recordingFor(text) {
+  recordingIndex ??= new Map(recordingEntries().map(([no, url]) => [recKey(no), url]));
+  return recordingIndex.get(recKey(text)) ?? null;
+}
+export const hasRecording = (text) => !!recordingFor(clean(text));
+
+function playUrl(url, rate) {
+  return new Promise((resolve, reject) => {
+    if (!audioEl) return reject(new Error('Audio playback is not available.'));
+    audioEl.src = url;
+    audioEl.preservesPitch = true;
+    audioEl.playbackRate = Math.max(0.5, Math.min(1.5, rate));
+    audioEl.onended = () => resolve(true);
+    audioEl.onerror = () => reject(new Error('Recording could not be loaded.'));
+    audioEl.play().catch((e) => {
+      if (e?.name === 'NotAllowedError') resolve(false); else reject(e);
+    });
   });
 }
 

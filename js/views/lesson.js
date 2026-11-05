@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, listen, listenBlocker, stopListening, stopSpeaking, canSpeakNorwegian } from '../core/speech.js';
+import { speak, listen, listenBlocker, stopListening, stopSpeaking, canSpeakNorwegian, hasRecording } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { similarity } from '../core/text.js';
@@ -133,6 +133,7 @@ function listenStep(el, unit, next) {
     h('div.card.tip', h('b', '👂 Listen for: '), unit.focus,
       h('div.small.muted', 'First listen without reading the English. Tap a line to check it, tap a word for its meaning. Guessing from context first makes the meaning stick.')),
     h('div.row.wrap', playAll, audioOnly, showAll),
+    unit.dialogue.every(([, no]) => hasRecording(no)) ? h('div.pill.ok.small', '🎧 Natural voice recordings') : null,
     dialogue,
     h('div.row.end', h('button.btn.primary.big', { onclick: () => { addXp(10, 'listen'); next(); } }, 'I’ve listened ▸'))));
   return () => { playing = false; stopSpeaking(); };

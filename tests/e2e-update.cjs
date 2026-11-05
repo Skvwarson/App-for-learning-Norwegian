@@ -26,19 +26,19 @@ const ORIGIN = `http://app.localhost:${PORT}`;
 
   await page.goto(`${ORIGIN}/`);
   await page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 15000 });
-  assert.equal(await version(), '6');
-  console.log('✓ v6 installed and controlled by the service worker');
+  assert.equal(await version(), '7');
+  console.log('✓ v7 installed and controlled by the service worker');
 
-  // Publish "version 7": change the app and the service worker, as a real update does.
+  // Publish "version 8": change the app and the service worker, as a real update does.
   const vFile = path.join(DIR, 'js/core/version.js');
-  fs.writeFileSync(vFile, fs.readFileSync(vFile, 'utf8').replace("APP_VERSION = '6'", "APP_VERSION = '7'"));
+  fs.writeFileSync(vFile, fs.readFileSync(vFile, 'utf8').replace("APP_VERSION = '7'", "APP_VERSION = '8'"));
   const swFile = path.join(DIR, 'sw.js');
-  fs.writeFileSync(swFile, fs.readFileSync(swFile, 'utf8').replace("norsk-na-v6", "norsk-na-v7"));
+  fs.writeFileSync(swFile, fs.readFileSync(swFile, 'utf8').replace("norsk-na-v7", "norsk-na-v8"));
 
   // Next visit (online): the new version must show without clearing anything.
   await page.goto(`${ORIGIN}/`);
   await page.waitForTimeout(2500); // let the new worker install, activate and trigger the one-time reload
-  assert.equal(await version(), '7');
+  assert.equal(await version(), '8');
   console.log('✓ update picked up on the next visit');
 
   // Offline: the cached copy still works.
