@@ -3,7 +3,7 @@
 
 import { h, clear, modal, toast, sfx, haptic, add } from './dom.js';
 import { tokenize, normalize, words, escapeHtml, similarity } from '../core/text.js';
-import { speak, listen, listenBlocker } from '../core/speech.js';
+import { speak, listen, listenBlocker, stopListening } from '../core/speech.js';
 import { lookup, externalLinks } from '../core/lexicon.js';
 import { addCard, wordStatus, knowledgeMap, markKnown, previewRatings, lemmaKey } from '../core/deck.js';
 import { formatDelay } from '../core/fsrs.js';
@@ -101,11 +101,15 @@ export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mi
     type: 'button', title: 'Answer by speaking', 'aria-label': 'Speak your answer',
     onclick: async () => {
       const blocker = listenBlocker();
-      if (blocker) { clear(heard); add(heard, h('span.bad', blocker)); return; }
+      if (blocker) { clear(heard); add(heard, h('span.bad', blocker), ' ', h('a', { href: '#/settings' }, 'Open Settings')); return; }
+      if (micBtn.classList.contains('live')) { stopListening(); return; } // second tap = done talking
       micBtn.classList.add('live');
-      clear(heard); add(heard, h('span.listening', '🎙 Listening… speak now'));
+      const state = (s) => {
+        clear(heard);
+        add(heard, h('span.listening', s === 'processing' ? '⏳ Checking what you said…' : '🎙 Listening… speak now (tap 🎙 again when done)'));
+      };
       try {
-        alts = await listen();
+        alts = await listen({ onState: state });
         clear(heard);
         if (alts.length) {
           const exp = typeof expected === 'function' ? expected() : expected;
@@ -124,7 +128,12 @@ export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mi
     },
   }, '🎙') : null;
   const el = h('div.answer-row', input, micBtn, h('button.btn.primary', { type: 'button', onclick: submit }, 'Check'));
-  if (autofocus) setTimeout(() => input.focus({ preventScroll: true }), 50);
+  if (autofocus) {
+    // Focus as soon as the caller has inserted the field – still inside the tap that led here,
+    // so phones open the keyboard (iOS ignores focus() from a timer). The timer is a fallback.
+    queueMicrotask(() => { if (input.isConnected) input.focus({ preventScroll: true }); });
+    setTimeout(() => { if (input.isConnected && !input.disabled && document.activeElement !== input) input.focus({ preventScroll: true }); }, 60);
+  }
   return { el: h('div.stack.tight', el, heard, letters), input, setDisabled: (d) => { input.disabled = d; el.querySelectorAll('button').forEach((b) => (b.disabled = d)); } };
 }
 

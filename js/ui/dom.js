@@ -162,21 +162,30 @@ export function haptic(pattern = 12) {
 }
 
 // ---------- Progress ring (SVG) ----------
-export function ring(pct, { size = 44, stroke = 5, label = '', cls = '' } = {}) {
+/** Run fn after the element has been painted once (so a CSS transition can play from the start value). */
+const afterPaint = (fn) => requestAnimationFrame(() => requestAnimationFrame(fn));
+
+/** animate: fill up from empty when first shown (for progress worth noticing). */
+export function ring(pct, { size = 44, stroke = 5, label = '', cls = '', animate = false } = {}) {
   const r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const p = Math.max(0, Math.min(1, pct));
+  const offset = c * (1 - p);
   const wrap = h('div.ring', { class: cls, style: { width: `${size}px`, height: `${size}px` } });
   wrap.innerHTML = `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">
     <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--ring-bg)" stroke-width="${stroke}"/>
     <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--ring-fg)" stroke-width="${stroke}"
-      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+      stroke-linecap="round" stroke-dasharray="${c}" style="stroke-dashoffset:${animate ? c : offset}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
   </svg>`;
-  if (label) wrap.append(h('span.ring-label', label));
+  if (animate) afterPaint(() => { const arc = wrap.querySelector('circle:last-child'); if (arc) arc.style.strokeDashoffset = offset; });
+  if (label) add(wrap, h('span.ring-label', label));
   return wrap;
 }
 
-export function progressBar(pct, cls = '') {
-  return h('div.progress', { class: cls }, h('div.progress-fill', { style: { width: `${Math.round(Math.max(0, Math.min(1, pct)) * 100)}%` } }));
+export function progressBar(pct, cls = '', { animate = false } = {}) {
+  const width = `${Math.round(Math.max(0, Math.min(1, pct)) * 100)}%`;
+  const fill = h('div.progress-fill', { style: { width: animate ? '0%' : width } });
+  if (animate) afterPaint(() => { fill.style.width = width; });
+  return h('div.progress', { class: cls }, fill);
 }
 
 export function download(filename, content, type = 'text/plain') {

@@ -6,9 +6,11 @@
 // Word item fields: no, en, pos, g (gender), forms, ex: [no, en], alt: [accepted alternatives]
 // In role-plays: {name} is replaced with the learner's name; * in `accept` matches anything.
 
+import { A2_UNITS } from './units-a2.js';
+
 const W = (no, en, extra = {}) => ({ no, en, ...extra });
 
-export const UNITS = [
+const A1_UNITS = [
   // ───────────────────────────────────────────────────────────── 1
   {
     id: 'u01',
@@ -909,5 +911,8 @@ export const UNITS = [
     },
   },
 ];
+
+/** Units 1–12 (A1) and 13–18 (A2, in units-a2.js). */
+export const UNITS = [...A1_UNITS, ...A2_UNITS];
 
 export const unitById = (id) => UNITS.find((u) => u.id === id);

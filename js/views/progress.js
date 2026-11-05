@@ -35,8 +35,8 @@ export function progressView(root) {
     h('div.card.level-card',
       h('div.row.between',
         h('div', h('div.kicker', `Nivå ${lv.level}`), h('div.level-title', lv.title), h('div.small.muted', lv.titleEn)),
-        ring(lv.pct, { size: 84, stroke: 9, label: `${lv.level}` })),
-      progressBar(lv.pct, 'gold'),
+        ring(lv.pct, { size: 84, stroke: 9, label: `${lv.level}`, animate: true })),
+      progressBar(lv.pct, 'gold', { animate: true }),
       h('div.small.muted', `${lv.xp} XP total · ${lv.span - lv.into} XP to level ${lv.level + 1}`)),
     h('div.stat-row',
       h('div.stat', h('div.stat-n', `🔥 ${st}`), h('div.stat-l', 'day streak')),
@@ -48,7 +48,7 @@ export function progressView(root) {
     h('div.card.stack',
       h('div.kicker', '🗣️ Conversation readiness'),
       h('div.row.between', h('div.big-num', `≈${Math.round(ready.pct * 100)}%`), h('div.small.muted.right', `${known} known · ${learningN} in progress`, h('br'), `${unitsDone}/${UNITS.length} units`)),
-      progressBar(ready.pct),
+      progressBar(ready.pct, '', { animate: true }),
       h('div.milestones', ...ready.milestones.map((m) => h('div.milestone', { class: known >= m.at ? 'reached' : '' }, h('b', known >= m.at ? '✓ ' : '○ '), `${m.label} – ${m.at} words`))),
       h('div.small.muted', 'Estimate of how much of everyday spoken Norwegian is made of words you know (based on word-frequency research). Around 1,000 well-known words cover most of a casual conversation.')),
     h('div.card',
@@ -67,7 +67,7 @@ export function progressView(root) {
 }
 
 function bar(label, n, total, cls) {
-  return h('div.deck-bar', h('div.row.between.small', h('span', label), h('b', String(n))), progressBar(total ? n / total : 0, cls));
+  return h('div.deck-bar', h('div.row.between.small', h('span', label), h('b', String(n))), progressBar(total ? n / total : 0, cls, { animate: true }));
 }
 
 export { xpForLevel };

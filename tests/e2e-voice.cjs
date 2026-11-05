@@ -42,7 +42,7 @@ const speak = (page, text) => page.evaluate(async (t) => (await import('/js/core
 const setSettings = (page, patch) => page.evaluate(async (p) => (await import('/js/core/store.js')).update((s) => Object.assign(s.settings, p)), patch);
 
 (async () => {
-  const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+  const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
 
   // 1. Only an English voice: Norwegian must NOT be read by it, and the user is told why.
   {
@@ -150,10 +150,10 @@ const setSettings = (page, patch) => page.evaluate(async (p) => (await import('/
       document.querySelector('#view').append(answerInput({ expected: 'Jeg heter Alex', onSubmit: () => {} }).el);
     });
     await page.click('#view .mic');
-    await page.waitForSelector('.heard >> text=/Brave doesn’t include speech recognition/');
+    await page.waitForSelector('.heard >> text=/Brave has no built-in speech recognition/');
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/v4-brave.png`, fullPage: true });
     assert.deepEqual(errors, []);
-    console.log('✓ Brave: microphone and voice explained, Edge suggested');
+    console.log('✓ Brave: microphone and voice explained');
     await ctx.close();
   }
 
@@ -182,6 +182,46 @@ const setSettings = (page, patch) => page.evaluate(async (p) => (await import('/
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/v5-heard.png` });
     assert.deepEqual(errors, []);
     console.log('✓ microphone shows what it heard + % match');
+    await ctx.close();
+  }
+
+  // 7. Brave + ElevenLabs key: the microphone records and ElevenLabs transcribes it.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' });
+    await ctx.grantPermissions(['microphone']);
+    await ctx.addInitScript(() => {
+      Object.defineProperty(navigator, 'brave', { value: { isBrave: () => Promise.resolve(true) } });
+      localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true }, settings: { elevenKey: 'el-key', ttsProvider: 'elevenlabs' } }));
+    });
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    const stt = [];
+    await page.route('https://api.elevenlabs.io/v1/speech-to-text', async (route) => {
+      const req = route.request();
+      stt.push({ key: req.headers()['xi-api-key'], body: req.postDataBuffer().toString('latin1') });
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ text: 'Jeg heter Alex.', language_code: 'nor' }) });
+    });
+    await page.goto(BASE);
+    await page.waitForSelector('.hero');
+    await page.evaluate(async () => {
+      const { answerInput } = await import('/js/ui/components.js');
+      document.querySelector('#view').prepend(answerInput({ expected: 'Jeg heter Alex', onSubmit: (v) => { window.__submitted = v; } }).el);
+    });
+    await page.click('#view .mic');
+    await page.waitForSelector('.heard >> text=Listening… speak now');
+    await page.waitForTimeout(1500);
+    await page.click('#view .mic'); // tap again = done talking
+    await page.waitForSelector('.heard >> text=100% match', { timeout: 15000 });
+    assert.equal(stt.length, 1);
+    assert.equal(stt[0].key, 'el-key');
+    assert.match(stt[0].body, /name="model_id"\r\n\r\nscribe_v2/);
+    assert.match(stt[0].body, /name="language_code"\r\n\r\nno/);
+    assert.match(stt[0].body, /name="file"; filename="answer\.(webm|ogg|m4a)"/);
+    assert.equal(await page.evaluate(() => window.__submitted), 'Jeg heter Alex.');
+    if (SHOTS) await page.screenshot({ path: `${SHOTS}/v6-brave-eleven-mic.png` });
+    assert.deepEqual(errors, []);
+    console.log('✓ Brave + ElevenLabs: microphone transcribed via Scribe v2');
     await ctx.close();
   }
 

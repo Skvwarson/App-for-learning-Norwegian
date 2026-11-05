@@ -50,8 +50,8 @@ export const ACHIEVEMENTS = [
   { id: 'night', icon: '🦉', title: 'Nattugle', desc: 'Practise after 22:00.' },
   { id: 'chat', icon: '🤖', title: 'Samtale', desc: 'Send 5 messages to your AI conversation partner.' },
   { id: 'comeback', icon: '🌈', title: 'Velkommen tilbake', desc: 'Come back after a break. Every return counts!' },
-  { id: 'half', icon: '🧗', title: 'Halvveis', desc: 'Finish 6 units.' },
-  { id: 'all-units', icon: '🏆', title: 'Hele kurset', desc: 'Finish all 12 units.' },
+  { id: 'half', icon: '🧗', title: 'Halvveis', desc: 'Finish half of the course.' },
+  { id: 'all-units', icon: '🏆', title: 'Hele kurset', desc: 'Finish every unit in the course.' },
 ];
 
 export const LEVEL_TITLES = [

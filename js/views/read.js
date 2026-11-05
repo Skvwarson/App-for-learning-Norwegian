@@ -12,6 +12,7 @@ import { words } from '../core/text.js';
 import { STORIES, storyById } from '../../data/stories.js';
 import { UNITS } from '../../data/units.js';
 import { navigate } from '../ui/router.js';
+import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 
 const covClass = (p) => (p >= 0.95 ? 'easy' : p >= 0.85 ? 'ideal' : p >= 0.7 ? 'stretch' : 'hard');
 const covLabel = (p) => (p >= 0.95 ? 'Easy read' : p >= 0.85 ? 'Ideal level' : p >= 0.7 ? 'A stretch' : 'Hard for now');
@@ -97,14 +98,23 @@ export function storyView(root, { id }) {
     h('p.small.muted', 'Try to get the gist first. Tap only the words that stop you from understanding.'),
     lines,
     h('button.btn.primary.big', {
-      onclick: () => {
+      onclick: (e) => {
         const first = !getState().stories[st.id];
         update((s) => { const r = s.stories[st.id] ?? { read: 0 }; r.read++; r.last = Date.now(); s.stories[st.id] = r; });
         const xp = addXp(first ? 30 : 15, 'story');
         if (Object.keys(getState().stories).length >= 3) unlock('reader');
         sfx.goal();
-        toast(`Ferdig! +${xp} XP`, { icon: '📖' });
-        navigate('#/read');
+        // Finish in place: celebrate, then offer the next part of today's plan.
+        const done = h('div.card.stack.center-col.story-done',
+          h('div.big-emoji', '📖'),
+          h('h2', 'Ferdig!'),
+          h('div.pill.xp', `+${xp} XP`),
+          h('p.small.muted', `You read ${st.sentences.length} sentences of real Norwegian. Every story like this grows your vocabulary without flashcards.`),
+          nextStepBlock('story'),
+          h('div.row.wrap.center', h('a.btn', { href: '#/read' }, '← All stories'), h('a.btn', { href: '#/' }, 'Home')));
+        e.currentTarget.replaceWith(done);
+        done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        flushCelebrations();
       },
     }, 'Finished reading ✓')));
   return () => { playing = false; stopSpeaking(); };

@@ -9,7 +9,7 @@ const listeners = {};
 export function on(evt, fn) { (listeners[evt] ??= new Set()).add(fn); return () => listeners[evt].delete(fn); }
 function emit(evt, data) { for (const fn of listeners[evt] ?? []) { try { fn(data); } catch (e) { console.error(e); } } }
 
-const GAME_DEFAULTS = { xp: 0, freezes: 0, frozen: {}, achievements: {}, missions: {}, bestCombo: 0, xpDays: {}, plan: null, onboarded: false, mined: 0, chats: 0 };
+const GAME_DEFAULTS = { xp: 0, freezes: 0, frozen: {}, achievements: {}, missions: {}, bestCombo: 0, xpDays: {}, plan: null, onboarded: false, mined: 0, chats: 0, streakShownDay: '', dayDone: '' };
 
 function game() {
   const s = getState();
@@ -53,6 +53,12 @@ export function addXp(amount, reason = '', ts = Date.now()) {
     g.xpDays[k] = (g.xpDays[k] ?? 0) + amount;
   });
   emit('xp', { amount, reason });
+  // The first real activity of the day extends the streak – celebrate it (once a day).
+  const k = dayKey(ts);
+  if (game().streakShownDay !== k && activeDay(k)) {
+    update(() => { game().streakShownDay = k; });
+    emit('streak', { streak: streak(ts), week: activity(7, ts) });
+  }
   const after = levelInfo();
   if (after.level > before) emit('levelup', after);
   if (!goalBefore && todayXp(ts) >= dailyGoal()) {

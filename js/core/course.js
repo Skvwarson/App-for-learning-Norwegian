@@ -48,7 +48,7 @@ export function completeLesson(unitId) {
   if (unitId === 'u03') update((s) => { for (const n of NUMBER_WORDS) s.known[n] = true; });
   unlock('first-lesson');
   const done = UNITS.filter((u) => lesson(u.id).done).length;
-  if (done >= 6) unlock('half');
+  if (done >= Math.ceil(UNITS.length / 2)) unlock('half');
   if (done >= UNITS.length) unlock('all-units');
   return addXp(50, 'lesson');
 }

@@ -8,13 +8,14 @@ No account, no server and no build step. Your progress stays in your browser.
 
 | | |
 |---|---|
-| 📚 **12-unit course (A1 → A2)** | Original dialogues from real situations: meeting people, cafés, shops, directions, family, daily routine, weather, the weekend, opinions. Each unit goes: listen → words in groups of 5 → one grammar idea → mixed practice → role-play. |
+| 📚 **18-unit course (A1 → A2)** | Original dialogues from real situations: meeting people, cafés, shops, directions, family, daily routine, weather, the weekend, opinions, the doctor, renting a flat, work, travel, phone calls and changing plans, feelings. Each unit goes: listen → words in groups of 5 → one grammar idea → mixed practice → role-play. |
 | 🔁 **Spaced repetition (FSRS-5)** | Each word is scheduled just before you'd forget it. Exercises get harder as a memory gets stronger: recognition → fill the gap in context → type or say it → listening → word order. |
 | 📄 **Import your textbook PDF** | Any text-based PDF becomes a tap-to-translate reader. Glossary lines like `et hus – a house` or `å spise = to eat` (including table columns) are detected and offered as flashcards, each with an example sentence from the same book. You can also paste plain text. |
 | 📖 **Graded stories** | One short story per unit. Every text shows the % of words you already know and colours each word by what you know. |
 | 🗣️ **Speaking** | Scripted role-plays (type or use the microphone), shadowing with a pronunciation score, and an optional **AI conversation partner** that talks at your level and corrects you gently. |
 | 🔢 **Drills** | Unlimited number and clock-time drills ("halv sju" = 6:30!). |
-| 🎮 **Motivation & habit** | XP, levels with Norwegian titles, combos with rising sounds, surprise bonuses, achievements, a daily goal ring, a forgiving streak with streak freezes, daily missions that bring Norwegian into everyday life, a journey map, a 12-week activity map and a "conversation readiness" meter. |
+| 🎮 **Motivation & habit** | XP, levels with Norwegian titles, combos with rising sounds, surprise bonuses, achievements, a daily goal ring, a streak celebration at the end of each day's first session, a forgiving streak with streak freezes, daily missions that bring Norwegian into everyday life, a journey map, a 12-week activity map and a "conversation readiness" meter. |
+| ➡️ **Today's plan** | Reviews → new words → a story → speaking → a real-life mission. Home shows it as a checklist, and every finish screen has a "Next:" button, so one activity flows into the next. A new lesson is followed by its story, which gives the new words a short gap before their first review. |
 | 🌊 **Flow mode** | Distraction-free sessions with instant feedback, keyboard shortcuts (Enter, 1–4), auto-advance on correct answers, and a controller that eases off or stretches you so you stay around 85% success. |
 
 The in-app page **☰ → How it works** explains which psychological principle drives each feature: spaced repetition, active recall/retrieval practice, cognitive load, contextual learning, comprehensible input, output/production effect, interleaving, chunking, flow, variable rewards, habit formation and goal-gradient.
@@ -39,7 +40,7 @@ Choose where audio comes from in **Settings → Voice**:
 | Source | Quality | Cost | Setup |
 |---|---|---|---|
 | **This device** | from robotic to very good, depending on the voice | free | install a Norwegian voice (below) |
-| **ElevenLabs** | most natural | free monthly allowance, then paid | API key from elevenlabs.io (uses the Flash v2.5 model, which supports Norwegian) |
+| **ElevenLabs** | most natural – and powers the 🎙 microphone in Brave | free monthly allowance, then paid | API key from elevenlabs.io (voice: Flash v2.5, which supports Norwegian; microphone: Scribe v2) |
 | **Google Cloud** | very good neural nb-NO voices | free monthly quota covers this whole course | Google Cloud project with the Text-to-Speech API and an API key |
 
 Cloud audio is generated once per sentence and saved on your device, so replays are free and work offline. The app never lets an English voice read Norwegian (that's how "Vi sees" becomes "six sees"). If there's no Norwegian voice, audio is muted and you're shown how to fix it.
@@ -50,7 +51,9 @@ Free device voices:
 - **Mac:** System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian
 - **Android:** Settings → Text-to-speech → Google → install voice data → Norsk (bokmål)
 
-Speech recognition (the 🎙 buttons) works in Edge, Chrome and Safari, not in Brave or Firefox. When you answer by speaking, the app shows what it heard and how closely it matched.
+Speech recognition (the 🎙 buttons) is built into Edge, Chrome and Safari. **Brave** (and Firefox) have none of their own; there, add an ElevenLabs key and the microphone records your answer and ElevenLabs transcribes it. When you answer by speaking, the app shows what it heard and how closely it matched.
+
+**Using only Brave on Windows?** Choose **ElevenLabs** in Settings → Voice. Brave can't use Windows' Norwegian voice pack, so this one free key gives you both a natural voice and a working microphone.
 
 ## A daily routine that gets you talking fast
 1. **Reviews first** (5–10 min): press the big button on the home screen. On a busy day, press "⚡ Just 2 minutes" to keep the habit going.
