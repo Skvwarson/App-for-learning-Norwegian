@@ -115,7 +115,14 @@ async function tapAllTiles(page) {
   await shot('10-roleplay-done');
   await page.click('text=Finish lesson ▸');
   await page.waitForSelector('text=Unit 1 complete!');
-  await page.waitForTimeout(700);
+  // First activity of the day → the streak celebration appears at the end of the lesson.
+  await page.waitForSelector('.streak-pop.show', { timeout: 5000 });
+  await shot('11a-streak-pop');
+  await page.click('.streak-pop button');
+  await page.waitForSelector('.streak-pop', { state: 'detached', timeout: 5000 });
+  await page.waitForSelector('.next-step', { timeout: 5000 });
+  log('streak pop + next step:', (await page.textContent('.next-step')).trim().slice(0, 60));
+  await page.waitForTimeout(400);
   await shot('11-unit-done');
   log('lesson complete');
   for (const b of await page.$$('text=Fortsett ▸')) await b.click().catch(() => {});
@@ -165,6 +172,12 @@ async function tapAllTiles(page) {
   await page.waitForSelector('.sheet');
   await shot('19-word-sheet');
   await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  await page.click('text=Finished reading ✓');
+  await page.waitForSelector('.story-done >> text=Ferdig!');
+  await page.waitForTimeout(500);
+  await shot('19b-story-done');
+  log('story done, next:', (await page.textContent('.story-done')).replace(/\s+/g, ' ').slice(0, 90));
 
   if (PDF) {
     await page.goto(BASE + '#/import');

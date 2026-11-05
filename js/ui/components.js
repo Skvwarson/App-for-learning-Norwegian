@@ -128,7 +128,12 @@ export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mi
     },
   }, '🎙') : null;
   const el = h('div.answer-row', input, micBtn, h('button.btn.primary', { type: 'button', onclick: submit }, 'Check'));
-  if (autofocus) setTimeout(() => input.focus({ preventScroll: true }), 50);
+  if (autofocus) {
+    // Focus as soon as the caller has inserted the field – still inside the tap that led here,
+    // so phones open the keyboard (iOS ignores focus() from a timer). The timer is a fallback.
+    queueMicrotask(() => { if (input.isConnected) input.focus({ preventScroll: true }); });
+    setTimeout(() => { if (input.isConnected && !input.disabled && document.activeElement !== input) input.focus({ preventScroll: true }); }, 60);
+  }
   return { el: h('div.stack.tight', el, heard, letters), input, setDisabled: (d) => { input.disabled = d; el.querySelectorAll('button').forEach((b) => (b.disabled = d)); } };
 }
 

@@ -29,6 +29,7 @@ export function render() {
       const params = Object.fromEntries(r.keys.map((k, i) => [k, decodeURIComponent(m[i + 1])]));
       try {
         cleanup = r.view(mountEl, params) ?? null;
+        mountEl.classList.add('view-enter'); // gentle fade-in between screens
       } catch (e) {
         console.error(e);
         mountEl.textContent = `Something went wrong: ${e.message}`;
@@ -44,6 +45,7 @@ export function render() {
 export function start(el, { changed } = {}) {
   mountEl = el;
   onChange = changed;
+  el.addEventListener('animationend', (e) => { if (e.target === el) el.classList.remove('view-enter'); });
   addEventListener('hashchange', render);
   render();
 }

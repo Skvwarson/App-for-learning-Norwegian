@@ -12,6 +12,7 @@ import { State, Rating } from '../core/fsrs.js';
 import { settings, bump } from '../core/store.js';
 import { PRAISE, ENCOURAGE } from '../../data/habits.js';
 import { navigate } from '../ui/router.js';
+import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
@@ -293,10 +294,11 @@ export function reviewView(root, params = {}) {
         h('div.big-emoji', '🌿'),
         h('h2', 'All caught up!'),
         h('p', fresh.learning.length ? 'Some cards are waiting a few minutes to be spaced out – come back soon.' : 'No reviews due right now. That’s spacing working for you.'),
+        nextStepBlock('reviews'),
         h('div.row.wrap.center',
-          h('a.btn.primary', { href: '#/learn' }, '📚 Learn new words'),
           h('a.btn', { href: '#/read' }, '📖 Read'),
-          h('a.btn', { href: '#/speak' }, '🗣️ Speak'))));
+          h('a.btn', { href: '#/speak' }, '🗣️ Speak'),
+          h('a.btn', { href: '#/' }, 'Home'))));
       return;
     }
     logTime();
@@ -321,12 +323,14 @@ export function reviewView(root, params = {}) {
         h('div.stat', h('div.stat-n', `+${xpEarned}`), h('div.stat-l', 'XP')),
         h('div.stat', h('div.stat-n', `×${combo.best}`), h('div.stat-l', 'best combo')),
         h('div.stat', h('div.stat-n', `${mins}m`), h('div.stat-l', 'time'))),
-      h('div.card.stack.tight', h('div.small.muted', `Daily goal: ${todayXp()} / ${dailyGoal()} XP`), progressBar(goalPct, 'gold')),
+      h('div.card.stack.tight', h('div.small.muted', `Daily goal: ${todayXp()} / ${dailyGoal()} XP`), progressBar(goalPct, 'gold', { animate: true })),
       h('p.small.muted', `Every card you just recalled is now scheduled further out. Tomorrow: ~${fc} reviews.`),
-      h('div.row.wrap.center',
-        remaining ? h('button.btn.primary', { onclick: () => navigate('#/review') }, `Keep going (${remaining} more) ▸`) : null,
-        h('a.btn', { href: '#/read' }, '📖 Read a story'),
-        h('a.btn', { href: '#/' }, 'Home'))));
+      // Momentum: either more of the same, or straight on to the next part of today's plan.
+      remaining
+        ? h('button.btn.primary.big.cta', { onclick: () => navigate('#/review') }, h('span', `Keep going ▸`), h('span.cta-sub', `${remaining} more cards are ready`))
+        : nextStepBlock('reviews'),
+      h('div.row.wrap.center', h('a.btn', { href: '#/' }, 'Home'))));
+    flushCelebrations();
   }
 
   show();

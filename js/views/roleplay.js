@@ -2,6 +2,7 @@
 // (output practice + retrieval of whole conversational chunks).
 
 import { h, clear, sfx, haptic, confetti, add } from '../ui/dom.js';
+import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 import { tappable, speakBtn, answerInput, diffView } from '../ui/components.js';
 import { normalize, foldDiacritics, similarity, levenshtein } from '../core/text.js';
 import { speak, stopSpeaking } from '../core/speech.js';
@@ -133,9 +134,11 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
       h('h3', `${firstTry} of ${youLines} answers on the first try`),
       h('div.pill.xp', `+${xp} XP`),
       h('p.small.muted', 'Repeat role-plays a few days apart – each time it gets more automatic, and automatic is what makes real conversations feel easy.'),
+      embedded ? null : nextStepBlock('speak'),
       h('div.row.wrap.center',
         h('button.btn', { onclick: () => { clear(chat); i = 0; firstTry = 0; step(); } }, '↻ Again'),
-        onDone ? h('button.btn.primary', { onclick: onDone }, embedded ? 'Finish lesson ▸' : 'Done') : h('a.btn.primary', { href: '#/speak' }, 'More conversations'))));
+        onDone ? h('button.btn.primary', { onclick: onDone }, embedded ? 'Finish lesson ▸' : 'Done') : h('a.btn', { href: '#/speak' }, 'More conversations'))));
+    if (!embedded) flushCelebrations();
   };
 
   step();

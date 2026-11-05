@@ -1,4 +1,13 @@
 /* Norsk Nå – calm Nordic UI. Tokens first, light & dark. */
+/* Nunito (SIL Open Font License, vendor/fonts/Nunito-OFL.txt) – bundled so it works offline. */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 1000;
+  src: url('../vendor/fonts/nunito-latin-wght-normal.woff2') format('woff2-variations'), url('../vendor/fonts/nunito-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 :root {
   --bg: #f6f4ef;
   --surface: #ffffff;
@@ -25,7 +34,7 @@
   --ring-fg: var(--accent);
   --radius: 16px;
   --shadow: 0 1px 2px rgba(20, 20, 30, .05), 0 6px 20px rgba(20, 20, 30, .06);
-  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font: "Nunito", ui-rounded, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-no: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   color-scheme: light;
 }
@@ -233,8 +242,12 @@ select.input { appearance: auto; }
 .check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; font-weight: 800; color: #fff; font-size: .8rem; }
 .check-item.done .check { background: var(--ok); border-color: var(--ok); }
 .check-item.done .check-label { text-decoration: line-through; color: var(--muted); }
+.check-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.check-item > .small { max-width: 48vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
 .mission { border-left: 4px solid var(--gold); display: flex; flex-direction: column; gap: 10px; }
 .mission.done { border-left-color: var(--ok); }
+.mission.spotlight { animation: spotlight 1.6s ease-out; }
+@keyframes spotlight { 0% { box-shadow: 0 0 0 0 var(--gold); } 30% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--gold) 45%, transparent); } 100% { box-shadow: var(--shadow); } }
 .mission-no { font-size: 1.1rem; }
 .unit-now { display: block; }
 .readiness { display: flex; flex-direction: column; gap: 8px; }
@@ -500,6 +513,32 @@ table.mini td.big { font-size: 1.6rem; font-family: var(--font-no); color: var(-
 @keyframes pop { 0% { transform: scale(.8); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes floatUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -48px); } }
+/* ---------- screen transitions & big moments ---------- */
+.view-enter { animation: viewIn .26s cubic-bezier(.2, .8, .2, 1); }
+@keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.next-step { margin-top: 4px; }
+.day-done { align-self: stretch; border: 2px solid var(--gold); background: var(--gold-soft); }
+.story-done { border: 2px solid var(--ok); }
+.summary > .next-step, .center-col > .next-step { align-self: stretch; }
+
+.streak-pop { position: fixed; inset: 0; z-index: 105; display: grid; place-items: center; padding: 16px; background: rgba(10, 14, 20, .5); opacity: 0; transition: opacity .25s; }
+.streak-pop.show { opacity: 1; }
+.streak-pop-card { background: var(--surface); color: var(--text); border-radius: 26px; padding: 26px 22px 20px; width: min(360px, 100%); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 24px 70px rgba(0, 0, 0, .35); transform: scale(.85); transition: transform .35s cubic-bezier(.2, 1.4, .4, 1); }
+.streak-pop.show .streak-pop-card { transform: none; }
+.streak-flame { font-size: 4.2rem; line-height: 1; animation: flame 1.2s ease-in-out infinite; transform-origin: 50% 90%; }
+.streak-num { font-size: 3.2rem; font-weight: 900; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; animation: pop .5s .15s both; }
+.streak-label { font-weight: 800; font-size: 1.15rem; }
+.pop-week { margin: 6px 0 2px; }
+.pop-week .day.today.on { animation: dayFill .6s .35s both; box-shadow: 0 0 0 3px var(--accent-soft); }
+@keyframes flame { 0%, 100% { transform: scale(1) rotate(-2deg); } 50% { transform: scale(1.12) rotate(3deg); } }
+@keyframes dayFill { from { background: var(--surface-2); color: var(--muted); transform: scale(.6); } 60% { transform: scale(1.25); } to { transform: scale(1); } }
+
+/* audio-only listening */
+.dialogue.audio-only .line:not(.peek) .line-main > * { display: none; }
+.dialogue.audio-only .line:not(.peek) .line-main::before { content: '🎧 · · ·'; color: var(--muted); letter-spacing: .2em; }
+.btn.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 /* ---------- small screens ---------- */

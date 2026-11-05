@@ -1,6 +1,7 @@
 // Generated drills: numbers and telling the time – infinite, quick, great for flow.
 
 import { h, clear, sfx, haptic, progressBar, confetti, add } from '../ui/dom.js';
+import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 import { answerInput, speakBtn } from '../ui/components.js';
 import { checkAnswer, normalize } from '../core/text.js';
 import { speak, stopSpeaking } from '../core/speech.js';
@@ -67,7 +68,9 @@ export function practiceView(root, { kind }) {
       if (right >= 9) confetti(70);
       sfx.goal();
       add(body, h('div.stack.center-col', h('div.big-emoji', right >= 9 ? '🏆' : '👍'), h('h2', `${right} / ${rounds}`), h('div.pill.xp', `+${xp} XP`),
-        h('div.row.wrap.center', h('button.btn.primary', { onclick: () => { i = 0; right = 0; run(); } }, 'Again ▸'), h('a.btn', { href: '#/' }, 'Home'))));
+        nextStepBlock(),
+        h('div.row.wrap.center', h('button.btn', { onclick: () => { i = 0; right = 0; run(); } }, 'Again ▸'), h('a.btn', { href: '#/' }, 'Home'))));
+      flushCelebrations();
       return;
     }
     const t = makeTask();

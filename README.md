@@ -8,13 +8,14 @@ No account, no server and no build step. Your progress stays in your browser.
 
 | | |
 |---|---|
-| 📚 **12-unit course (A1 → A2)** | Original dialogues from real situations: meeting people, cafés, shops, directions, family, daily routine, weather, the weekend, opinions. Each unit goes: listen → words in groups of 5 → one grammar idea → mixed practice → role-play. |
+| 📚 **18-unit course (A1 → A2)** | Original dialogues from real situations: meeting people, cafés, shops, directions, family, daily routine, weather, the weekend, opinions, the doctor, renting a flat, work, travel, phone calls and changing plans, feelings. Each unit goes: listen → words in groups of 5 → one grammar idea → mixed practice → role-play. |
 | 🔁 **Spaced repetition (FSRS-5)** | Each word is scheduled just before you'd forget it. Exercises get harder as a memory gets stronger: recognition → fill the gap in context → type or say it → listening → word order. |
 | 📄 **Import your textbook PDF** | Any text-based PDF becomes a tap-to-translate reader. Glossary lines like `et hus – a house` or `å spise = to eat` (including table columns) are detected and offered as flashcards, each with an example sentence from the same book. You can also paste plain text. |
 | 📖 **Graded stories** | One short story per unit. Every text shows the % of words you already know and colours each word by what you know. |
 | 🗣️ **Speaking** | Scripted role-plays (type or use the microphone), shadowing with a pronunciation score, and an optional **AI conversation partner** that talks at your level and corrects you gently. |
 | 🔢 **Drills** | Unlimited number and clock-time drills ("halv sju" = 6:30!). |
-| 🎮 **Motivation & habit** | XP, levels with Norwegian titles, combos with rising sounds, surprise bonuses, achievements, a daily goal ring, a forgiving streak with streak freezes, daily missions that bring Norwegian into everyday life, a journey map, a 12-week activity map and a "conversation readiness" meter. |
+| 🎮 **Motivation & habit** | XP, levels with Norwegian titles, combos with rising sounds, surprise bonuses, achievements, a daily goal ring, a streak celebration at the end of each day's first session, a forgiving streak with streak freezes, daily missions that bring Norwegian into everyday life, a journey map, a 12-week activity map and a "conversation readiness" meter. |
+| ➡️ **Today's plan** | Reviews → new words → a story → speaking → a real-life mission. Home shows it as a checklist, and every finish screen has a "Next:" button, so one activity flows into the next. A new lesson is followed by its story, which gives the new words a short gap before their first review. |
 | 🌊 **Flow mode** | Distraction-free sessions with instant feedback, keyboard shortcuts (Enter, 1–4), auto-advance on correct answers, and a controller that eases off or stretches you so you stay around 85% success. |
 
 The in-app page **☰ → How it works** explains which psychological principle drives each feature: spaced repetition, active recall/retrieval practice, cognitive load, contextual learning, comprehensible input, output/production effect, interleaving, chunking, flow, variable rewards, habit formation and goal-gradient.

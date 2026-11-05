@@ -5,7 +5,7 @@ import { UNITS, lesson, isUnlocked, currentUnit, unitMastery } from '../core/cou
 import { navigate } from '../ui/router.js';
 import { roleplayBest } from './roleplay.js';
 
-const STOPS = ['✈️', '☕', '🎬', '🧇', '👨‍👩‍👧', '🚋', '🧥', '🚉', '🌲', '🌧️', '🏡', '💬'];
+const STOPS = ['✈️', '☕', '🎬', '🧇', '👨‍👩‍👧', '🚋', '🧥', '🚉', '🌲', '🌧️', '🏡', '💬', '🩺', '🛋️', '💼', '🌌', '📞', '💛'];
 
 export function learnView(root) {
   const cur = currentUnit();
@@ -23,7 +23,7 @@ export function learnView(root) {
         navigate(`#/lesson/${u.id}/${st.done ? 'intro' : st.step || 'intro'}`);
       },
     },
-    h('div.node-icon', ring(st.done ? Math.max(m, 0.15) : m, { size: 64, stroke: 6, label: st.done ? '✓' : unlocked ? STOPS[i] : '🔒' })),
+    h('div.node-icon', ring(st.done ? Math.max(m, 0.15) : m, { size: 64, stroke: 6, label: st.done ? '✓' : unlocked ? STOPS[i] : '🔒', animate: true })),
     h('div.node-text',
       h('div.small.muted', `Unit ${i + 1}`),
       h('div.strong', u.title),

@@ -158,6 +158,81 @@ export const STORIES = [
       ['Nå koser hun seg også!', 'Now she’s enjoying herself too!'],
     ],
   },
+  {
+    id: 's13', unit: 'u13', title: 'En forkjølet uke', level: 'A2',
+    sentences: [
+      ['Emma er forkjølet.', 'Emma has a cold.'],
+      ['Hun har vondt i halsen, og hun er veldig trøtt.', 'She has a sore throat, and she is very tired.'],
+      ['Legen sier at hun må hvile i et par dager.', 'The doctor says that she has to rest for a couple of days.'],
+      ['Sofie kommer på besøk med suppe og appelsiner.', 'Sofie comes to visit with soup and oranges.'],
+      ['«Du bør drikke mye te,» sier Sofie.', '“You should drink lots of tea,” says Sofie.'],
+      ['Emma ligger på sofaen og ser på norske serier.', 'Emma lies on the sofa and watches Norwegian series.'],
+      ['Hun lærer mange nye ord – også når hun er syk!', 'She learns lots of new words – even when she’s ill!'],
+      ['På fredag føler hun seg mye bedre.', 'On Friday she feels much better.'],
+    ],
+  },
+  {
+    id: 's14', unit: 'u14', title: 'Innflytningsfest', level: 'A2',
+    sentences: [
+      ['Sofie har flyttet til en ny leilighet på Grünerløkka.', 'Sofie has moved to a new flat in Grünerløkka.'],
+      ['Leiligheten er ikke stor, men den er lys og koselig.', 'The flat isn’t big, but it’s bright and cosy.'],
+      ['I stua står en grønn sofa og en stor bokhylle.', 'In the living room there is a green sofa and a big bookshelf.'],
+      ['Kjøkkenet er lite, så hun spiser ofte på balkongen.', 'The kitchen is small, so she often eats on the balcony.'],
+      ['Derfra kan hun se hele byen.', 'From there she can see the whole city.'],
+      ['Husleia er høy, men Sofie er fornøyd.', 'The rent is high, but Sofie is happy.'],
+      ['På lørdag har hun innflytningsfest.', 'On Saturday she has a housewarming party.'],
+      ['Alle vennene hennes kommer, og Emma har med en plante.', 'All her friends come, and Emma brings a plant.'],
+    ],
+  },
+  {
+    id: 's15', unit: 'u15', title: 'Ahmeds vei til Norge', level: 'A2',
+    sentences: [
+      ['Ahmed kom til Norge for ti år siden.', 'Ahmed came to Norway ten years ago.'],
+      ['Først bodde han i Bergen, der han lærte norsk.', 'First he lived in Bergen, where he learned Norwegian.'],
+      ['Det var vanskelig i begynnelsen, men han øvde hver dag.', 'It was hard at the beginning, but he practised every day.'],
+      ['Han har jobbet med IT i mange år.', 'He has worked in IT for many years.'],
+      ['Nå bor han i Oslo med kona og to barn.', 'Now he lives in Oslo with his wife and two children.'],
+      ['Barna hans snakker bedre norsk enn ham!', 'His children speak better Norwegian than him!'],
+      ['«Det viktigste er å fortsette,» sier Ahmed.', '“The most important thing is to keep going,” says Ahmed.'],
+    ],
+  },
+  {
+    id: 's16', unit: 'u16', title: 'Nordlys', level: 'A2',
+    sentences: [
+      ['Emma er i Tromsø for første gang.', 'Emma is in Tromsø for the first time.'],
+      ['Det er desember, og sola kommer ikke opp i det hele tatt.', 'It’s December, and the sun doesn’t come up at all.'],
+      ['Det kalles mørketid.', 'It’s called the polar night.'],
+      ['Om kvelden tar hun bussen ut av byen.', 'In the evening she takes the bus out of town.'],
+      ['Det er kaldt, minus femten grader, men himmelen er klar.', 'It’s cold, minus fifteen degrees, but the sky is clear.'],
+      ['Plutselig ser hun grønt lys over fjellene.', 'Suddenly she sees green light over the mountains.'],
+      ['Nordlyset danser over himmelen!', 'The northern lights dance across the sky!'],
+      ['«Dette er det vakreste jeg har sett,» tenker Emma.', '“This is the most beautiful thing I have ever seen,” Emma thinks.'],
+    ],
+  },
+  {
+    id: 's17', unit: 'u17', title: 'En ny plan', level: 'A2',
+    sentences: [
+      ['Emma skulle gå på kino med Lars på fredag.', 'Emma was going to go to the cinema with Lars on Friday.'],
+      ['Men sjefen hennes spurte om hun kunne jobbe sent.', 'But her boss asked if she could work late.'],
+      ['Emma sendte en melding til Lars: «Beklager, jeg kan ikke i kveld.»', 'Emma sent a message to Lars: “Sorry, I can’t tonight.”'],
+      ['Lars svarte med en gang: «Ikke noe problem! Hva med lørdag?»', 'Lars answered right away: “No problem! What about Saturday?”'],
+      ['På lørdag møttes de på en kafé ved elva.', 'On Saturday they met at a café by the river.'],
+      ['Etterpå gikk de en lang tur langs Akerselva.', 'Afterwards they went for a long walk along the Akerselva river.'],
+      ['Emma synes at det var mye bedre enn kino.', 'Emma thinks that it was much better than the cinema.'],
+    ],
+  },
+  {
+    id: 's18', unit: 'u18', title: 'God jul!', level: 'A2',
+    sentences: [
+      ['I desember reiser Emma hjem til Skottland.', 'In December Emma travels home to Scotland.'],
+      ['Hele familien hennes venter på flyplassen.', 'Her whole family is waiting at the airport.'],
+      ['Mamma gråter litt, fordi hun er så glad.', 'Mum cries a little, because she is so happy.'],
+      ['Broren hennes har med barna sine, og de løper mot tante Emma.', 'Her brother has brought his children, and they run towards aunt Emma.'],
+      ['På julaften lærer Emma familien å si «God jul».', 'On Christmas Eve Emma teaches the family to say “God jul”.'],
+      ['De ler mye, men de prøver hardt!', 'They laugh a lot, but they try hard!'],
+      ['Emma savner Norge litt også, og hun gleder seg til nyttårsaften med Sofie.', 'Emma misses Norway a little too, and she’s looking forward to New Year’s Eve with Sofie.'],
+    ],
+  },
 ];
 
 export const storyById = (id) => STORIES.find((s) => s.id === id);

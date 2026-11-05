@@ -9,6 +9,7 @@ import { UNITS } from '../data/units.js';
 import { STORIES } from '../data/stories.js';
 import { DICTIONARY } from '../data/dictionary.js';
 import { makeCloze } from '../js/core/text.js';
+import { parseNumberWord } from '../js/core/lexicon.js';
 
 const dictHas = (w) => DICTIONARY.has(w);
 
@@ -115,4 +116,26 @@ test('course content is well-formed', () => {
     }
   }
   assert.equal(STORIES.length, UNITS.length);
+});
+
+test('glossary finds infinitives without “å” and reads compound numbers', () => {
+  assert.equal(DICTIONARY.get('danse').en, 'to dance');
+  assert.equal(DICTIONARY.get('danse').no, 'å danse');
+  assert.ok(DICTIONARY.get('spise'));
+  assert.equal(parseNumberWord('tjuefem'), 25);
+  assert.equal(parseNumberWord('åttifire'), 84);
+  assert.equal(parseNumberWord('tjue'), null);
+  assert.equal(parseNumberWord('tirsdag'), null);
+});
+
+test('today’s plan leads from new words to reading, speaking and the mission', async () => {
+  const { nextStep, todayPlan } = await import('../js/core/today.js');
+  const { bump, update } = await import('../js/core/store.js');
+  assert.deepEqual(todayPlan().map((i) => i.id), ['reviews', 'lesson', 'story', 'speak', 'mission']);
+  assert.equal(nextStep().id, 'lesson'); // nothing due yet → learn something new
+  bump('lessons', 1);                     // finishing a lesson also counts as speaking (it ends with a role-play)
+  update((s) => { s.lessons.u01 = { step: 'done', done: true }; });
+  assert.equal(nextStep().id, 'story');
+  assert.equal(nextStep().href, '#/read/story/s01');
+  assert.equal(nextStep('story').id, 'mission');
 });

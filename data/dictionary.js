@@ -933,6 +933,98 @@ ingen ting = nothing
 sjelden = rare, seldom
 deilig = lovely, delicious
 spennende = exciting
+vanlig = usual, ordinary, common
+paracet = paracetamol (painkiller)
+forkjølet = having a cold
+et par = a couple (of)
+par (et) = pair, couple
+appelsin (en) = orange
+appelsiner = oranges
+besøk (et) = visit (på besøk = visiting)
+sofa (en) = sofa
+sofaen = the sofa
+serie (en) = series, TV show
+serier = series, TV shows
+inn = in, into (direction)
+praktisk = practical
+verdt = worth
+å bære = to carry
+møbler = furniture
+møblene = the furniture
+bokhylle (ei) = bookshelf
+bokhylla = the bookshelf
+derfra = from there
+innflytningsfest (en) = housewarming party
+plante (en) = plant
+IT = IT, computing
+bodd = lived (har bodd)
+lært = learned (har lært)
+jobbet = worked
+viktigste = (the) most important
+begynnelse (en) = beginning (i begynnelsen = at first)
+begynnelsen = the beginning
+øvde = practised
+å fortsette = to continue, to keep going
+bestilt = booked, ordered
+netter = nights
+serveres = is served
+flott = great, lovely
+opp = up
+i det hele tatt = at all
+kalles = is called
+mørketid (ei) = polar night, the dark season
+minus = minus
+himmel (en) = sky, heaven
+himmelen = the sky
+grønt = green (neut.)
+vakreste = (the) most beautiful
+å skje = to happen
+skjer = happens (Hva skjer? = What’s up?)
+synd = pity (Så synd! = What a pity!)
+stedet = the place (i stedet = instead)
+avtale (en) = appointment, plan, agreement (Avtale! = Deal!)
+snakkes = talk (Vi snakkes! = Talk soon!)
+sendte = sent
+svarte = answered
+med en gang = right away
+møttes = met (each other)
+elv (ei) = river
+elva = the river
+langs = along
+lyst (en) = wish, desire (ha lyst til = feel like)
+hjemmefra = from home
+savner = miss(es)
+å savne = to miss
+flyplass (en) = airport
+flyplassen = the airport
+å løpe = to run
+løper = run(s)
+julaften = Christmas Eve
+god jul = Merry Christmas
+jul (ei) = Christmas
+ler = laugh(s)
+hardt = hard
+å feire = to celebrate
+nyttårsaften = New Year’s Eve
+humør (et) = mood
+alene = alone
+å = to (before a verb: å spise = to eat)
+ut = out
+lenge = long (time) (hvor lenge = how long)
+la = let; lay (past of å ligge)
+snill = kind (er du snill = please)
+bedring (ei) = improvement (God bedring! = Get well soon!)
+super = great
+supert = great!
+å stoppe = to stop
+stopper = stop(s)
+fantastisk = fantastic
+fredagskos = cosy Friday night in
+søndagskos = cosy Sunday time
+medium = medium
+small = small (clothing size)
+hmm = hmm
+språkkafeen = the language café
 `;
 
 export const DICTIONARY = new Map();
@@ -940,7 +1032,8 @@ for (const line of RAW.split('\n')) {
   const m = line.match(/^\s*(.+?)\s*(?:\((en|ei|et)\))?\s*=\s*(.+?)\s*$/);
   if (!m) continue;
   const [, word, g, en] = m;
-  const key = word.toLowerCase();
+  // Infinitives are written "å spise" but appear in texts as "spise" – index them without "å".
+  const key = word.toLowerCase().replace(/^å\s+/, '');
   const prev = DICTIONARY.get(key);
   if (prev) { if (!prev.en.includes(en)) prev.en += `; ${en}`; continue; }
   DICTIONARY.set(key, { no: word, en, g: g || '' });

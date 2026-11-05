@@ -40,6 +40,8 @@ export function lookup(raw) {
     const d = DICTIONARY.get(cand);
     if (d) return { word, lemma: cand, en: d.en, g: d.g, card: null, source: 'dict', no: d.g ? `${d.g} ${d.no}` : d.no };
   }
+  const n = parseNumberWord(word);
+  if (n != null) return { word, lemma: word, en: `${n} (number)`, g: '', card: null, source: 'dict', no: word };
   return { word, lemma: word, en: '', g: '', card: null, source: 'none' };
 }
 
@@ -53,6 +55,22 @@ export function lookupPhrase(text) {
     if (d) return { word: text, lemma: k, en: d.en, source: 'dict' };
   }
   return lookup(ws[0] ?? text);
+}
+
+// Compound numbers are written as one word ("tjuefem" = 25, "åttifem" = 85).
+const ONES = { en: 1, ett: 1, to: 2, tre: 3, fire: 4, fem: 5, seks: 6, sju: 7, syv: 7, åtte: 8, ni: 9 };
+const TENS = { tjue: 20, tyve: 20, tretti: 30, førti: 40, femti: 50, seksti: 60, sytti: 70, åtti: 80, nitti: 90 };
+
+/** "tjuefem" → 25, "åttifire" → 84; null if the word isn't a compound number. */
+export function parseNumberWord(word) {
+  const w = String(word).toLowerCase();
+  for (const [t, tv] of Object.entries(TENS)) {
+    if (w.startsWith(t) && w.length > t.length) {
+      const rest = w.slice(t.length);
+      if (ONES[rest]) return tv + ONES[rest];
+    }
+  }
+  return null;
 }
 
 export const externalLinks = (word) => ({

@@ -13,6 +13,7 @@ import { similarity } from '../core/text.js';
 import { settings } from '../core/store.js';
 import { mountRoleplay } from './roleplay.js';
 import { navigate } from '../ui/router.js';
+import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 
 const CHUNK = 5; // working-memory friendly chunk size
 
@@ -90,7 +91,11 @@ function listenStep(el, unit, next) {
         b.classList.remove('live');
       },
     }, '🎙') : null;
-    const row = h('div.line', { class: `sp-${speakers.indexOf(sp) % 4}`, onclick: () => enEl.classList.toggle('hidden') },
+    const row = h('div.line', {
+      class: `sp-${speakers.indexOf(sp) % 4}`,
+      // In audio-only mode a tap reveals the line; otherwise it shows the English.
+      onclick: () => (dialogue.classList.contains('audio-only') ? row.classList.toggle('peek') : enEl.classList.toggle('hidden')),
+    },
       h('div.line-sp', sp),
       h('div.line-main', h('div.line-no.no', tappable(no, { sentence: no, translation: en, src: `course:${unit.id}` })), enEl),
       h('div.line-actions', speakBtn(no, { pitch: pitch(sp) }), shadow));
@@ -112,11 +117,23 @@ function listenStep(el, unit, next) {
     },
   }, '▶ Play conversation');
   const showAll = h('button.btn.ghost', { onclick: () => el.querySelectorAll('.line-en').forEach((e) => e.classList.toggle('hidden')) }, 'Show/hide English');
+  const dialogue = h('div.dialogue', ...lines);
+  // Listening without reading trains the ear for real conversations.
+  const audioOnly = h('button.btn.ghost', {
+    'aria-pressed': 'false',
+    onclick: () => {
+      const on = dialogue.classList.toggle('audio-only');
+      audioOnly.classList.toggle('on', on);
+      audioOnly.setAttribute('aria-pressed', String(on));
+      lines.forEach((r) => r.classList.remove('peek'));
+      if (on) toast('🎧 Audio only: listen first, then tap a line to check it.', { ms: 3000 });
+    },
+  }, '🎧 Audio only');
   add(el, h('div.stack',
     h('div.card.tip', h('b', '👂 Listen for: '), unit.focus,
       h('div.small.muted', 'First listen without reading the English. Tap a line to check it, tap a word for its meaning. Guessing from context first makes the meaning stick.')),
-    h('div.row.wrap', playAll, showAll),
-    h('div.dialogue', ...lines),
+    h('div.row.wrap', playAll, audioOnly, showAll),
+    dialogue,
     h('div.row.end', h('button.btn.primary.big', { onclick: () => { addXp(10, 'listen'); next(); } }, 'I’ve listened ▸'))));
   return () => { playing = false; stopSpeaking(); };
 }
@@ -338,9 +355,10 @@ function doneStep(el, unit, next, go) {
     h('div.card.stack',
       h('div.kicker', '⏰ What happens next'),
       h('p', 'Your new words come back in your daily review – in about 10 minutes, tomorrow, and then at growing intervals. Five minutes a day keeps them forever.'),
-      h('p', 'Want more input? Read the short story for this unit – you’ll know almost every word.')),
+      h('p', 'Meanwhile, read the short story for this unit – you’ll know almost every word.')),
+    nextStepBlock('lesson'),
     h('div.row.wrap.center',
-      h('a.btn', { href: '#/review' }, '🔁 Review now'),
-      h('a.btn', { href: `#/read/story/s${unit.id.slice(1)}` }, '📖 Read the story'),
-      nextUnit ? h('a.btn.primary', { href: `#/lesson/${nextUnit.id}/intro` }, `Next: ${nextUnit.title} ▸`) : h('a.btn.primary', { href: '#/speak' }, 'Practise speaking ▸'))));
+      nextUnit ? h('a.btn', { href: `#/lesson/${nextUnit.id}/intro` }, `Next unit: ${nextUnit.title}`) : h('a.btn', { href: '#/speak' }, 'Practise speaking'),
+      h('a.btn', { href: '#/' }, 'Home'))));
+  flushCelebrations();
 }

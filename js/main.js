@@ -4,7 +4,7 @@ import { load, subscribe, settings, getState } from './core/store.js';
 import { route, start, navigate, current } from './ui/router.js';
 import { h, $, clear, toast, confetti, sfx, modal, ring, haptic, add } from './ui/dom.js';
 import * as G from './core/gamify.js';
-import { dueCount } from './core/deck.js';
+import { cardsReadyNow } from './core/today.js';
 import { homeView } from './views/home.js';
 import { learnView } from './views/learn.js';
 import { lessonView } from './views/lesson.js';
@@ -20,6 +20,7 @@ import { scienceView } from './views/science.js';
 import { settingsView } from './views/settings.js';
 import { maybeOnboard } from './views/onboarding.js';
 import { onVoiceProblem } from './core/speech.js';
+import { queueCelebration, flushCelebrations } from './ui/celebrate.js';
 
 load();
 G.reconcileStreak();
@@ -32,6 +33,16 @@ function applyTheme() {
 applyTheme();
 
 route('/', homeView);
+// "Next: today's mission" lands on Home with the mission card in view.
+route('/mission', (root) => {
+  const cleanup = homeView(root);
+  setTimeout(() => {
+    const card = document.getElementById('mission');
+    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card?.classList.add('spotlight');
+  }, 350);
+  return cleanup;
+});
 route('/learn', learnView);
 route('/lesson/:unitId/:step', lessonView);
 route('/lesson/:unitId', lessonView);
@@ -64,7 +75,7 @@ function renderChrome() {
   const st = G.streak();
   const lv = G.levelInfo();
   const xpToday = G.todayXp(), goal = G.dailyGoal();
-  const due = dueCount();
+  const ready = cardsReadyNow();
   add(clear(top), 
     h('a.brand', { href: '#/' }, h('span.flag', { 'aria-hidden': 'true' }), h('span', 'Norsk ', h('b', 'Nå'))),
     h('div.top-right',
@@ -85,9 +96,9 @@ function renderChrome() {
   const path = current();
   add(clear(tabs), ...TABS.map(([p, icon, label]) => h('a.tab', {
     href: `#${p}`,
-    class: (p === '/' ? path === '/' : path.startsWith(p)) ? 'active' : '',
+    class: (p === '/' ? path === '/' || path === '/mission' : path.startsWith(p)) ? 'active' : '',
   }, h('span.tab-icon', icon), h('span.tab-label', label),
-  p === '/review' && due.total ? h('span.badge', String(due.total > 99 ? '99+' : due.total)) : null)));
+  p === '/review' && ready ? h('span.badge', String(ready > 99 ? '99+' : ready)) : null)));
   top.querySelector('details.menu')?.addEventListener('click', (e) => { if (e.target.tagName === 'A') e.currentTarget.open = false; });
 }
 
@@ -102,6 +113,7 @@ G.on('levelup', (lv) => {
     { icon: '⬆️', kind: 'gold', ms: 4200 });
 });
 G.on('achievement', (a) => { sfx.bonus(); toast(h('span', h('b', `${a.title}`), h('br'), h('span.small', a.desc)), { icon: a.icon, kind: 'gold', ms: 3800 }); });
+G.on('streak', (data) => queueCelebration('streak', data));
 G.on('goal', () => { sfx.goal(); confetti(120); toast(h('span', h('b', 'Daily goal reached! 🎯'), h('br'), h('span.small', 'Everything from here is a bonus.')), { icon: '🏁', kind: 'gold', ms: 4000 }); });
 G.on('freeze', ({ freezes }) => toast(`7 days in a row! You earned a streak freeze ❄️ (${freezes} in the bank).`, { icon: '❄️', ms: 4500 }));
 G.on('comeback', ({ days }) => {
@@ -135,6 +147,7 @@ start($('#view'), {
   changed: () => {
     const focus = $('#view').classList.contains('focus-view');
     document.body.classList.toggle('focus', focus);
+    if (!focus) flushCelebrations();
     renderChrome();
   },
 });
