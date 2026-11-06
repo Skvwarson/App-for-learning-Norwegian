@@ -5,9 +5,10 @@
 
 import { UNITS } from './units.js';
 
-/** unit id → number of recorded lines (1 … n). */
+/** unit id → number of recorded lines (1 … n), or a list of the recorded line numbers. */
 export const RECORDED_UNITS = {
   u01: 12,
+  u02: [2, 4, 6, 8, 10, 12], // Emma; Sofie's lines still use the voice
 };
 
 /** Dialogue text → audio file URL. */
@@ -16,9 +17,11 @@ export function recordingEntries() {
   for (const [id, count] of Object.entries(RECORDED_UNITS)) {
     const unit = UNITS.find((u) => u.id === id);
     if (!unit) continue;
-    unit.dialogue.slice(0, count).forEach(([, no], i) => {
-      out.push([no, `audio/${id}/${String(i + 1).padStart(2, '0')}.mp3`]);
-    });
+    const numbers = Array.isArray(count) ? count : Array.from({ length: count }, (_, i) => i + 1);
+    for (const n of numbers) {
+      const line = unit.dialogue[n - 1];
+      if (line) out.push([line[1], `audio/${id}/${String(n).padStart(2, '0')}.mp3`]);
+    }
   }
   return out;
 }

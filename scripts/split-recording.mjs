@@ -4,8 +4,9 @@
 //
 //   node scripts/split-recording.mjs u02 Emma path/to/emma.mp3 [--out audio/u02] [--dry]
 //
-// Finds the pauses between lines with ffmpeg's silencedetect, cuts in the middle
-// of the longest pauses, and checks that each piece's length matches its sentence.
+// Finds every pause with ffmpeg's silencedetect, then picks the cut points whose
+// pieces best fit each line's text (pauses between lines are often as short as
+// pauses between sentences), and reports each piece's length for checking.
 // Needs ffmpeg and ffprobe on the PATH.
 
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -46,35 +47,61 @@ function detect(noiseDb, minDur) {
   return out;
 }
 
-// Try progressively more sensitive settings until we find enough pauses between lines.
-let gaps = [];
-for (const [db, d] of [[-40, 0.5], [-35, 0.4], [-35, 0.3], [-30, 0.25], [-28, 0.2]]) {
-  const all = detect(db, d);
-  const inner = all.filter((s) => s.start > 0.05 && s.end < duration - 0.05);
-  if (inner.length >= lines.length - 1) {
-    gaps = inner.sort((a, b) => (b.end - b.start) - (a.end - a.start)).slice(0, lines.length - 1).sort((a, b) => a.start - b.start);
-    break;
-  }
+// 1. Every pause, then the stretches of speech between them.
+const PAD = 0.2; // seconds kept around speech so soft word endings are never clipped
+const pauses = detect(-35, 0.2);
+const segs = [];
+let cursor = 0;
+for (const p of pauses) {
+  if (p.start - cursor > 0.08) segs.push({ start: cursor, end: p.start });
+  cursor = p.end;
 }
-if (gaps.length < lines.length - 1) {
-  console.error(`Found only ${gaps.length} pauses but ${speaker} has ${lines.length} lines. Re-record with longer pauses between lines.`);
+if (duration - cursor > 0.08) segs.push({ start: cursor, end: duration });
+if (segs.length < lines.length) {
+  console.error(`Found only ${segs.length} stretches of speech but ${speaker} has ${lines.length} lines. Re-record with a clear pause between lines.`);
   process.exit(2);
 }
 
-// Speech boundaries: leading/trailing silence trimmed, cut inside each gap with a little padding.
-const lead = detect(-40, 0.1).find((s) => s.start <= 0.05);
-const trail = detect(-40, 0.1).find((s) => s.end >= duration - 0.05);
-const PAD = 0.2; // seconds kept around speech so soft word endings are never clipped
-const bounds = [];
-let from = lead ? Math.max(0, lead.end - PAD) : 0;
-for (const g of gaps) {
-  bounds.push([from, Math.min(g.end, g.start + PAD)]);
-  from = Math.max(g.start, g.end - PAD);
+// 2. Group consecutive stretches into lines so each line's length best fits its text.
+//    Pauses between lines are often no longer than pauses between sentences, so we
+//    can't just cut at the longest pauses – the text tells us where the lines end.
+const sentenceCount = (t) => Math.max(1, (t.match(/[.!?…]+[»”"]*(\s|$)/g) ?? []).length);
+const chars = lines.map((l) => l.no.length);
+// Compare *speaking* time only – pauses vary wildly and would distort the fit.
+const talk = (a, b) => segs.slice(a, b + 1).reduce((t, g) => t + (g.end - g.start), 0);
+const perChar = talk(0, segs.length - 1) / chars.reduce((a, b) => a + b, 0);
+const gapAfter = (k) => (k + 1 < segs.length ? segs[k + 1].start - segs[k].end : 1);
+const lineCost = (j, a, b) => {
+  const dur = talk(a, b);
+  const fit = Math.log(dur / (chars[j] * perChar)) ** 2;           // length matches the text
+  const sentences = Math.abs((b - a + 1) - sentenceCount(lines[j].no)) * 0.1; // pauses usually fall between sentences
+  const boundary = -0.3 * Math.min(1, gapAfter(b));                 // prefer cutting at longer pauses
+  return fit + sentences + boundary;
+};
+const S = segs.length, L = lines.length;
+const best = Array.from({ length: L + 1 }, () => Array(S + 1).fill(Infinity));
+const from = Array.from({ length: L + 1 }, () => Array(S + 1).fill(-1));
+best[0][0] = 0;
+for (let j = 1; j <= L; j++) {
+  for (let b = j; b <= S - (L - j); b++) {
+    for (let a = j - 1; a < b; a++) {
+      if (best[j - 1][a] === Infinity) continue;
+      const c = best[j - 1][a] + lineCost(j - 1, a, b - 1);
+      if (c < best[j][b]) { best[j][b] = c; from[j][b] = a; }
+    }
+  }
 }
-bounds.push([from, trail ? Math.min(duration, trail.start + PAD) : duration]);
+const groups = [];
+for (let j = L, b = S; j > 0; j--) { const a = from[j][b]; groups.unshift([a, b - 1]); b = a; }
+
+// 3. Cut points: a little padding around the speech, never past the middle of a pause.
+const bounds = groups.map(([a, b]) => {
+  const prevMid = a > 0 ? (segs[a - 1].end + segs[a].start) / 2 : 0;
+  const nextMid = b + 1 < S ? (segs[b].end + segs[b + 1].start) / 2 : duration;
+  return [Math.max(prevMid, segs[a].start - PAD), Math.min(nextMid, segs[b].end + PAD)];
+});
 
 // Sanity check: speaking time should roughly follow sentence length.
-const chars = lines.map((l) => l.no.length);
 const secs = bounds.map(([a, b]) => b - a);
 const rate = secs.reduce((x, y) => x + y, 0) / chars.reduce((x, y) => x + y, 0);
 let suspicious = 0;
