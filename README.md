@@ -77,6 +77,8 @@ Open **Snakk → AI conversation partner**, paste a Claude API key from [console
 - knows which words you know, and uses at most 1–2 new words per reply (comprehensible input);
 - returns a translation on tap, a gentle correction of your last message, and 2–3 suggested replies;
 - collects new words so you can add them to your deck at the end.
+- **⌨️ Write mode:** you type; every reply comes back as text *and* voice (choose ElevenLabs in Settings → Voice for a natural one).
+- **🎙 Voice mode:** hands-free – you speak, it transcribes (your browser's recognition, or ElevenLabs in Brave), Claude answers, the reply is spoken, and it listens again.
 
 The key is stored only in this browser's local storage and is sent only to `api.anthropic.com`. Usage is billed to your Anthropic account. The default model is **Claude Opus 5.5**; Sonnet 5.5 and Haiku 5.5 are cheaper options in Settings. Requests use low effort for quick replies, structured JSON output, and Anthropic's server-side refusal fallback (`fallbacks: "default"`) on the models that support it.
 
