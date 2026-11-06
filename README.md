@@ -45,7 +45,7 @@ Choose where audio comes from in **Settings → Voice**:
 
 Cloud audio is generated once per sentence and saved on your device, so replays are free and work offline. The app never lets an English voice read Norwegian (that's how "Vi sees" becomes "six sees"). If there's no Norwegian voice, audio is muted and you're shown how to fix it.
 
-**Real recordings.** Dialogue lines can have their own recordings, which play instead of any voice. Unit 1 has them (made with ElevenLabs). To add another unit: make one file per dialogue line (`01.mp3`, `02.mp3` …), upload them to `audio/u02/` (or the matching unit), and add the unit to `data/recordings.js`.
+**Real recordings.** Dialogue lines can have their own recordings, which play instead of any voice. Unit 1 has them (made with ElevenLabs). To add another unit: record **one file per speaker** with a clear pause (1–2 s) between their lines, then cut it with `node scripts/split-recording.mjs u02 Emma emma.mp3` – it finds the pauses, writes `audio/u02/02.mp3`, `04.mp3` … and checks each piece against its sentence. Then add the unit to `data/recordings.js`.
 
 Free device voices:
 - **Windows:** use **Microsoft Edge**, which usually includes natural-sounding Norwegian voices and supports the microphone. Brave and Chrome only see Windows' older built-in voices, so an installed Norwegian voice pack usually doesn't show up in them, and Brave has no speech recognition at all.
