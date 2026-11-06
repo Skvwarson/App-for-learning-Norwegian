@@ -407,6 +407,13 @@ table.mini td.big { font-size: 1.6rem; font-family: var(--font-no); color: var(-
 .cue-label { display: inline-block; background: var(--gold); color: #fff; font-size: .72rem; padding: 1px 8px; border-radius: 6px; margin-right: 8px; text-transform: uppercase; letter-spacing: .05em; }
 .suggestions .chip { font-family: var(--font-no); }
 .ai-card { border-left: 4px solid var(--navy); }
+.mode-switch .btn.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+.voice-panel { padding: 12px 0 4px; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); }
+.voice-orb { width: 84px; height: 84px; border-radius: 50%; border: 0; font-size: 2rem; cursor: pointer; background: var(--accent); color: #fff; box-shadow: var(--shadow); }
+.voice-orb[data-state="listening"] { animation: pulse 1s infinite; }
+.voice-orb[data-state="thinking"], .voice-orb[data-state="processing"] { opacity: .6; }
+.voice-orb[data-state="speaking"] { background: var(--navy); }
+.voice-state { font-weight: 700; color: var(--muted); min-height: 1.4em; text-align: center; }
 
 /* ---------- reading ---------- */
 .reader h1 { font-family: var(--font-no); }

@@ -89,6 +89,8 @@ async function tapAllTiles(page) {
   log('grammar ok');
   await page.click('text=Next: practice ▸');
   for (let i = 0; i < 24; i++) {
+    // Wait until the next exercise (or the end of practice) is on screen.
+    await page.locator('.answer:not([disabled]), .tile-pool .tile').or(page.getByText('Next: speak ▸')).first().waitFor({ timeout: 8000 });
     if (await page.$('text=Next: speak ▸')) break;
     if (i === 1) await shot('08-practice');
     const inp = await page.$('.answer:not([disabled])');

@@ -6,7 +6,7 @@ import { UNITS, lesson } from '../core/course.js';
 import { roleplayBest } from './roleplay.js';
 import { settings, update } from '../core/store.js';
 import { createConversation, SCENARIOS, MODELS } from '../core/tutor.js';
-import { speak, canListen, listenBlocker } from '../core/speech.js';
+import { speak, canListen, listenBlocker, listen, stopListening, stopSpeaking, voiceStatus } from '../core/speech.js';
 import { addCard } from '../core/deck.js';
 import { addXp, unlock, getGame } from '../core/gamify.js';
 import { navigate } from '../ui/router.js';
@@ -38,7 +38,12 @@ export function chatView(root) {
   add(root, head, body);
   if (!settings().aiKey) return keySetup(body);
   pickScenario(body);
+  return () => { stopActiveChat?.(); stopActiveChat = null; };
 }
+
+let stopActiveChat = null;
+const MODE_KEY = 'nn.chatMode';
+const savedMode = () => { try { return localStorage.getItem(MODE_KEY) === 'voice' ? 'voice' : 'write'; } catch { return 'write'; } };
 
 function keySetup(el) {
   const key = h('input.input', { type: 'password', placeholder: 'sk-ant-…', autocomplete: 'off' });
@@ -84,10 +89,11 @@ function startChat(el, scenarioId) {
       h('div.bubble-tools', speakBtn(out.reply), h('button.link', { onclick: () => en.classList.toggle('hidden') }, 'EN')));
     add(log, b);
     b.scrollIntoView({ block: 'end', behavior: 'smooth' });
-    speak(out.reply);
+    const spoken = speak(out.reply); // every reply comes as text *and* voice
     clear(sugg);
     for (const s of out.suggestions.slice(0, 3)) add(sugg, h('button.chip', { onclick: () => { inp.input.value = s; inp.input.focus(); } }, s));
     for (const w of out.new_words ?? []) if (!gathered.some((g) => g.no === w.no)) gathered.push(w);
+    return spoken;
   };
 
   const correctionBox = (c) => c?.needed && c.corrected ? h('div.bubble-fix', h('div', '✏️ ', h('span.no', c.corrected), ' ', speakBtn(c.corrected)), c.explanation ? h('div.small.muted', c.explanation) : null) : null;
@@ -114,27 +120,86 @@ function startChat(el, scenarioId) {
         addXp(out.correction?.needed ? 5 : 8, 'chat');
         if (!out.correction?.needed) sfx.correct();
       }
-      aiBubble(out);
+      const spoken = aiBubble(out);
       status.textContent = '';
+      busy = false;
+      inp.setDisabled(false);
+      inp.input.value = '';
+      if (mode === 'voice') { setVoiceState('speaking'); await spoken; voiceTurn(); } else inp.input.focus();
+      return;
     } catch (e) {
       status.textContent = '';
       add(log, h('div.card.bad.small', e.message));
       if (you) you.remove();
+      if (mode === 'voice') setVoiceState('paused');
     }
     busy = false;
     inp.setDisabled(false);
     inp.input.value = '';
-    inp.input.focus();
   };
+
+  // ---- Voice mode: listen → Claude → ElevenLabs voice → listen again, hands-free ----
+  let mode = savedMode();
+  let alive = true;
+  let misses = 0;
+  const voiceLabel = h('div.voice-state');
+  const voiceBtn = h('button.voice-orb', { type: 'button', 'aria-label': 'Talk', onclick: () => {
+    if (voiceBtn.dataset.state === 'listening') stopListening();
+    else if (voiceBtn.dataset.state === 'speaking') { stopSpeaking(); voiceTurn(); }
+    else if (!busy) { misses = 0; voiceTurn(); }
+  } }, '🎙');
+  const setVoiceState = (st) => {
+    voiceBtn.dataset.state = st;
+    voiceLabel.textContent = { listening: 'Listening… speak Norwegian', processing: 'Checking what you said…', thinking: 'Thinking…', speaking: 'Speaking… (tap to interrupt)', paused: 'Tap 🎙 to talk' }[st] ?? '';
+  };
+  const voicePanel = h('div.voice-panel.stack.center-col', voiceBtn, voiceLabel);
+  async function voiceTurn() {
+    if (!alive || mode !== 'voice' || busy) return;
+    const blocker = listenBlocker();
+    if (blocker) { setVoiceState('paused'); voiceLabel.textContent = blocker; return; }
+    setVoiceState('listening');
+    let alts = [];
+    try {
+      alts = await listen({ onState: (s) => setVoiceState(s === 'processing' ? 'processing' : 'listening') });
+    } catch (e) { setVoiceState('paused'); voiceLabel.textContent = e.message; return; }
+    if (!alive || mode !== 'voice') return;
+    if (!alts.length) {
+      misses++;
+      if (misses >= 2) { setVoiceState('paused'); return; }
+      return voiceTurn();
+    }
+    misses = 0;
+    setVoiceState('thinking');
+    send(alts[0]);
+  }
+  stopActiveChat = () => { alive = false; stopListening(); stopSpeaking(); };
+
+  const modeBtns = h('div.row.mode-switch',
+    h('button.btn.small', { type: 'button', dataset: { m: 'write' }, onclick: () => setMode('write') }, '⌨️ Write'),
+    h('button.btn.small', { type: 'button', dataset: { m: 'voice' }, onclick: () => setMode('voice') }, '🎙 Voice'));
+  function setMode(m, initial = false) {
+    mode = m;
+    try { localStorage.setItem(MODE_KEY, m); } catch { /* */ }
+    modeBtns.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === m));
+    voicePanel.hidden = m !== 'voice';
+    inp.el.hidden = m === 'voice';
+    if (initial) { if (m === 'voice') setVoiceState('thinking'); return; } // the opening line comes first
+    if (m === 'voice') { misses = 0; if (!busy) voiceTurn(); } else { stopListening(); inp.input.focus(); }
+  }
 
   const inp = answerInput({ placeholder: 'Skriv eller snakk på norsk…', onSubmit: (v) => { if (v.trim()) send(v.trim()); } });
   inp.el.querySelector('.btn.primary').textContent = 'Send';
-  add(el, 
+  const vs = voiceStatus();
+  add(el,
     h('div.row.between', h('div', h('div.kicker', `${conv.scenario.icon} ${conv.scenario.title}`), h('div.small.muted', 'Tap words for meanings · EN shows a translation · ✏️ shows a correction')),
       h('button.btn.ghost.small', { onclick: () => finish() }, 'End')),
-    log, status, sugg, inp.el);
+    modeBtns,
+    vs.quality < 3 ? h('a.small.muted', { href: '#/settings' }, `🔊 Replies use ${vs.ok ? 'a basic voice' : 'no voice'} – choose ElevenLabs in Settings → Voice for a natural one.`) : null,
+    log, status, sugg, inp.el, voicePanel);
+  setMode(mode, true);
 
   const finish = () => {
+    stopActiveChat?.();
     clear(el);
     add(el, h('div.stack.center-col',
       h('div.big-emoji', '🗣️'),
