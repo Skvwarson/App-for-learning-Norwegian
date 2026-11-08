@@ -69,7 +69,7 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
     const line = rp.lines[i];
     if (line.who === 'them') {
       const en = h('div.bubble-en.hidden', line.en);
-      bubble('them', [h('div.bubble-name', rp.partner), h('div.no', tappable(line.no, { sentence: line.no, translation: line.en })), en,
+      bubble('them', [h('div.bubble-name', rp.partner), h('div.no', tappable(line.no, { sentence: line.no, translation: line.en, mark: false })), en,
         h('div.bubble-tools', speakBtn(line.no), h('button.link', { onclick: () => en.classList.toggle('hidden') }, 'EN'))]);
       i++;
       await speak(line.no);

@@ -97,7 +97,7 @@ function listenStep(el, unit, next) {
       onclick: () => (dialogue.classList.contains('audio-only') ? row.classList.toggle('peek') : enEl.classList.toggle('hidden')),
     },
       h('div.line-sp', sp),
-      h('div.line-main', h('div.line-no.no', tappable(no, { sentence: no, translation: en, src: `course:${unit.id}` })), enEl),
+      h('div.line-main', h('div.line-no.no', tappable(no, { sentence: no, translation: en, src: `course:${unit.id}`, mark: false })), enEl),
       h('div.line-actions', speakBtn(no, { pitch: pitch(sp) }), shadow));
     row.dataset.i = i;
     return row;

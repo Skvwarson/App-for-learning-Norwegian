@@ -84,7 +84,7 @@ function startChat(el, scenarioId) {
   const aiBubble = (out) => {
     const en = h('div.bubble-en.hidden', out.translation);
     const b = h('div.bubble.them',
-      h('div.no', tappable(out.reply, { sentence: out.reply, translation: out.translation, src: 'ai' })),
+      h('div.no', tappable(out.reply, { sentence: out.reply, translation: out.translation, src: 'ai', mark: false })),
       en,
       h('div.bubble-tools', speakBtn(out.reply), h('button.link', { onclick: () => en.classList.toggle('hidden') }, 'EN')));
     add(log, b);
