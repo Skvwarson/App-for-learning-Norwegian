@@ -123,7 +123,6 @@ export function voiceCard({ s, set, field, check }) {
       h('button.btn.ghost.small', { type: 'button', onclick: async () => { await clearAudioCache(); toast('Saved audio cleared.'); } }, 'Clear saved audio')),
     h('div.kicker', '🎵 Sound'),
     h('label.row', check('sound'), ' Sound effects'),
-    h('label.row', check('haptics'), ' Vibration (phones)'),
-    h('label.row', check('shadowing'), ' Show shadowing microphones on dialogue lines'));
+    h('label.row', check('haptics'), ' Vibration (phones)'));
 }
 

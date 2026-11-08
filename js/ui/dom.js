@@ -85,7 +85,8 @@ export function modal(content, { onClose, dismissable = true, cls = '' } = {}) {
 export function confirmModal(text, { ok = 'OK', cancel = 'Cancel', danger = false } = {}) {
   return new Promise((resolve) => {
     let m;
-    const done = (v) => { m.close(); resolve(v); };
+    // Resolve first: closing the modal also fires onClose, which would answer "false".
+    const done = (v) => { resolve(v); m.close(); };
     m = modal(h('div.stack',
       h('p', text),
       h('div.row.end', h('button.btn.ghost', { onclick: () => done(false) }, cancel),

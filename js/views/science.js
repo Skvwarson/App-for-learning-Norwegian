@@ -29,9 +29,9 @@ const PRINCIPLES = [
     how: 'Every text shows the % of words you know and colours each word. Stories are matched to the units; the AI partner is told which words you know and uses at most 1–2 new words per reply.',
   },
   {
-    icon: '🗣️', name: 'Output & the production effect', where: 'Role-plays, shadowing',
+    icon: '🗣️', name: 'Output & the production effect', where: 'Role-plays, speaking aloud',
     what: 'Producing language (Swain’s output hypothesis) reveals gaps and builds fluency; saying words aloud makes them more memorable.',
-    how: 'Each unit ends with a role-play where you speak. Dialogue lines have a “shadowing” microphone: repeat after the voice and get a pronunciation score.',
+    how: 'Each unit ends with a role-play where you speak. Play any dialogue line and repeat it out loud, copying the melody (shadowing).',
   },
   {
     icon: '🔀', name: 'Interleaving & desirable difficulty', where: 'Practice, reviews',
