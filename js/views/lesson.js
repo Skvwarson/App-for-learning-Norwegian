@@ -6,10 +6,9 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, listen, listenBlocker, stopListening, stopSpeaking, canSpeakNorwegian, hasRecording } from '../core/speech.js';
+import { speak, stopSpeaking, canSpeakNorwegian, hasRecording } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
-import { similarity } from '../core/text.js';
 import { settings } from '../core/store.js';
 import { mountRoleplay } from './roleplay.js';
 import { navigate } from '../ui/router.js';
@@ -72,25 +71,6 @@ function listenStep(el, unit, next) {
   let playing = false;
   const lines = unit.dialogue.map(([sp, no, en], i) => {
     const enEl = h('div.line-en.hidden', en);
-    const shadow = settings().shadowing ? h('button.icon-btn.mic', {
-      title: 'Shadow: repeat this line', 'aria-label': 'Repeat this line out loud',
-      onclick: async (e) => {
-        e.stopPropagation();
-        const b = e.currentTarget;
-        const blocker = listenBlocker();
-        if (blocker) { toast(blocker, { kind: 'warn', ms: 8000, icon: '🎙' }); return; }
-        if (b.classList.contains('live')) { stopListening(); return; }
-        b.classList.add('live');
-        try {
-          const alts = await listen({ onState: (st) => toast(st === 'processing' ? '⏳ Checking your pronunciation…' : '🎙 Listening… say the line', { ms: 2500 }) });
-          const score = Math.max(0, ...alts.map((a) => similarity(a, no)));
-          const pct = Math.round(score * 100);
-          toast(pct >= 85 ? `🎉 ${pct}% – great pronunciation!` : pct >= 60 ? `👍 ${pct}% – nearly there. Listen once more and copy the melody.` : `Heard: “${alts[0] ?? '…'}”. Try again slowly.`, { ms: 3500 });
-          if (pct >= 85) { sfx.correct(); addXp(3, 'shadow'); }
-        } catch (err) { toast(err.message, { kind: 'warn' }); }
-        b.classList.remove('live');
-      },
-    }, '🎙') : null;
     const row = h('div.line', {
       class: `sp-${speakers.indexOf(sp) % 4}`,
       // In audio-only mode a tap reveals the line; otherwise it shows the English.
@@ -98,7 +78,7 @@ function listenStep(el, unit, next) {
     },
       h('div.line-sp', sp),
       h('div.line-main', h('div.line-no.no', tappable(no, { sentence: no, translation: en, src: `course:${unit.id}`, mark: false })), enEl),
-      h('div.line-actions', speakBtn(no, { pitch: pitch(sp) }), shadow));
+      h('div.line-actions', speakBtn(no, { pitch: pitch(sp) })));
     row.dataset.i = i;
     return row;
   });

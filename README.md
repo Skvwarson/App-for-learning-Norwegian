@@ -12,7 +12,7 @@ No account, no server and no build step. Your progress stays in your browser.
 | 🔁 **Spaced repetition (FSRS-5)** | Each word is scheduled just before you'd forget it. Exercises get harder as a memory gets stronger: recognition → fill the gap in context → type or say it → listening → word order. |
 | 📄 **Import your textbook PDF** | Any text-based PDF becomes a tap-to-translate reader. Glossary lines like `et hus – a house` or `å spise = to eat` (including table columns) are detected and offered as flashcards, each with an example sentence from the same book. You can also paste plain text. |
 | 📖 **Graded stories** | One short story per unit. Every text shows the % of words you already know and colours each word by what you know. |
-| 🗣️ **Speaking** | Scripted role-plays (type or use the microphone), shadowing with a pronunciation score, and an optional **AI conversation partner** that talks at your level and corrects you gently. |
+| 🗣️ **Speaking** | Scripted role-plays (type or use the microphone), and an optional **AI conversation partner** that talks at your level and corrects you gently. |
 | 🔢 **Drills** | Unlimited number and clock-time drills ("halv sju" = 6:30!). |
 | 🎮 **Motivation & habit** | XP, levels with Norwegian titles, combos with rising sounds, surprise bonuses, achievements, a daily goal ring, a streak celebration at the end of each day's first session, a forgiving streak with streak freezes, daily missions that bring Norwegian into everyday life, a journey map, a 12-week activity map and a "conversation readiness" meter. |
 | ➡️ **Today's plan** | Reviews → new words → a story → speaking → a real-life mission. Home shows it as a checklist, and every finish screen has a "Next:" button, so one activity flows into the next. A new lesson is followed by its story, which gives the new words a short gap before their first review. |
@@ -61,7 +61,7 @@ Speech recognition (the 🎙 buttons) is built into Edge, Chrome and Safari. **B
 1. **Reviews first** (5–10 min): press the big button on the home screen. On a busy day, press "⚡ Just 2 minutes" to keep the habit going.
 2. **One new unit every day or two** (≈15 min). The app limits new words per day so you don't overload.
 3. **Read one short story or a page of your textbook.** Aim for texts where you know 90–98% of the words.
-4. **Speak out loud every day**: a role-play, shadowing, or a chat with the AI partner.
+4. **Speak out loud every day**: a role-play, repeating dialogue lines out loud, or a chat with the AI partner.
 5. **Do the daily mission**: little ways to use Norwegian outside the app (labels at home, talking to yourself, switching your phone to Norwegian…).
 
 Set your **habit plan** on the home screen ("After I have my morning coffee, I practise Norwegian") and add the daily calendar reminder it offers.
