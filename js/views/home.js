@@ -1,16 +1,16 @@
-// Home: one obvious next step, today's checklist, streak, goal ring, mission.
+// Today: one big button. The app decides what comes next (review → learn →
+// read → speak); every finish screen leads straight to the next step.
 
-import { h, ring, progressBar, sfx, haptic, confetti, toast, add } from '../ui/dom.js';
-import { speakBtn } from '../ui/components.js';
-import { knowledgeMap } from '../core/deck.js';
+import { h, ring, add } from '../ui/dom.js';
+import { icon } from '../ui/icons.js';
 import { todayPlan } from '../core/today.js';
 import { raceSnapshot } from '../core/social.js';
 import { currentUnit, lesson, unitMastery, UNITS } from '../core/course.js';
-import { levelInfo, todayXp, dailyGoal, streak, getGame, todaysMission, completeMission, readiness, activity } from '../core/gamify.js';
+import { streak, todayXp } from '../core/gamify.js';
 import { settings } from '../core/store.js';
-import { openPlanModal } from './onboarding.js';
-import { voicesReady, canSpeakNorwegian, voiceStatus } from '../core/speech.js';
-import { deviceTip } from './voice-settings.js';
+import { voicesReady, canSpeakNorwegian, deviceTip } from '../core/speech.js';
+
+const STEP_ICONS = { reviews: 'review', lesson: 'learn', story: 'read', speak: 'speak' };
 
 function greeting() {
   const hr = new Date().getHours();
@@ -19,129 +19,65 @@ function greeting() {
 
 export function homeView(root) {
   const name = settings().name;
+  const plan = todayPlan();
+  const nextIdx = plan.findIndex((i) => !i.done);
+  const next = plan[nextIdx];
+  const doneCount = plan.filter((i) => i.done).length;
+  const st = streak();
+
+  const steps = h('div.steps', ...plan.map((p, i) => h('a.step', {
+    href: p.href,
+    class: p.done ? 'done' : i === nextIdx ? 'next' : '',
+  }, h('span.step-dot', p.done ? icon('check', 20) : icon(STEP_ICONS[p.id], 20)), h('span.step-label', p.label))));
+
+  const action = next
+    ? h('a.btn.primary.big.cta.start-btn', { href: next.href },
+      h('span.start-label', icon('play', 20), todayXp() > 0 ? 'Continue' : 'Start'),
+      h('span.cta-sub', `Step ${nextIdx + 1} of ${plan.length} · ${next.sub}`))
+    : h('div.stack.center-col.all-done',
+      h('div.done-badge', icon('check', 30)),
+      h('div.strong', 'Done for today!'),
+      h('p.small.muted', 'Come back tomorrow to keep your streak.'),
+      h('a.btn.ghost', { href: '#/review/quick' }, 'Practise a bit more'));
+
   const unit = currentUnit();
   const ul = lesson(unit.id);
-  const lv = levelInfo();
-  const xpToday = todayXp();
-  const goal = dailyGoal();
-  const st = streak();
-  const g = getGame();
-  const known = [...knowledgeMap().values()].filter((v) => v === 'known').length;
-  const learning = [...knowledgeMap().values()].filter((v) => v === 'learning').length;
-  const ready = readiness(known + learning * 0.5);
-  const mission = todaysMission();
+  const m = unitMastery(unit);
 
-  // The single best next action – no decision fatigue. Same plan as every finish screen.
-  const plan = todayPlan();
-  const next = plan.find((i) => !i.done);
-  const scrollToMission = (e) => { e.preventDefault(); document.getElementById('mission')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
-  const cta = next
-    ? { href: next.href, label: next.cta, sub: next.sub, onclick: next.id === 'mission' ? scrollToMission : null }
-    : { href: '#/review/quick', label: 'Today’s plan is done – bonus round', sub: 'Everything extra today is a bonus 🎉' };
-
-  const week = activity(7);
-  const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-  const checklist = plan.map((i) => ({ ...i, onclick: i.id === 'mission' ? scrollToMission : null }));
-  const doneCount = checklist.filter((c) => c.done).length;
-
-  const missionCard = h('div.card.mission#mission', { class: mission.done ? 'done' : '' },
-    h('div.row.between', h('div.kicker', `${mission.icon} Today’s mission – Norwegian in real life`), mission.done ? h('span.pill.ok', '✓ Done') : null),
-    h('p', mission.text),
-    h('div.row', h('div.no.mission-no', mission.no), speakBtn(mission.no)),
-    mission.done ? null : h('button.btn.primary', {
-      onclick: (e) => {
-        completeMission(); sfx.goal(); haptic([10, 30, 10]); confetti(60);
-        toast('Mission complete! +25 XP', { icon: '🧭' });
-        e.currentTarget.replaceWith(h('span.pill.ok', '✓ Done'));
-      },
-    }, 'I did it ✓'));
-
-  const habitPlan = g.plan;
-
-  // If this device can't pronounce Norwegian (or only with a basic voice), say so up front.
+  // Without a Norwegian voice, say so here – once, plainly.
   const voiceSlot = h('div');
   voicesReady().then(() => {
-    const st = voiceStatus();
-    if (canSpeakNorwegian() && st.quality >= 3) return;
-    add(voiceSlot, h('a.card.voice-card', { href: '#/settings' },
-      h('div.kicker', st.ok ? '🔊 Upgrade your Norwegian voice' : '🔇 Set up a Norwegian voice'),
-      h('p', st.ok
-        ? `You’re hearing a basic voice (${st.label}). Natural voices make listening practice much more useful.`
-        : 'This browser has no Norwegian voice, so audio is switched off rather than read by an English voice.'),
-      h('p.small', deviceTip()),
-      h('span.small.accent', 'Open voice settings ▸')));
+    if (canSpeakNorwegian()) return;
+    add(voiceSlot, h('div.card.voice-card', h('div.strong', '🔇 No Norwegian voice on this device'), h('p.small.muted', deviceTip())));
   });
 
   add(root, h('div.home.stack',
-    h('div.hero.card',
-      h('div.hero-top',
-        h('div',
-          h('div.greet', `${greeting()}${name ? ', ' + name : ''}!`),
-          h('div.small.muted', `Nivå ${lv.level} · ${lv.title} (${lv.titleEn})`),
-          h('div.level-bar', progressBar(lv.pct, 'gold', { animate: true }), h('span.small.muted', `${lv.into}/${lv.span} XP`))),
-        h('a.goal-ring', { href: '#/progress', title: 'Daily goal' },
-          ring(xpToday / goal, { size: 76, stroke: 8, label: xpToday >= goal ? '✓' : `${Math.round((xpToday / goal) * 100)}%`, cls: xpToday >= goal ? 'complete' : '', animate: true }),
-          h('div.small.muted.center', `${xpToday}/${goal} XP`))),
-      h('div.streak-row',
-        h('div.streak', { class: st > 0 ? 'on' : '' }, h('span.flame', '🔥'), h('b', String(st)), h('span.small', st === 1 ? ' day' : ' days')),
-        g.freezes ? h('div.small.muted', { title: 'A streak freeze protects your streak if you miss a day. You earn one every 7 days.' }, `❄️ ×${g.freezes} streak freeze`) : null,
-        h('div.week', ...week.map((d) => h('div.day', { class: d.xp >= 10 ? 'on' : d.frozen ? 'frozen' : '' },
-          h('span', dayNames[new Date(d.k + 'T12:00').getDay()]))))),
-      h('a.btn.primary.big.cta', { href: cta.href, onclick: cta.onclick }, h('span', cta.label, ' ▸'), h('span.cta-sub', cta.sub)),
-      h('div.row.center.wrap',
-        h('a.btn.ghost.small', { href: '#/review/quick' }, '⚡ Just 2 minutes'),
-        h('a.btn.ghost.small', { href: '#/practice/numbers' }, '🔢 Number drill'),
-        h('a.btn.ghost.small', { href: '#/chat' }, '🤖 Chat'))),
-
-    h('div.card',
-      h('div.row.between', h('div.kicker', '✅ Today’s plan'), h('span.small.muted', `${doneCount}/${checklist.length}`)),
-      progressBar(doneCount / checklist.length, 'gold', { animate: true }),
-      h('div.checklist', ...checklist.map((c) => h('a.check-item', { href: c.href, onclick: c.onclick, class: c.done ? 'done' : '' },
-        h('span.check', c.done ? '✓' : ''), h('span.check-label', c.label), h('span.small.muted', c.note))))),
-
-    raceCard(),
+    h('div.page-head',
+      h('h1', `${greeting()}${name ? `, ${name}` : ''}!`),
+      h('p.muted', st ? `${st}-day streak – keep it going.` : 'About 10 minutes a day is all it takes.')),
+    h('div.card.today-card',
+      h('div.row.between', h('div.kicker', 'Today'), h('span.small.muted', `${doneCount}/${plan.length} done`)),
+      steps,
+      action),
     voiceSlot,
-    missionCard,
-
-    h('a.card.unit-now', { href: `#/lesson/${unit.id}/${ul.step || 'intro'}` },
-      h('div.row.between',
-        h('div', h('div.kicker', `📍 Unit ${UNITS.indexOf(unit) + 1} of ${UNITS.length}`), h('div.strong', unit.title), h('div.small.muted', unit.subtitle)),
-        ring(unitMastery(unit), { size: 52, stroke: 6, label: `${Math.round(unitMastery(unit) * 100)}%`, animate: true }))),
-
-    h('a.card.readiness', { href: '#/progress' },
-      h('div.kicker', '🗣️ Conversation readiness'),
-      h('div.row.between', h('div.big-num', `≈${Math.round(ready.pct * 100)}%`),
-        h('div.small.muted.right', `${known} words known`, h('br'), `${learning} in progress`)),
-      progressBar(ready.pct, '', { animate: true }),
-      h('div.small.muted', ready.next
-        ? `≈ share of everyday spoken Norwegian you can recognise (words in progress count half). Next milestone: ${ready.next.label} at ${ready.next.at} words.`
-        : 'You know the core vocabulary of everyday conversation!')),
-
-    habitPlan
-      ? h('div.card.plan', h('div.kicker', '🗓️ Your plan'), h('p', `After I ${habitPlan.cue || 'have my morning coffee'}, I practise Norwegian${habitPlan.time ? ` (around ${habitPlan.time})` : ''}.`),
-        h('button.btn.ghost.small', { onclick: openPlanModal }, 'Edit plan / reminder'))
-      : h('div.card.plan', h('div.kicker', '🗓️ Make it automatic'),
-        h('p', 'People who decide exactly when and where they’ll practise are much more likely to keep going. Takes 20 seconds.'),
-        h('button.btn.primary', { onclick: openPlanModal }, 'Make my plan')),
-
-    h('div.row.center.wrap.small',
-      h('a.btn.ghost.small', { href: '#/science' }, '🧠 How this app uses psychology'),
-      h('a.btn.ghost.small', { href: '#/words' }, '📇 My words'))));
+    raceCard(),
+    h('a.card.list-row.unit-now', { href: `#/lesson/${unit.id}/${ul.step || 'intro'}` },
+      ring(m, { size: 48, stroke: 5, label: `${Math.round(m * 100)}%`, animate: true }),
+      h('div.list-main', h('div.small.muted', `Unit ${UNITS.indexOf(unit) + 1} of ${UNITS.length}`), h('div.strong', unit.title)),
+      icon('chevron', 20, 'muted'))));
 }
 
 /** A small "you vs friend" teaser that links to the race. */
 function raceCard() {
-  const { players, demo } = raceSnapshot();
+  const { players } = raceSnapshot();
   const me = players.find((p) => p.you);
   const ranked = [...players].sort((a, b) => b.xpWeek - a.xpWeek);
-  const rank = ranked.indexOf(me) + 1;
   const leader = ranked[0];
   return h('a.card.race-card', { href: '#/friends' },
-    h('div.row.between', h('div.kicker', `🏁 Kappløpet${demo ? ' · demo' : ''}`), h('span.small.accent', 'See the race ▸')),
+    h('div.row.between', h('div.kicker', 'This week’s race'), icon('chevron', 20, 'muted')),
     h('div.race-mini', ...ranked.map((p, i) => h('div.race-mini-row', { class: p.you ? 'me' : '' },
-      h('span.race-mini-rank', ['🥇', '🥈', '🥉'][i] ?? `${i + 1}`),
+      h('span.race-mini-rank', String(i + 1)),
       h('span.strong', p.you ? 'You' : p.name),
       h('span.race-mini-xp', `${p.xpWeek} XP`)))),
-    h('div.small.muted', rank === 1 ? 'You lead this week – stay ahead!' : `${leader.name} leads by ${leader.xpWeek - me.xpWeek} XP this week.`));
+    h('div.small.muted', leader.you ? 'You’re in the lead!' : `${leader.name} is ${leader.xpWeek - me.xpWeek} XP ahead.`));
 }

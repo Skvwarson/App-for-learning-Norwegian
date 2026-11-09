@@ -63,6 +63,6 @@ export function nextStepBlock(except = null) {
   return add(h('div.card.day-done.stack.center-col'),
     h('div.big-emoji', '🏁'),
     h('div.strong', 'Today’s plan is complete!'),
-    h('p.small.muted', 'Your reviews will be ready again tomorrow. Anything more today is a bonus – read, chat, or learn ahead.'),
-    h('div.row.wrap.center', h('a.btn', { href: '#/read' }, '📖 Read more'), h('a.btn', { href: '#/' }, 'Home')));
+    h('p.small.muted', 'Come back tomorrow to keep your streak. Anything more today is a bonus.'),
+    h('a.btn', { href: '#/' }, 'Back to Today'));
 }

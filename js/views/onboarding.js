@@ -5,53 +5,26 @@ import { update, settings } from '../core/store.js';
 import { getGame, setPlan, planIcs } from '../core/gamify.js';
 import { navigate } from '../ui/router.js';
 
-const GOALS = [
-  { xp: 50, label: 'Tiny', note: '≈ 5 min · perfect for busy days' },
-  { xp: 100, label: 'Regular', note: '≈ 10 min · recommended' },
-  { xp: 200, label: 'Serious', note: '≈ 20 min' },
-  { xp: 300, label: 'Intense', note: '≈ 30 min · fast track' },
-];
-
 const CUES = ['have my morning coffee', 'sit down on the bus/train', 'eat lunch', 'get home from work', 'brush my teeth at night'];
 
 export function maybeOnboard() {
   if (getGame().onboarded) return;
-  let step = 0;
-  const data = { name: settings().name || '', goal: settings().dailyGoalXp || 100, cue: CUES[0], time: '08:00' };
+  let name = settings().name || '';
   let m;
-  const body = h('div.onboard.stack');
-  const render = () => {
-    body.replaceChildren();
-    if (step === 0) {
-      add(body, 
-        h('div.big-emoji', '🇳🇴'),
-        h('h2', 'Velkommen! Welcome to Norsk Nå'),
-        h('p', 'Learn to speak Norwegian with methods from memory research: spaced repetition, active recall, small chunks, real context and lots of easy input.'),
-        h('p.small.muted', 'Everything stays private in this browser. No account needed.'),
-        h('label.small.muted', 'What should we call you? (used in role-plays)'),
-        h('input.input#ob-name', { value: data.name, placeholder: 'Your first name', oninput: (e) => { data.name = e.target.value; } }),
-        h('button.btn.primary.big', { onclick: () => { step = 1; render(); } }, 'Next ▸'));
-    } else if (step === 1) {
-      add(body, 
-        h('h2', 'Pick a daily goal'),
-        h('p.small.muted', 'Small and daily beats big and rare. You can change it any time – and on a busy day, even 2 minutes keeps your streak.'),
-        h('div.stack.tight', ...GOALS.map((g) => h('button.choice', {
-          class: data.goal === g.xp ? 'selected' : '',
-          onclick: () => { data.goal = g.xp; render(); },
-        }, h('span.choice-key', g.label[0]), h('span', h('b', `${g.label} – ${g.xp} XP`), h('span.small.muted', ` ${g.note}`))))),
-        h('button.btn.primary.big', { onclick: () => { step = 2; render(); } }, 'Next ▸'));
-    } else {
-      add(body, ...planForm(data, () => {
-        update((s) => { s.settings.name = data.name.trim(); s.settings.dailyGoalXp = data.goal; });
-        setPlan({ cue: data.cue, time: data.time, minutes: Math.round(data.goal / 10) });
-        m.close();
-        confetti(80);
-        navigate('#/lesson/u01/intro');
-      }, 'Start my first lesson ▸'));
-    }
+  const start = () => {
+    update((s) => { s.settings.name = name.trim(); });
+    setPlan(getGame().plan);
+    m.close();
+    confetti(80);
+    navigate('#/lesson/u01/intro');
   };
-  render();
-  m = modal(body, { dismissable: false });
+  m = modal(h('div.onboard.stack',
+    h('div.big-emoji', '🇳🇴'),
+    h('h2', 'Welcome to Norsk Nå'),
+    h('p', 'Learn to speak Norwegian in about 10 minutes a day. Press one button, and the app does the rest.'),
+    h('label.small.muted', 'What’s your first name?'),
+    h('input.input#ob-name', { value: name, placeholder: 'Your first name', oninput: (e) => { name = e.target.value; } }),
+    h('button.btn.primary.big', { onclick: start }, 'Start my first lesson')), { dismissable: false });
 }
 
 function planForm(data, onSave, saveLabel) {
@@ -60,8 +33,8 @@ function planForm(data, onSave, saveLabel) {
   const custom = h('input.input', { placeholder: 'e.g. walk the dog', hidden: true, oninput: (e) => { data.cue = e.target.value; } });
   if (!CUES.includes(data.cue)) { cueSel.value = '__custom'; custom.hidden = false; custom.value = data.cue; }
   return [
-    h('h2', 'Make it a habit'),
-    h('p.small.muted', 'Link Norwegian to something you already do every day (“habit stacking”). Research on implementation intentions shows that deciding exactly when you’ll act roughly doubles follow-through.'),
+    h('h2', 'Daily reminder'),
+    h('p.small.muted', 'Tie Norwegian to something you already do every day – it’s the easiest way to never forget.'),
     h('div.plan-sentence', 'After I ', cueSel, custom, ' I will practise Norwegian.'),
     h('label.small.muted', 'Around what time?'),
     h('input.input', { type: 'time', value: data.time, onchange: (e) => { data.time = e.target.value; } }),

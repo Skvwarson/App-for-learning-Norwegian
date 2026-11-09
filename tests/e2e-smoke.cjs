@@ -1,10 +1,9 @@
 // End-to-end smoke test: walks through onboarding, a full lesson, a review
-// session, reading, PDF import and every main page, saving screenshots.
-// Usage: start a static server on :8123, then  node tests/e2e-smoke.cjs <screenshot-dir> [pdf-file]
+// session, reading and every main page, saving screenshots.
+// Usage: start a static server on :8123, then  node tests/e2e-smoke.cjs <screenshot-dir>
 const { chromium } = require('playwright');
 
 const SHOTS = process.argv[2] || 'shots';
-const PDF = process.argv[3];
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:8123/';
 const errors = [];
 let lastPage = null;
@@ -28,11 +27,7 @@ async function tapAllTiles(page) {
   await page.waitForSelector('.onboard', { timeout: 5000 });
   await shot('01-onboarding');
   await page.fill('#ob-name', 'Alex');
-  await page.click('text=Next ▸');
-  await page.click('text=Regular – 100 XP');
-  await page.click('text=Next ▸');
-  await shot('02-plan');
-  await page.click('text=Start my first lesson ▸');
+  await page.click('text=Start my first lesson');
   await page.waitForSelector('text=Start ▸');
   await shot('03-lesson-intro');
   await page.click('text=Start ▸');
@@ -130,7 +125,7 @@ async function tapAllTiles(page) {
   for (const b of await page.$$('text=Fortsett ▸')) await b.click().catch(() => {});
 
   await page.goto(BASE + '#/');
-  await page.waitForSelector('.hero');
+  await page.waitForSelector('.today-card');
   await page.waitForTimeout(500);
   await shot('12-home');
   await shot('12b-home-full', true);
@@ -181,21 +176,7 @@ async function tapAllTiles(page) {
   await shot('19b-story-done');
   log('story done, next:', (await page.textContent('.story-done')).replace(/\s+/g, ' ').slice(0, 90));
 
-  if (PDF) {
-    await page.goto(BASE + '#/import');
-    await page.setInputFiles('input[type=file]', PDF);
-    await page.waitForSelector('text=Open reader ▸', { timeout: 30000 });
-    await shot('28-import-result', true);
-    const pairs = await page.$$eval('.pair-row', (r) => r.map((x) => x.textContent));
-    log('pairs found:', pairs.length, JSON.stringify(pairs.slice(0, 12)));
-    await page.click('text=/^Add \\d+ cards/');
-    await page.click('text=Open reader ▸');
-    await page.waitForSelector('.doc-page');
-    await page.waitForTimeout(400);
-    await shot('29-doc-reader', true);
-  }
-
-  for (const [r, n] of [['#/learn', '20-learn'], ['#/progress', '21-progress'], ['#/speak', '22-speak'], ['#/chat', '23-chat'], ['#/practice/time', '24-time'], ['#/words', '25-words'], ['#/science', '26-science'], ['#/settings', '27-settings']]) {
+  for (const [r, n] of [['#/learn', '20-learn'], ['#/friends', '20b-race'], ['#/me', '20c-me'], ['#/progress', '21-progress'], ['#/speak', '22-speak'], ['#/practice/time', '24-time'], ['#/words', '25-words'], ['#/settings', '27-settings']]) {
     await page.goto(BASE + r); await page.waitForTimeout(500); await shot(n);
   }
   await page.goto(BASE + '#/progress'); await page.waitForTimeout(300); await shot('21b-progress-full', true);
@@ -204,9 +185,11 @@ async function tapAllTiles(page) {
   const dark = await browser.newContext({ viewport: { width: 1280, height: 860 }, colorScheme: 'dark' });
   const p2 = await dark.newPage();
   p2.on('pageerror', (e) => errors.push('dark pageerror: ' + e.message));
+  await p2.addInitScript(() => localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true }, settings: { name: 'Alex' } })));
   await p2.goto(BASE + '#/');
-  await p2.waitForTimeout(800);
-  await p2.screenshot({ path: `${SHOTS}/30-desktop-dark-onboarding.png` });
+  await p2.waitForSelector('.today-card');
+  await p2.waitForTimeout(600);
+  await p2.screenshot({ path: `${SHOTS}/30-desktop-dark-home.png` });
 
   console.log('ERRORS:', JSON.stringify(errors, null, 1));
   await browser.close();
