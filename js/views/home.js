@@ -4,6 +4,7 @@ import { h, ring, progressBar, sfx, haptic, confetti, toast, add } from '../ui/d
 import { speakBtn } from '../ui/components.js';
 import { knowledgeMap } from '../core/deck.js';
 import { todayPlan } from '../core/today.js';
+import { raceSnapshot } from '../core/social.js';
 import { currentUnit, lesson, unitMastery, UNITS } from '../core/course.js';
 import { levelInfo, todayXp, dailyGoal, streak, getGame, todaysMission, completeMission, readiness, activity } from '../core/gamify.js';
 import { settings } from '../core/store.js';
@@ -99,6 +100,7 @@ export function homeView(root) {
       h('div.checklist', ...checklist.map((c) => h('a.check-item', { href: c.href, onclick: c.onclick, class: c.done ? 'done' : '' },
         h('span.check', c.done ? '✓' : ''), h('span.check-label', c.label), h('span.small.muted', c.note))))),
 
+    raceCard(),
     voiceSlot,
     missionCard,
 
@@ -126,4 +128,20 @@ export function homeView(root) {
     h('div.row.center.wrap.small',
       h('a.btn.ghost.small', { href: '#/science' }, '🧠 How this app uses psychology'),
       h('a.btn.ghost.small', { href: '#/words' }, '📇 My words'))));
+}
+
+/** A small "you vs friend" teaser that links to the race. */
+function raceCard() {
+  const { players, demo } = raceSnapshot();
+  const me = players.find((p) => p.you);
+  const ranked = [...players].sort((a, b) => b.xpWeek - a.xpWeek);
+  const rank = ranked.indexOf(me) + 1;
+  const leader = ranked[0];
+  return h('a.card.race-card', { href: '#/friends' },
+    h('div.row.between', h('div.kicker', `🏁 Kappløpet${demo ? ' · demo' : ''}`), h('span.small.accent', 'See the race ▸')),
+    h('div.race-mini', ...ranked.map((p, i) => h('div.race-mini-row', { class: p.you ? 'me' : '' },
+      h('span.race-mini-rank', ['🥇', '🥈', '🥉'][i] ?? `${i + 1}`),
+      h('span.strong', p.you ? 'You' : p.name),
+      h('span.race-mini-xp', `${p.xpWeek} XP`)))),
+    h('div.small.muted', rank === 1 ? 'You lead this week – stay ahead!' : `${leader.name} leads by ${leader.xpWeek - me.xpWeek} XP this week.`));
 }
