@@ -1,27 +1,29 @@
 // Real recordings of dialogue lines (made with natural ElevenLabs voices).
 // Files live in audio/<unit id>/<line number>.mp3 – e.g. audio/u01/01.mp3 is the
-// first line of unit 1's dialogue. When you add recordings for another unit,
-// upload them to audio/u02/ (01.mp3, 02.mp3 …) and add the unit below.
+// first line of unit 1's dialogue. Each speaker is recorded once for the whole
+// course and cut with:  node scripts/split-recording.mjs all <Speaker> <file.mp3>
+// Then add the speaker below.
 
 import { UNITS } from './units.js';
 
-/** unit id → number of recorded lines (1 … n), or a list of the recorded line numbers. */
-export const RECORDED_UNITS = {
-  u01: 12,
-  u02: [2, 4, 6, 8, 10, 12], // Emma; Sofie's lines still use the voice
+/** Speakers whose every line in every unit has a recording. */
+export const RECORDED_SPEAKERS = ['Emma', 'Ahmed', 'Ekspeditøren', 'Jonas', 'Kvinnen'];
+
+/** Single recorded lines of other speakers: unit id → line numbers. */
+export const RECORDED_LINES = {
+  u01: [1, 3, 5, 7, 9, 11], // Lars (first recording session)
 };
 
 /** Dialogue text → audio file URL. */
 export function recordingEntries() {
   const out = [];
-  for (const [id, count] of Object.entries(RECORDED_UNITS)) {
-    const unit = UNITS.find((u) => u.id === id);
-    if (!unit) continue;
-    const numbers = Array.isArray(count) ? count : Array.from({ length: count }, (_, i) => i + 1);
-    for (const n of numbers) {
-      const line = unit.dialogue[n - 1];
-      if (line) out.push([line[1], `audio/${id}/${String(n).padStart(2, '0')}.mp3`]);
-    }
+  for (const unit of UNITS) {
+    unit.dialogue.forEach(([speaker, no], i) => {
+      const n = i + 1;
+      if (RECORDED_SPEAKERS.includes(speaker) || RECORDED_LINES[unit.id]?.includes(n)) {
+        out.push([no, `audio/${unit.id}/${String(n).padStart(2, '0')}.mp3`]);
+      }
+    });
   }
   return out;
 }

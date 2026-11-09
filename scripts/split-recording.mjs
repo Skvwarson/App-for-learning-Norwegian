@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// Cut one speaker's recording (all their lines of a unit, with pauses between)
-// into one file per dialogue line: audio/<unit>/<NN>.mp3.
+// Cut one speaker's recording (all their lines of a unit – or of the whole course
+// with "all" – with pauses between) into one file per dialogue line:
+// audio/<unit>/<NN>.mp3.
 //
 //   node scripts/split-recording.mjs u02 Emma path/to/emma.mp3 [--out audio/u02] [--dry]
+//   node scripts/split-recording.mjs all Emma path/to/emma-all-units.mp3
 //
 // Finds every pause with ffmpeg's silencedetect, then picks the cut points whose
 // pieces best fit each line's text (pauses between lines are often as short as
@@ -24,11 +26,12 @@ if (!unitId || !speaker || !input) {
   process.exit(1);
 }
 
-const unit = UNITS.find((u) => u.id === unitId);
-if (!unit) throw new Error(`Unknown unit ${unitId}`);
-const lines = unit.dialogue.map(([sp, no], i) => ({ n: i + 1, sp, no })).filter((l) => l.sp.toLowerCase() === speaker.toLowerCase());
-if (!lines.length) throw new Error(`${speaker} has no lines in ${unitId}. Speakers: ${[...new Set(unit.dialogue.map((d) => d[0]))].join(', ')}`);
-const outDir = outArg || join('audio', unitId);
+const units = unitId === 'all' ? UNITS : UNITS.filter((u) => u.id === unitId);
+if (!units.length) throw new Error(`Unknown unit ${unitId}`);
+const lines = units.flatMap((u) => u.dialogue.map(([sp, no], i) => ({ unit: u.id, n: i + 1, sp, no })))
+  .filter((l) => l.sp.toLowerCase() === speaker.toLowerCase());
+if (!lines.length) throw new Error(`${speaker} has no lines in ${unitId}. Speakers: ${[...new Set(units.flatMap((u) => u.dialogue.map((d) => d[0])))].join(', ')}`);
+const outDirFor = (l) => (outArg && unitId !== 'all' ? outArg : join('audio', l.unit));
 
 const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', input]).toString().trim());
 
@@ -110,19 +113,20 @@ lines.forEach((l, i) => {
   const ratio = secs[i] / (chars[i] * rate);
   const flagged = ratio < 0.45 || ratio > 2.2;
   if (flagged) suspicious++;
-  console.log(`${String(l.n).padStart(2, '0')}  ${secs[i].toFixed(2)} s  ${flagged ? '⚠️ ' : '   '}${l.no}`);
+  console.log(`${l.unit}/${String(l.n).padStart(2, '0')}  ${secs[i].toFixed(2)} s  ${flagged ? '⚠️ ' : '   '}${l.no}`);
 });
 if (suspicious) console.log(`\n⚠️  ${suspicious} piece(s) are much shorter or longer than their sentence – check them before using.`);
 
 if (!dry) {
-  mkdirSync(outDir, { recursive: true });
   lines.forEach((l, i) => {
+    const outDir = outDirFor(l);
+    mkdirSync(outDir, { recursive: true });
     const [a, b] = bounds[i];
     const len = b - a;
     const file = join(outDir, `${String(l.n).padStart(2, '0')}.mp3`);
     execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-ss', a.toFixed(3), '-t', len.toFixed(3), '-i', input,
       '-af', `afade=t=in:d=0.02,afade=t=out:st=${Math.max(0, len - 0.04).toFixed(3)}:d=0.04`, '-ac', '1', '-ar', '44100', '-c:a', 'libmp3lame', '-b:a', '128k', file]);
   });
-  console.log(`\nWrote ${lines.length} files to ${outDir}/`);
+  console.log(`\nWrote ${lines.length} files to ${[...new Set(lines.map(outDirFor))].join(', ')}`);
 }
 process.exit(suspicious ? 3 : 0);
