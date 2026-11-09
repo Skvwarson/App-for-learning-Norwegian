@@ -65,16 +65,23 @@ export function friendsView(root) {
       ? `🏆 You're ahead by ${me.xpWeek - rival.xpWeek} XP this week. Keep it up!`
       : `📣 ${rival.name} is ${rival.xpWeek - me.xpWeek} XP ahead this week – about ${Math.max(1, Math.ceil((rival.xpWeek - me.xpWeek) / 120))} short session${Math.ceil((rival.xpWeek - me.xpWeek) / 120) > 1 ? 's' : ''} to catch up.`));
 
-  // This week, day by day, for everyone.
+  // This week, day by day: one chart, each player's bar side by side per day.
+  const max = Math.max(50, ...players.flatMap((q) => q.week));
+  const niceMax = Math.ceil(max / 50) * 50;
   const weekCard = h('div.card.stack',
-    h('div.kicker', '📅 This week, day by day'),
-    ...players.map((p) => {
-      const max = Math.max(50, ...players.flatMap((q) => q.week));
-      return h('div.week-row', avatar(p, 28),
-        h('div.week-bars', ...p.week.map((xp, i) => h('div.wk', { title: `${xp} XP` },
-          h('div.wk-bar', { style: { height: `${Math.max(4, (xp / max) * 100)}%`, background: xp ? colorFor(p.name) : 'var(--ring-bg)' } }),
-          h('div.wk-d', DAYS[new Date(now - (6 - i) * 86400_000).getDay()])))));
-    }));
+    h('div.row.between', h('div.kicker', '📅 This week, day by day'),
+      h('div.legend', ...players.map((p) => h('span.legend-item', h('span.legend-dot', { style: { background: colorFor(p.name) } }), p.you ? 'You' : p.name)))),
+    h('div.wchart',
+      h('div.wchart-axis', h('span', String(niceMax)), h('span', String(niceMax / 2)), h('span', '0')),
+      h('div.wchart-plot',
+        h('div.wchart-grid', h('div'), h('div'), h('div')),
+        h('div.wchart-days', ...Array.from({ length: 7 }, (_, i) => h('div.wchart-day',
+          h('div.wchart-bars', ...players.map((p) => h('div.wchart-bar', {
+            title: `${p.you ? 'You' : p.name}: ${p.week[i]} XP`,
+            style: { height: `${(p.week[i] / niceMax) * 100}%`, background: colorFor(p.name) },
+          }))),
+          h('div.wk-d', i === 6 ? 'Today' : DAYS[new Date(now - (6 - i) * 86400_000).getDay()])))))),
+    h('div.small.muted', `This week: ${players.map((p) => `${p.you ? 'you' : p.name} ${p.xpWeek} XP`).join(' · ')}`));
 
   const feed = raceFeed(players, now);
   add(root, h('div.stack',
