@@ -1,6 +1,7 @@
 // The course as a journey map – every unit is a stop; progress is visible.
 
 import { h, ring, confirmModal, add } from '../ui/dom.js';
+import { icon } from '../ui/icons.js';
 import { UNITS, lesson, isUnlocked, currentUnit, unitMastery } from '../core/course.js';
 import { navigate } from '../ui/router.js';
 import { roleplayBest } from './roleplay.js';
@@ -33,13 +34,14 @@ export function learnView(root) {
   });
 
   add(root, h('div.stack',
-    h('div.page-head', h('h1', 'Reisen'), h('p.muted', `Your journey to conversational Norwegian · ${doneCount}/${UNITS.length} stops`)),
-    h('div.card.tip.small', 'Each unit: listen to a real-life scene → learn its words in small groups → one grammar idea → mixed practice → a role-play where you speak. ~15 minutes. One unit a day is a great pace; reviews keep everything fresh.'),
+    h('div.page-head', h('h1', 'Course'), h('p.muted', `${doneCount} of ${UNITS.length} units done · about 15 minutes each`)),
     path,
-    h('div.page-head', h('h2', 'Extra practice')),
-    h('div.grid2',
-      h('a.card.tile-link', { href: '#/practice/numbers' }, h('div.big-emoji', '🔢'), h('div.strong', 'Numbers'), h('div.small.muted', 'Prices, ages, phone numbers')),
-      h('a.card.tile-link', { href: '#/practice/time' }, h('div.big-emoji', '🕒'), h('div.strong', 'Telling the time'), h('div.small.muted', '“halv sju” and friends')),
-      h('a.card.tile-link', { href: '#/import' }, h('div.big-emoji', '📄'), h('div.strong', 'Your textbook'), h('div.small.muted', 'Import a PDF and learn from it')),
-      h('a.card.tile-link', { href: '#/speak' }, h('div.big-emoji', '🎭'), h('div.strong', 'Role-plays'), h('div.small.muted', 'Speak in real situations')))));
+    h('h2.section-title', 'Practise more'),
+    h('div.list-card',
+      ...[['#/read', 'read', 'Stories', 'Easy reading, every word tappable'],
+        ['#/speak', 'speak', 'Role-plays', 'Speak in real situations'],
+        ['#/practice/numbers', 'numbers', 'Numbers', 'Prices, ages, phone numbers'],
+        ['#/practice/time', 'clock', 'Telling the time', '“halv sju” and friends']]
+        .map(([href, ic, t, sub]) => h('a.list-row', { href }, h('span.list-icon', icon(ic, 22)),
+          h('div.list-main', h('div.strong', t), h('div.small.muted', sub)), icon('chevron', 20, 'muted'))))));
 }

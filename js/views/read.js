@@ -1,17 +1,14 @@
-// Reading = comprehensible input. Stories and your imported textbooks, with
-// every word tappable and coloured by what you already know.
+// Reading = comprehensible input. Short stories with every word tappable and
+// coloured by what you already know.
 
-import { h, clear, toast, progressBar, modal, confirmModal, sfx, add } from '../ui/dom.js';
+import { h, clear, progressBar, sfx, add } from '../ui/dom.js';
 import { tappable, speakBtn } from '../ui/components.js';
-import { coverage, knowledgeMap, addCard } from '../core/deck.js';
+import { coverage, knowledgeMap } from '../core/deck.js';
 import { speak, stopSpeaking } from '../core/speech.js';
 import { addXp, unlock } from '../core/gamify.js';
-import { getState, update, docs } from '../core/store.js';
-import { externalLinks } from '../core/lexicon.js';
-import { words } from '../core/text.js';
+import { getState, update } from '../core/store.js';
 import { STORIES, storyById } from '../../data/stories.js';
 import { UNITS } from '../../data/units.js';
-import { navigate } from '../ui/router.js';
 import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 
 const covClass = (p) => (p >= 0.95 ? 'easy' : p >= 0.85 ? 'ideal' : p >= 0.7 ? 'stretch' : 'hard');
@@ -32,27 +29,9 @@ export function readHub(root) {
         h('div.cov', { class: covClass(cov) }, h('b', `${Math.round(cov * 100)}%`), h('span.small', covLabel(cov)))),
       rec?.st === st ? h('div.small.accent', '★ Recommended for you now') : null));
   }
-  const docList = h('div.stack');
-  docs.list().then((ds) => {
-    if (!ds.length) add(docList, h('div.card.muted.small', 'No textbooks yet. Import a PDF (or paste text) and read it here with tap-to-translate.'));
-    for (const d of ds) {
-      add(docList, h('div.card.row.between',
-        h('a', { href: `#/read/doc/${d.id}/${d.lastPage ?? 0}` }, h('div.strong', '📄 ' + d.title), h('div.small.muted', `${d.pageCount} pages · ${d.pairs?.length ?? 0} vocabulary pairs found · ${Math.round(((d.stats?.no ?? 0) / Math.max(1, d.stats?.lines ?? 1)) * 100)}% Norwegian lines`)),
-        h('button.icon-btn', {
-          'aria-label': 'Delete document',
-          onclick: async () => { if (await confirmModal(`Delete “${d.title}”? (Cards you made from it stay.)`, { ok: 'Delete', danger: true })) { await docs.delete(d.id); navigate('#/read'); } },
-        }, '🗑')));
-    }
-  }).catch(() => add(docList, h('div.card.small.muted', 'Document storage (IndexedDB) is not available in this browser mode.')));
-
   add(root, h('div.stack',
-    h('div.page-head', h('h1', 'Les'), h('p.muted', 'Lots of easy reading is how vocabulary grows on its own.')),
-    h('div.card.tip.small',
-      h('b', 'Colours: '), h('span.w.w-known', 'known'), ' · ', h('span.w.w-learning', 'learning'), ' · ', h('span.w.w-new', 'new'),
-      h('div', 'The % shows how much of a text you already know. Research suggests ~95 % makes reading enjoyable and lets you pick up new words from context. Tap any word for its meaning – and add it to your deck in one tap.')),
-    h('h2', 'Short stories'), list,
-    h('div.row.between', h('h2', 'Your textbooks & texts'), h('a.btn.primary.small', { href: '#/import' }, '＋ Import')),
-    docList));
+    h('div.page-head', h('a.back-link', { href: '#/learn' }, '‹ Course'), h('h1', 'Stories'), h('p.muted', 'The % is how much of the story you already know.')),
+    list));
 }
 
 export function storyView(root, { id }) {
@@ -118,82 +97,4 @@ export function storyView(root, { id }) {
       },
     }, 'Finished reading ✓')));
   return () => { playing = false; stopSpeaking(); };
-}
-
-export function docView(root, { id, page }) {
-  const pi = Math.max(0, Number(page) || 0);
-  const wrap = h('div.stack.reader');
-  add(root, wrap);
-  let hideEn = (() => { try { return localStorage.getItem('nn.hideEn') === '1'; } catch { return false; } })();
-  docs.get(id).then((doc) => {
-    if (!doc) { add(wrap, h('p', 'Document not found.')); return; }
-    doc.lastPage = pi; docs.put(doc);
-    const lines = doc.pages[pi] ?? [];
-    const noText = lines.filter((l) => l.lang !== 'en').map((l) => l.t).join(' ');
-    const cov = coverage(noText);
-    const pagePairs = (doc.pairs ?? []).filter((p) => p.page === pi);
-    const nav = h('div.row.between.page-nav',
-      h('a.btn.small', { href: `#/read/doc/${id}/${Math.max(0, pi - 1)}`, class: pi === 0 ? 'disabled' : '' }, '←'),
-      h('select.input.small', { onchange: (e) => navigate(`#/read/doc/${id}/${e.target.value}`) },
-        ...doc.pages.map((_, i) => h('option', { value: i, selected: i === pi }, `Page ${i + 1} / ${doc.pages.length}`))),
-      h('a.btn.small', { href: `#/read/doc/${id}/${Math.min(doc.pages.length - 1, pi + 1)}`, class: pi >= doc.pages.length - 1 ? 'disabled' : '' }, '→'));
-    const body = h('div.doc-page');
-    for (const l of lines) {
-      if (l.lang === 'en') {
-        if (!hideEn) add(body, h('div.doc-line.en-line', l.t));
-        continue;
-      }
-      add(body, h('div.doc-line', { class: l.lang === 'no' ? 'no-line' : '' },
-        h('span.no', tappable(l.t.replace(/\t/g, '   '), { sentence: l.t, src: `pdf:${id}`, onChange: () => navigate(`#/read/doc/${id}/${pi}`) })),
-        l.lang === 'no' && words(l.t).length >= 3 ? h('span.line-tools',
-          speakBtn(l.t),
-          h('button.icon-btn.small', { title: 'Save this sentence as a card', onclick: () => saveSentence(l.t, id) }, '＋')) : null));
-    }
-    if (!lines.length) add(body, h('p.muted', 'This page has no extractable text. (Scanned pages need OCR first.)'));
-    add(wrap, 
-      h('div.row.between', h('a.btn.ghost.small', { href: '#/read' }, '← Library'), h('span.small.muted.ellipsis', doc.title)),
-      h('div.cov-head', h('div.row.between', h('span.small.muted', `Page coverage: ${Math.round(cov.pct * 100)}% known`),
-        h('label.small.row', h('input', { type: 'checkbox', checked: hideEn, onchange: (e) => { try { localStorage.setItem('nn.hideEn', e.target.checked ? '1' : '0'); } catch { /* */ } navigate(`#/read/doc/${id}/${pi}`); } }), ' Norwegian only')),
-      progressBar(cov.pct)),
-      nav,
-      pagePairs.length ? pairsPanel(pagePairs, id) : null,
-      body,
-      cov.unknown.length ? h('details.card.small', h('summary', `Most frequent new words on this page (${cov.unknown.length})`),
-        h('div.chips', ...cov.unknown.slice(0, 30).map((u) => h('span.chip', `${u.w}${u.n > 1 ? ` ×${u.n}` : ''}`)))) : null,
-      nav.cloneNode(true));
-    // cloned nav loses the select's listener – re-wire it
-    const sel = wrap.querySelectorAll('.page-nav select')[1];
-    sel?.addEventListener('change', (e) => navigate(`#/read/doc/${id}/${e.target.value}`));
-  });
-}
-
-function pairsPanel(pairs, docId) {
-  const rows = pairs.map((p) => {
-    const cb = h('input', { type: 'checkbox', checked: true });
-    return { p, cb, el: h('label.pair-row', cb, h('span.no', p.no), h('span.muted', ' – '), h('span', p.en)) };
-  });
-  return h('details.card.pairs', { open: true },
-    h('summary', h('b', `📇 ${pairs.length} vocabulary pair${pairs.length > 1 ? 's' : ''} found on this page`)),
-    h('div.stack.tight', ...rows.map((r) => r.el)),
-    h('div.row.end', h('button.btn.primary.small', {
-      onclick: (e) => {
-        let n = 0;
-        for (const r of rows) if (r.cb.checked) { if (addCard({ no: r.p.no, en: r.p.en, ex: r.p.ex ? { no: r.p.ex, en: '' } : null, src: `pdf:${docId}` }).created) n++; }
-        toast(n ? `Added ${n} cards. They’ll be introduced a few per day.` : 'These are already in your deck.', { icon: '📇' });
-        e.currentTarget.disabled = true;
-      },
-    }, 'Add selected to my deck')));
-}
-
-function saveSentence(sentence, docId) {
-  const en = h('input.input', { placeholder: 'Meaning (optional – writing it yourself helps memory)' });
-  let m;
-  m = modal(h('div.stack',
-    h('div.kicker', 'Save sentence'),
-    h('div.no', sentence),
-    en,
-    h('a.small', { href: externalLinks(sentence).translate, target: '_blank', rel: 'noopener' }, 'Need help? Open in Google Translate ↗'),
-    h('div.row.end', h('button.btn.ghost', { onclick: () => m.close() }, 'Cancel'),
-      h('button.btn.primary', { onclick: () => { addCard({ no: sentence, en: en.value.trim(), src: `pdf:${docId}`, pos: 'sentence' }); toast('Sentence saved.', { icon: '＋' }); m.close(); } }, 'Save'))));
-  setTimeout(() => en.focus(), 50);
 }

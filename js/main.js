@@ -1,26 +1,24 @@
-// App bootstrap: routes, top bar (streak · XP · goal), tab bar, celebrations.
+// App bootstrap: routes, top bar (streak · profile), three tabs, celebrations.
 
 import { load, subscribe, settings, getState } from './core/store.js';
 import { route, start, navigate, current } from './ui/router.js';
-import { h, $, clear, toast, confetti, sfx, modal, ring, haptic, add } from './ui/dom.js';
+import { h, $, clear, toast, confetti, sfx, modal, haptic, add } from './ui/dom.js';
+import { icon } from './ui/icons.js';
 import * as G from './core/gamify.js';
-import { cardsReadyNow } from './core/today.js';
 import { homeView } from './views/home.js';
 import { learnView } from './views/learn.js';
 import { lessonView } from './views/lesson.js';
 import { reviewView } from './views/review.js';
-import { readHub, storyView, docView } from './views/read.js';
-import { importView } from './views/import.js';
-import { speakView, chatView } from './views/speak.js';
+import { readHub, storyView } from './views/read.js';
+import { speakView } from './views/speak.js';
 import { roleplayView } from './views/roleplay.js';
 import { practiceView } from './views/practice.js';
 import { wordsView } from './views/words.js';
-import { progressView } from './views/progress.js';
+import { progressView, meView } from './views/progress.js';
 import { friendsView } from './views/friends.js';
-import { scienceView } from './views/science.js';
 import { settingsView } from './views/settings.js';
 import { maybeOnboard } from './views/onboarding.js';
-import { onVoiceProblem } from './core/speech.js';
+import { onVoiceProblem, deviceTip } from './core/speech.js';
 import { queueCelebration, flushCelebrations } from './ui/celebrate.js';
 
 load();
@@ -34,16 +32,6 @@ function applyTheme() {
 applyTheme();
 
 route('/', homeView);
-// "Next: today's mission" lands on Home with the mission card in view.
-route('/mission', (root) => {
-  const cleanup = homeView(root);
-  setTimeout(() => {
-    const card = document.getElementById('mission');
-    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    card?.classList.add('spotlight');
-  }, 350);
-  return cleanup;
-});
 route('/learn', learnView);
 route('/lesson/:unitId/:step', lessonView);
 route('/lesson/:unitId', lessonView);
@@ -51,58 +39,35 @@ route('/review', reviewView);
 route('/review/:mode', reviewView);
 route('/read', readHub);
 route('/read/story/:id', storyView);
-route('/read/doc/:id/:page', docView);
-route('/import', importView);
 route('/speak', speakView);
-route('/chat', chatView);
 route('/roleplay/:unitId', roleplayView);
 route('/practice/:kind', practiceView);
 route('/words', wordsView);
 route('/progress', progressView);
 route('/friends', friendsView);
-route('/science', scienceView);
+route('/me', meView);
 route('/settings', settingsView);
 
 // ---------- Chrome ----------
 const TABS = [
-  ['/', '🏠', 'Hjem'],
-  ['/learn', '📚', 'Lær'],
-  ['/review', '🔁', 'Repeter'],
-  ['/read', '📖', 'Les'],
-  ['/speak', '🗣️', 'Snakk'],
+  ['/', 'home', 'Today', (p) => p === '/' || p.startsWith('/review')],
+  ['/learn', 'course', 'Course', (p) => /^\/(learn|lesson|read|speak|roleplay|practice)/.test(p)],
+  ['/friends', 'race', 'Race', (p) => p.startsWith('/friends')],
 ];
 
 function renderChrome() {
   const top = $('#topbar'), tabs = $('#tabbar');
   const st = G.streak();
-  const lv = G.levelInfo();
-  const xpToday = G.todayXp(), goal = G.dailyGoal();
-  const ready = cardsReadyNow();
-  add(clear(top), 
+  const name = getState().settings.name || '';
+  const path = current();
+  add(clear(top),
     h('a.brand', { href: '#/' }, h('span.flag', { 'aria-hidden': 'true' }), h('span', 'Norsk ', h('b', 'Nå'))),
     h('div.top-right',
-      h('a.chip-streak', { href: '#/progress', title: `${st}-day streak`, class: st ? 'on' : '' }, '🔥', h('b', String(st))),
-      h('a.xp-chip', { href: '#/progress', title: `Level ${lv.level} · ${xpToday}/${goal} XP today` },
-        ring(xpToday / goal, { size: 30, stroke: 4, label: String(lv.level), cls: xpToday >= goal ? 'complete' : '' }),
-        h('span.xp-num', `${lv.xp} XP`)),
-      h('details.menu',
-        h('summary.icon-btn', { 'aria-label': 'Menu' }, '☰'),
-        h('div.menu-list',
-          h('a', { href: '#/friends' }, '🏁 The race (friends)'),
-          h('a', { href: '#/progress' }, '📈 Progress & achievements'),
-          h('a', { href: '#/words' }, '📇 My words'),
-          h('a', { href: '#/import' }, '📄 Import textbook'),
-          h('a', { href: '#/practice/numbers' }, '🔢 Number drill'),
-          h('a', { href: '#/practice/time' }, '🕒 Time drill'),
-          h('a', { href: '#/science' }, '🧠 How it works'),
-          h('a', { href: '#/settings' }, '⚙️ Settings')))));
-  const path = current();
-  add(clear(tabs), ...TABS.map(([p, icon, label]) => h('a.tab', {
-    href: `#${p}`,
-    class: (p === '/' ? path === '/' || path === '/mission' : path.startsWith(p)) ? 'active' : '',
-  }, h('span.tab-icon', icon), h('span.tab-label', label),
-  p === '/review' && ready ? h('span.badge', String(ready > 99 ? '99+' : ready)) : null)));
-  top.querySelector('details.menu')?.addEventListener('click', (e) => { if (e.target.tagName === 'A') e.currentTarget.open = false; });
+      h('a.chip-streak', { href: '#/me', title: `${st}-day streak`, class: st ? 'on' : '' }, icon('flame', 18), h('b', String(st))),
+      h('a.avatar-btn', { href: '#/me', 'aria-label': 'Profile', class: /^\/(me|progress|words|settings)/.test(path) ? 'active' : '' },
+        name ? h('span', name.charAt(0).toUpperCase()) : icon('user', 18))));
+  add(clear(tabs), ...TABS.map(([p, ic, label, isActive]) => h('a.tab', { href: `#${p}`, class: isActive(path) ? 'active' : '' },
+    icon(ic, 24, 'tab-icon'), h('span.tab-label', label))));
 }
 
 let chromeTimer = null;
@@ -115,34 +80,24 @@ G.on('levelup', (lv) => {
   toast(h('span.levelup-toast', h('span.small', 'Nytt nivå!'), h('b', ` Level ${lv.level} · ${lv.title}`), h('br'), h('span.small', lv.titleEn)),
     { icon: '⬆️', kind: 'gold', ms: 4200 });
 });
-G.on('achievement', (a) => { sfx.bonus(); toast(h('span', h('b', `${a.title}`), h('br'), h('span.small', a.desc)), { icon: a.icon, kind: 'gold', ms: 3800 }); });
 G.on('streak', (data) => queueCelebration('streak', data));
-G.on('goal', () => { sfx.goal(); confetti(120); toast(h('span', h('b', 'Daily goal reached! 🎯'), h('br'), h('span.small', 'Everything from here is a bonus.')), { icon: '🏁', kind: 'gold', ms: 4000 }); });
-G.on('freeze', ({ freezes }) => toast(`7 days in a row! You earned a streak freeze ❄️ (${freezes} in the bank).`, { icon: '❄️', ms: 4500 }));
 G.on('comeback', ({ days }) => {
   setTimeout(() => {
     const m = modal(h('div.stack.center-col',
       h('div.big-emoji', '🌈'),
       h('h2', 'Velkommen tilbake!'),
-      h('p', `It’s been ${days} days – and that’s completely fine. Coming back is what matters. Your memory model already knows which words need a refresh.`),
-      h('p.small.muted', 'Tip: start with “Just 2 minutes”. Momentum does the rest.'),
-      h('div.row.wrap.center', h('a.btn.primary', { href: '#/review/quick', onclick: () => m.close() }, '⚡ 2-minute restart'), h('button.btn', { onclick: () => m.close() }, 'Close'))));
+      h('p', `It’s been ${days} days – that’s fine. Coming back is what matters.`),
+      h('button.btn.primary.big', { onclick: () => m.close() }, 'Let’s go')));
     G.unlock('comeback');
   }, 600);
 });
 
 // ---------- Voice problems ----------
-const voiceWarned = new Set();
-onVoiceProblem(({ kind, message }) => {
-  const key = kind === 'cloud' ? `cloud:${message}` : kind;
-  if (voiceWarned.has(key)) return;
-  voiceWarned.add(key);
-  const fix = h('a', { href: '#/settings', style: { color: 'inherit', fontWeight: '700', textDecoration: 'underline' } }, 'Fix it in Settings → Voice');
-  if (kind === 'no-voice') {
-    toast(h('span', h('b', 'No Norwegian voice on this device.'), h('br'), 'Audio is muted so you don’t learn wrong pronunciation. ', fix), { icon: '🔇', kind: 'warn', ms: 7000 });
-  } else {
-    toast(h('span', h('b', 'Premium voice failed: '), message, h('br'), fix), { icon: '🔇', kind: 'warn', ms: 8000 });
-  }
+let voiceWarned = false;
+onVoiceProblem(() => {
+  if (voiceWarned) return;
+  voiceWarned = true;
+  toast(h('span', h('b', 'No Norwegian voice on this device.'), h('br'), deviceTip()), { icon: '🔇', kind: 'warn', ms: 8000 });
 });
 
 // ---------- Start ----------

@@ -1,5 +1,4 @@
-// Persistence. Learning progress lives in localStorage (small, synchronous);
-// imported PDF texts live in IndexedDB (can be several MB).
+// Persistence: all learning progress lives in localStorage.
 
 const KEY = 'norsk-na.v1';
 
@@ -10,12 +9,6 @@ export const DEFAULT_SETTINGS = Object.freeze({
   reviewMode: 'adaptive', // adaptive | production | recognition
   ttsRate: 0.9,
   voiceURI: '',
-  ttsProvider: 'device',  // device | elevenlabs | google
-  elevenKey: '',
-  elevenVoice: '',
-  googleKey: '',
-  googleVoice: '',
-  allowForeignVoice: false, // never let an English voice mangle Norwegian unless asked
   autoplay: true,
   dailyGoalXp: 100,       // daily XP goal (≈10 min); small goals make the habit easy
   theme: 'auto',
@@ -24,8 +17,6 @@ export const DEFAULT_SETTINGS = Object.freeze({
   haptics: true,
   autoAdvance: true,      // flow: correct typed answers move on by themselves
   shadowing: true,
-  aiKey: '',
-  aiModel: 'claude-opus-5-5',
   level: 'A1',
 });
 
@@ -137,15 +128,14 @@ export function streak(ts = Date.now()) {
 }
 
 export function exportData() {
-  return JSON.stringify({ app: 'norsk-na', exportedAt: new Date().toISOString(), state: { ...getState(), settings: { ...getState().settings, aiKey: '', elevenKey: '', googleKey: '' } } }, null, 1);
+  return JSON.stringify({ app: 'norsk-na', exportedAt: new Date().toISOString(), state: getState() }, null, 1);
 }
 
 export function importData(json) {
   const parsed = JSON.parse(json);
   const incoming = parsed.state ?? parsed;
   if (!incoming || typeof incoming.cards !== 'object') throw new Error('This file does not look like a Norsk Nå backup.');
-  const { aiKey, elevenKey, googleKey } = getState().settings; // keys never travel in backups
-  state = { ...freshState(), ...incoming, settings: { ...DEFAULT_SETTINGS, ...(incoming.settings || {}), aiKey, elevenKey, googleKey } };
+  state = { ...freshState(), ...incoming, settings: { ...DEFAULT_SETTINGS, ...(incoming.settings || {}) } };
   save(true);
   for (const l of listeners) l(state);
 }
@@ -155,49 +145,3 @@ export function resetAll() {
   save(true);
   for (const l of listeners) l(state);
 }
-
-// --- IndexedDB for imported documents ------------------------------------
-
-const DB_NAME = 'norsk-na-docs';
-let dbPromise = null;
-
-function db() {
-  if (dbPromise) return dbPromise;
-  dbPromise = new Promise((resolve, reject) => {
-    if (typeof indexedDB === 'undefined') return reject(new Error('IndexedDB unavailable'));
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = () => {
-      const d = req.result;
-      if (!d.objectStoreNames.contains('docs')) d.createObjectStore('docs', { keyPath: 'id' });
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-  return dbPromise;
-}
-
-function tx(mode, fn) {
-  return db().then((d) => new Promise((resolve, reject) => {
-    const t = d.transaction('docs', mode);
-    const store = t.objectStore('docs');
-    const result = fn(store);
-    t.oncomplete = () => resolve(result?.result ?? result);
-    t.onerror = () => reject(t.error);
-  }));
-}
-
-export const docs = {
-  put: (doc) => tx('readwrite', (s) => s.put(doc)),
-  get: (id) => db().then((d) => new Promise((resolve, reject) => {
-    const r = d.transaction('docs').objectStore('docs').get(id);
-    r.onsuccess = () => resolve(r.result ?? null);
-    r.onerror = () => reject(r.error);
-  })),
-  list: () => db().then((d) => new Promise((resolve, reject) => {
-    const r = d.transaction('docs').objectStore('docs').getAll();
-    r.onsuccess = () => resolve((r.result || []).map(({ pages, ...meta }) => ({ ...meta, pageCount: pages?.length ?? 0 }))
-      .sort((a, b) => b.importedAt - a.importedAt));
-    r.onerror = () => reject(r.error);
-  })),
-  delete: (id) => tx('readwrite', (s) => s.delete(id)),
-};

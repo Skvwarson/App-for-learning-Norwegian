@@ -85,7 +85,7 @@ export function friendsView(root) {
 
   const feed = raceFeed(players, now);
   add(root, h('div.stack',
-    h('div.page-head', h('h1', 'Kappløpet'), h('p.muted', 'The race – who learns more Norwegian this week?')),
+    h('div.page-head', h('h1', 'The race'), h('p.muted', 'Who learns more Norwegian this week?')),
     demo ? h('div.card.tip.small', h('b', '👀 Demo: '), 'your own numbers are real, but “Ola” is made-up practice data. Once Firebase is connected, your friend’s real progress appears here.') : null,
     tabs, board, duel, weekCard,
     feed.length ? h('div.card.stack', h('div.kicker', '📣 Latest'),

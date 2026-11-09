@@ -1,7 +1,7 @@
 {
   "name": "Norsk Nå – learn conversational Norwegian",
   "short_name": "Norsk Nå",
-  "description": "Spaced repetition, active recall, comprehensible input and your own textbooks – for speaking Norwegian.",
+  "description": "Learn to speak Norwegian – one button a day.",
   "start_url": "./#/",
   "scope": "./",
   "display": "standalone",

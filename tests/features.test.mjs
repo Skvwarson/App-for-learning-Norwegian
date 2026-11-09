@@ -1,7 +1,6 @@
 // Run with: node --test tests/*.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { extractPairs, itemsToLines, dehyphenate, textToPages, analyseDoc } from '../js/core/pdf.js';
 import { judgeLine } from '../js/views/roleplay.js';
 import { numToNo, timeToNo } from '../js/views/practice.js';
 import { levelInfo, xpForLevel, readiness, maybeBonus, createCombo } from '../js/core/gamify.js';
@@ -10,39 +9,6 @@ import { STORIES } from '../data/stories.js';
 import { DICTIONARY } from '../data/dictionary.js';
 import { makeCloze } from '../js/core/text.js';
 import { parseNumberWord } from '../js/core/lexicon.js';
-
-const dictHas = (w) => DICTIONARY.has(w);
-
-test('glossary pairs are detected in either direction and with different separators', () => {
-  const pairs = extractPairs([
-    'et hus – a house', 'å spise = to eat', 'a car - en bil', 'kjøkkenet: the kitchen', 'landet\tthe countryside',
-    'This sentence is just English text and should not match.', 'Jeg bor i Oslo, og jeg liker byen veldig godt.',
-    '1. et vindu – a window',
-  ], dictHas);
-  const map = Object.fromEntries(pairs.map((p) => [p.no, p.en]));
-  assert.equal(map['et hus'], 'a house');
-  assert.equal(map['å spise'], 'to eat');
-  assert.equal(map['en bil'], 'a car');
-  assert.equal(map['kjøkkenet'], 'the kitchen');
-  assert.equal(map['landet'], 'the countryside');
-  assert.equal(map['et vindu'], 'a window');
-  assert.equal(pairs.length, 6);
-});
-
-test('pdf text items are grouped into lines; wide gaps become columns', () => {
-  const it = (s, x, y, w) => ({ str: s, transform: [12, 0, 0, 12, x, y], width: w });
-  const lines = itemsToLines([it('Hei', 10, 700, 20), it('på', 34, 700, 14), it('deg', 51, 700, 20), it('landet', 10, 680, 40), it('the countryside', 90, 680, 80)]);
-  assert.deepEqual(lines, ['Hei på deg', 'landet\tthe countryside']);
-  assert.deepEqual(dehyphenate(['Vi spiser i spise-', 'stua i dag']), ['Vi spiser i spisestua', 'i dag']);
-});
-
-test('document analysis labels languages and finds example sentences in the same book', () => {
-  const doc = analyseDoc([['Chapter 4: The house', 'Ingrid bor i et lite hus på landet.', 'et hus – a house']], dictHas);
-  assert.equal(doc.pages[0][0].lang, 'en');
-  assert.equal(doc.pages[0][1].lang, 'no');
-  assert.equal(doc.pairs[0].ex, 'Ingrid bor i et lite hus på landet.');
-  assert.equal(textToPages('a\nb\n\nc').length, 1);
-});
 
 test('role-play judging accepts wildcards, variants and near misses', () => {
   const line = { accept: ['hei jeg heter *', 'jeg heter *'], model: 'Hei! Jeg heter {name}.' };
@@ -128,14 +94,14 @@ test('glossary finds infinitives without “å” and reads compound numbers', (
   assert.equal(parseNumberWord('tirsdag'), null);
 });
 
-test('today’s plan leads from new words to reading, speaking and the mission', async () => {
+test('today’s plan leads from new words to reading and speaking', async () => {
   const { nextStep, todayPlan } = await import('../js/core/today.js');
   const { bump, update } = await import('../js/core/store.js');
-  assert.deepEqual(todayPlan().map((i) => i.id), ['reviews', 'lesson', 'story', 'speak', 'mission']);
+  assert.deepEqual(todayPlan().map((i) => i.id), ['reviews', 'lesson', 'story', 'speak']);
   assert.equal(nextStep().id, 'lesson'); // nothing due yet → learn something new
   bump('lessons', 1);                     // finishing a lesson also counts as speaking (it ends with a role-play)
   update((s) => { s.lessons.u01 = { step: 'done', done: true }; });
   assert.equal(nextStep().id, 'story');
   assert.equal(nextStep().href, '#/read/story/s01');
-  assert.equal(nextStep('story').id, 'mission');
+  assert.equal(nextStep('story'), null); // speaking is done too → the day is complete
 });
