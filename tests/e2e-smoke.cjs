@@ -131,10 +131,10 @@ async function tapAllTiles(page) {
   await shot('12b-home-full', true);
 
   // Make every card due, then run a review session.
-  await page.evaluate(() => {
-    const k = 'norsk-na.v1'; const s = JSON.parse(localStorage.getItem(k));
-    for (const c of Object.values(s.cards)) c.srs.due = Date.now() - 1000;
-    localStorage.setItem(k, JSON.stringify(s));
+  await page.evaluate(async () => {
+    const { update, save } = await import('/js/core/store.js');
+    update((s) => { for (const c of Object.values(s.cards)) c.srs.due = Date.now() - 1000; });
+    save(true);
   });
   await page.goto(BASE + '#/review'); await page.reload();
   await page.waitForSelector('.card-face');

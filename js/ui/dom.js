@@ -97,26 +97,29 @@ export function confirmModal(text, { ok = 'OK', cancel = 'Cancel', danger = fals
 // ---------- Confetti ----------
 export function confetti(pieces = 120) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  pieces = Math.min(pieces, 70); // plenty to feel festive, light enough for older phones
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
   const c = h('canvas.confetti');
   document.body.append(c);
   const ctx = c.getContext('2d');
-  const W = (c.width = innerWidth * devicePixelRatio), H = (c.height = innerHeight * devicePixelRatio);
+  const W = (c.width = innerWidth * dpr), H = (c.height = innerHeight * dpr);
   const colors = ['#ba0c2f', '#00205b', '#ffffff', '#f2c14e', '#3fa27a', '#5aa9e6'];
   const ps = Array.from({ length: pieces }, () => ({
     x: W / 2 + (Math.random() - 0.5) * W * 0.3, y: H * 0.35,
-    vx: (Math.random() - 0.5) * 18 * devicePixelRatio, vy: (-Math.random() * 16 - 6) * devicePixelRatio,
-    r: (4 + Math.random() * 5) * devicePixelRatio, c: colors[(Math.random() * colors.length) | 0],
+    vx: (Math.random() - 0.5) * 18 * dpr, vy: (-Math.random() * 16 - 6) * dpr,
+    r: (4 + Math.random() * 5) * dpr, c: colors[(Math.random() * colors.length) | 0],
     a: Math.random() * Math.PI, va: (Math.random() - 0.5) * 0.3,
   }));
   let frame = 0;
   (function tick() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
     for (const p of ps) {
-      p.vy += 0.45 * devicePixelRatio; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.a += p.va;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
-      ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); ctx.restore();
+      p.vy += 0.45 * dpr; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.a += p.va;
+      ctx.setTransform(Math.cos(p.a), Math.sin(p.a), -Math.sin(p.a), Math.cos(p.a), p.x, p.y);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
     }
-    if (++frame < 160) requestAnimationFrame(tick); else c.remove();
+    if (++frame < 120) requestAnimationFrame(tick); else c.remove();
   })();
 }
 

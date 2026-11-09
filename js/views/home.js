@@ -25,10 +25,10 @@ export function homeView(root) {
   const doneCount = plan.filter((i) => i.done).length;
   const st = streak();
 
-  const steps = h('div.steps', ...plan.map((p, i) => h('a.step', {
+  const steps = h('div.today-steps', ...plan.map((p, i) => h('a.tstep', {
     href: p.href,
     class: p.done ? 'done' : i === nextIdx ? 'next' : '',
-  }, h('span.step-dot', p.done ? icon('check', 20) : icon(STEP_ICONS[p.id], 20)), h('span.step-label', p.label))));
+  }, h('span.tstep-dot', p.done ? icon('check', 20) : icon(STEP_ICONS[p.id], 20)), h('span.tstep-label', p.label))));
 
   const action = next
     ? h('a.btn.primary.big.cta.start-btn', { href: next.href },
