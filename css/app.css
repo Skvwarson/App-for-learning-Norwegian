@@ -625,3 +625,17 @@ table.mini td.big { font-size: 1.6rem; font-family: var(--font-no); color: var(-
 .race-mini-row { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; padding: 4px 8px; border-radius: 10px; }
 .race-mini-row.me { background: var(--accent-soft); }
 .race-mini-xp { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.legend { display: flex; gap: 12px; font-size: .82rem; font-weight: 700; }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+.wchart { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
+.wchart-axis { display: flex; flex-direction: column; justify-content: space-between; height: 140px; font-size: .7rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.wchart-plot { position: relative; }
+.wchart-grid { position: absolute; inset: 0 0 20px 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.wchart-grid div { border-top: 1px dashed var(--border); }
+.wchart-grid div:last-child { border-top: 1px solid var(--border); }
+.wchart-days { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.wchart-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.wchart-bars { height: 140px; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 3px; }
+.wchart-bar { width: 42%; max-width: 16px; min-height: 2px; border-radius: 4px 4px 1px 1px; }
