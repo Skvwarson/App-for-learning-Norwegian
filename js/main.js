@@ -16,6 +16,7 @@ import { roleplayView } from './views/roleplay.js';
 import { practiceView } from './views/practice.js';
 import { wordsView } from './views/words.js';
 import { progressView } from './views/progress.js';
+import { friendsView } from './views/friends.js';
 import { scienceView } from './views/science.js';
 import { settingsView } from './views/settings.js';
 import { maybeOnboard } from './views/onboarding.js';
@@ -58,6 +59,7 @@ route('/roleplay/:unitId', roleplayView);
 route('/practice/:kind', practiceView);
 route('/words', wordsView);
 route('/progress', progressView);
+route('/friends', friendsView);
 route('/science', scienceView);
 route('/settings', settingsView);
 
@@ -86,6 +88,7 @@ function renderChrome() {
       h('details.menu',
         h('summary.icon-btn', { 'aria-label': 'Menu' }, '☰'),
         h('div.menu-list',
+          h('a', { href: '#/friends' }, '🏁 The race (friends)'),
           h('a', { href: '#/progress' }, '📈 Progress & achievements'),
           h('a', { href: '#/words' }, '📇 My words'),
           h('a', { href: '#/import' }, '📄 Import textbook'),

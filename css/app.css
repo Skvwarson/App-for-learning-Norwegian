@@ -592,3 +592,36 @@ table.mini td.big { font-size: 1.6rem; font-family: var(--font-no); color: var(-
 .choice { font-family: var(--font-no); font-weight: 500; }
 .line { padding: 12px 14px; border-radius: 16px; }
 .line-sp { font-family: var(--font); letter-spacing: .02em; }
+
+/* ---------- the race ---------- */
+.avatar { border-radius: 50%; color: #fff; display: grid; place-items: center; font-weight: 850; flex: none; }
+.race-tabs { margin-top: 2px; }
+.race-row { display: grid; grid-template-columns: 30px 40px 1fr; gap: 12px; align-items: center; padding: 14px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.race-row.me { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
+.race-rank { font-size: 1.4rem; text-align: center; font-weight: 800; }
+.race-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.race-val { font-weight: 850; font-variant-numeric: tabular-nums; }
+.progress.navy .progress-fill { background: var(--navy); }
+.duel-heads { display: flex; align-items: center; justify-content: space-around; text-align: center; }
+.duel-side { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.duel-vs { font-weight: 900; font-size: 1.3rem; color: var(--muted); }
+.duel-row { display: flex; flex-direction: column; gap: 4px; }
+.duel-row b { font-variant-numeric: tabular-nums; min-width: 2.5em; }
+.duel-row b:last-child { text-align: right; }
+.duel-row b.lead { color: var(--accent); }
+.duel-bar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--ring-bg); }
+.duel-me { height: 100%; transition: width .6s; }
+.duel-them { flex: 1; height: 100%; }
+.duel-msg { font-weight: 700; text-align: center; }
+.week-row { display: flex; align-items: flex-end; gap: 10px; }
+.week-bars { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; height: 64px; }
+.wk { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; }
+.wk-bar { width: 100%; max-width: 26px; border-radius: 5px 5px 2px 2px; }
+.wk-d { font-size: .68rem; color: var(--muted); font-weight: 700; }
+.feed-row { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.feed-row:last-child { border-bottom: 0; }
+.race-card { display: flex; flex-direction: column; gap: 8px; border-left: 4px solid var(--accent); }
+.race-mini { display: flex; flex-direction: column; gap: 4px; }
+.race-mini-row { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; padding: 4px 8px; border-radius: 10px; }
+.race-mini-row.me { background: var(--accent-soft); }
+.race-mini-xp { font-weight: 800; font-variant-numeric: tabular-nums; }
