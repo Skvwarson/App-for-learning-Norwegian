@@ -33,7 +33,7 @@ python3 -m http.server 8123
 Then open <http://localhost:8123>. ES modules don't load from `file://`, so you need a local server.
 
 ### Norwegian voice
-1. **Real recordings** play first. Unit 1 has them (made with ElevenLabs). To add another unit: record **one file per speaker** with a clear pause (1–2 s) between their lines, then cut it with `node scripts/split-recording.mjs u02 Emma emma.mp3` – it finds the pauses, writes `audio/u02/02.mp3`, `04.mp3` … and checks each piece against its sentence. Then add the unit to `data/recordings.js`.
+1. **Real recordings** play first – every dialogue line in all 18 units has one (made with ElevenLabs). To re-record a character: record **all their lines in one file** with a short pause between lines, then run `python3 scripts/align-recording.py Emma emma.mp3 --write`. It transcribes the file with Whisper, matches it to the script (skipping anything not in it, like a spoken "Unit 3"), and cuts at the pauses between lines into `audio/<unit>/<line>.mp3`. New characters go in `data/recordings.js`.
 2. Otherwise the **device's own Norwegian voice** is used. The app never lets an English voice read Norwegian (that's how "Vi sees" becomes "six sees"); without a Norwegian voice, Today shows how to install one:
    - **iPhone/iPad:** Settings → Accessibility → Spoken Content → Voices → Norwegian → "Nora (Enhanced)"
    - **Mac:** System Settings → Accessibility → Spoken Content → System voice → Manage Voices → Norwegian

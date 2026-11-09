@@ -110,8 +110,8 @@ function listenStep(el, unit, next) {
     },
   }, '🎧 Audio only');
   add(el, h('div.stack',
-    h('div.card.tip', h('b', '👂 Listen for: '), unit.focus,
-      h('div.small.muted', 'First listen without reading the English. Tap a line to check it, tap a word for its meaning. Guessing from context first makes the meaning stick.')),
+    h('div.card.tip', h('b', '👂 '), unit.focus.replace(/^Listen:\s*/, 'Listen for this: '),
+      h('div.small.muted', 'Listen first without reading the English. Tap a line to check it.')),
     h('div.row.wrap', playAll, audioOnly, showAll),
     unit.dialogue.every(([, no]) => hasRecording(no)) ? h('div.pill.ok.small', '🎧 Natural voice recordings') : null,
     dialogue,

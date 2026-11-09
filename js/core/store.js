@@ -69,10 +69,12 @@ export function getState() {
 export function save(immediate = false) {
   clearTimeout(saveTimer);
   const doSave = () => {
-    if (state.log.length > 20000) state.log = state.log.slice(-15000);
+    if (state.log.length > 6000) state.log = state.log.slice(-5000);
     safeSet(JSON.stringify(state));
   };
-  if (immediate) doSave(); else saveTimer = setTimeout(doSave, 250);
+  if (immediate) return doSave();
+  // Save when the browser is idle, so writing progress never interrupts an animation.
+  saveTimer = setTimeout(() => (typeof requestIdleCallback === 'function' ? requestIdleCallback(doSave, { timeout: 1500 }) : doSave()), 400);
 }
 
 export function update(fn) {
@@ -145,3 +147,6 @@ export function resetAll() {
   save(true);
   for (const l of listeners) l(state);
 }
+
+// Never lose the last answer when the app is closed.
+if (typeof addEventListener === 'function') addEventListener('pagehide', () => { if (state) save(true); });
