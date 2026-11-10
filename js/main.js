@@ -66,8 +66,29 @@ function renderChrome() {
       h('a.chip-streak', { href: '#/me', title: `${st}-day streak`, class: st ? 'on' : '' }, icon('flame', 18), h('b', String(st))),
       h('a.avatar-btn', { href: '#/me', 'aria-label': 'Profile', class: /^\/(me|progress|words|settings)/.test(path) ? 'active' : '' },
         name ? h('span', name.charAt(0).toUpperCase()) : icon('user', 18))));
-  add(clear(tabs), ...TABS.map(([p, ic, label, isActive]) => h('a.tab', { href: `#${p}`, class: isActive(path) ? 'active' : '' },
-    icon(ic, 24, 'tab-icon'), h('span.tab-label', label))));
+  renderTabs(tabs, path);
+}
+
+// The tab you're on always sits in the middle, raised in a circle; the other two
+// sit left and right. Tapping one slides the row round so it comes to the middle.
+let centerTab = 0;
+let tabEls = null;
+function renderTabs(bar, path) {
+  const hit = TABS.findIndex(([, , , isActive]) => isActive(path));
+  if (hit >= 0) centerTab = hit; // on pages outside the tabs (profile…), keep the last one
+  if (!tabEls) {
+    tabEls = TABS.map(([p, ic, label]) => h('a.tab', { href: `#${p}`, 'aria-label': label },
+      h('span.tab-bubble', icon(ic, 24, 'tab-icon')), h('span.tab-label', label)));
+    add(clear(bar), h('div.tab-track', ...tabEls));
+  }
+  const n = TABS.length;
+  tabEls.forEach((el, i) => {
+    const pos = ((i - centerTab + n + 1) % n) - 1; // -1 left · 0 middle · 1 right
+    el.dataset.pos = String(pos);
+    el.classList.toggle('active', pos === 0 && hit >= 0);
+    el.classList.toggle('center', pos === 0);
+    if (pos === 0) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+  });
 }
 
 let chromeTimer = null;

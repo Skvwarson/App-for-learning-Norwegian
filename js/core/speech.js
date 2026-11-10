@@ -145,6 +145,12 @@ function recordingFor(text) {
 }
 export const hasRecording = (text) => !!recordingFor(clean(text));
 
+/** Play an audio file from the app (e.g. a unit's spoken title). Resolves false if it can't play. */
+export async function playFile(url, rate = 1) {
+  stopSpeaking();
+  try { return await playUrl(url, rate); } catch { return false; }
+}
+
 function playUrl(url, rate) {
   return new Promise((resolve, reject) => {
     if (!audioEl) return reject(new Error('Audio playback is not available.'));
