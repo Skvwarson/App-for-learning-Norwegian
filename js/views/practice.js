@@ -85,7 +85,7 @@ export function practiceView(root, { kind }) {
     };
     let inp;
     if (t.mode === 'hear') {
-      inp = answerInput({ placeholder: 'Type the number in digits…', mic: false, onSubmit: (v) => { inp.setDisabled(true); done(Number(v.trim()) === t.n, v); } });
+      inp = answerInput({ placeholder: 'Type the number in digits…', onSubmit: (v) => { inp.setDisabled(true); done(Number(v.trim()) === t.n, v); } });
       inp.input.inputMode = 'numeric';
       add(body, h('div.chunk-head', h('div.small.muted', `${i + 1} / ${rounds}`), progressBar(i / rounds), combo.value >= 3 ? h('div.combo', `🔥 ×${combo.value}`) : null),
         h('div.prompt', h('div.small.muted', 'Listen – which number?'), h('button.btn.big.listen-btn', { onclick: () => speak(t.ans) }, '🔊 Play')), inp.el, fb);

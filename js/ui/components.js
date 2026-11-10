@@ -1,9 +1,9 @@
 // Reusable learning widgets: tappable Norwegian text with glosses, answer
-// input with microphone, word tiles, multiple choice, rating buttons.
+// input, word tiles, multiple choice, rating buttons.
 
 import { h, clear, modal, toast, sfx, haptic, add } from './dom.js';
-import { tokenize, normalize, words, escapeHtml, similarity } from '../core/text.js';
-import { speak, listen, listenBlocker, stopListening } from '../core/speech.js';
+import { tokenize, normalize, words, escapeHtml } from '../core/text.js';
+import { speak } from '../core/speech.js';
 import { lookup, externalLinks } from '../core/lexicon.js';
 import { addCard, wordStatus, knowledgeMap, markKnown, previewRatings, lemmaKey } from '../core/deck.js';
 import { formatDelay } from '../core/fsrs.js';
@@ -81,60 +81,26 @@ export function wordSheet(word, { sentence = '', translation = '', src = 'reader
   m = modal(body, { cls: 'bottom' });
 }
 
-/** Text input with optional microphone. onSubmit(value, alternatives) */
-/** expected: string or () => string – when given, a spoken answer also shows a % match. */
-export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, mic = true, autofocus = true, expected } = {}) {
+/** Text input for typed answers (with æ ø å keys). onSubmit(value) */
+export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, autofocus = true } = {}) {
   const input = h('input.input.answer', {
     placeholder, autocomplete: 'off', autocapitalize: 'off', spellcheck: false, lang: 'nb',
     onkeydown: (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); submit(); } },
   });
-  let alts = [];
-  const submit = () => onSubmit?.(input.value, alts);
+  const submit = () => onSubmit?.(input.value, []);
   const letters = h('div.letters', ...['æ', 'ø', 'å'].map((c) => h('button.key', {
     type: 'button', tabindex: '-1',
     onmousedown: (e) => e.preventDefault(),
     onclick: () => { const p = input.selectionStart ?? input.value.length; input.value = input.value.slice(0, p) + c + input.value.slice(input.selectionEnd ?? p); input.focus(); input.setSelectionRange(p + 1, p + 1); },
   }, c)));
-  // What the microphone heard, and how close it was to the expected answer.
-  const heard = h('div.heard.small', { 'aria-live': 'polite' });
-  const micBtn = mic ? h('button.icon-btn.mic', {
-    type: 'button', title: 'Answer by speaking', 'aria-label': 'Speak your answer',
-    onclick: async () => {
-      const blocker = listenBlocker();
-      if (blocker) { clear(heard); add(heard, h('span.bad', blocker), ' ', h('a', { href: '#/settings' }, 'Open Settings')); return; }
-      if (micBtn.classList.contains('live')) { stopListening(); return; } // second tap = done talking
-      micBtn.classList.add('live');
-      const state = (s) => {
-        clear(heard);
-        add(heard, h('span.listening', s === 'processing' ? '⏳ Checking what you said…' : '🎙 Listening… speak now (tap 🎙 again when done)'));
-      };
-      try {
-        alts = await listen({ onState: state });
-        clear(heard);
-        if (alts.length) {
-          const exp = typeof expected === 'function' ? expected() : expected;
-          const score = exp ? Math.round(Math.max(...alts.map((a) => similarity(a, exp))) * 100) : null;
-          add(heard, '🎙 Heard: ', h('b.no', `«${alts[0]}»`),
-            score != null ? h('span.match', { class: score >= 85 ? 'good' : score >= 60 ? 'fair' : 'low' }, ` · ${score}% match`) : null);
-          input.value = alts[0];
-          submit();
-        } else {
-          add(heard, '🎙 I didn’t catch that – try again, a little louder and closer to the microphone.');
-        }
-      } catch (e) {
-        clear(heard); add(heard, h('span.bad', e.message));
-      }
-      micBtn.classList.remove('live');
-    },
-  }, '🎙') : null;
-  const el = h('div.answer-row', input, micBtn, h('button.btn.primary', { type: 'button', onclick: submit }, 'Check'));
+  const el = h('div.answer-row', input, h('button.btn.primary', { type: 'button', onclick: submit }, 'Check'));
   if (autofocus) {
     // Focus as soon as the caller has inserted the field – still inside the tap that led here,
     // so phones open the keyboard (iOS ignores focus() from a timer). The timer is a fallback.
     queueMicrotask(() => { if (input.isConnected) input.focus({ preventScroll: true }); });
     setTimeout(() => { if (input.isConnected && !input.disabled && document.activeElement !== input) input.focus({ preventScroll: true }); }, 60);
   }
-  return { el: h('div.stack.tight', el, heard, letters), input, setDisabled: (d) => { input.disabled = d; el.querySelectorAll('button').forEach((b) => (b.disabled = d)); } };
+  return { el: h('div.stack.tight', el, letters), input, setDisabled: (d) => { input.disabled = d; el.querySelectorAll('button').forEach((b) => (b.disabled = d)); } };
 }
 
 /** Word-order tiles. onCheck(string) */

@@ -40,7 +40,7 @@ Then open <http://localhost:8123>. ES modules don't load from `file://`, so you 
    - **Android:** Settings → Text-to-speech → Google → install voice data → Norsk (bokmål)
    - **Windows:** Chrome and Edge can use Norwegian voices; Brave can't.
 
-Speech recognition (the 🎙 buttons) works in Safari (iPhone), Chrome and Edge. In browsers without it (Brave, Firefox) the microphone explains this and you type instead.
+All answers are typed – speaking practice happens with a real person.
 
 ## A daily routine
 Open the app and press **Start**. That's it: about 10–20 minutes covers reviews, one lesson, one story and one role-play. On a busy day, even the reviews alone keep your streak.
