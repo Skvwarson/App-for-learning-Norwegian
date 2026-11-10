@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, stopSpeaking, canSpeakNorwegian, hasRecording } from '../core/speech.js';
+import { speak, stopSpeaking, canSpeakNorwegian, hasRecording, playFile } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { settings } from '../core/store.js';
@@ -50,7 +50,13 @@ export function lessonView(root, { unitId, step }) {
 }
 
 function introStep(el, unit, next) {
+  // Emma announces the unit ("Unit 3") – the same voice as the dialogues.
+  const no = String(UNITS.indexOf(unit) + 1).padStart(2, '0');
+  const announce = () => playFile(`audio/units/u${no}.mp3`);
+  if (settings().autoplay) setTimeout(announce, 250);
   add(el, h('div.stack.center-col',
+    h('button.unit-announce', { type: 'button', onclick: announce, 'aria-label': 'Play the unit title' },
+      h('span.small.muted', `Unit ${UNITS.indexOf(unit) + 1}`), ' ', h('span', '🔊')),
     h('div.unit-badge', unit.title),
     h('h2', unit.subtitle),
     h('div.card.stack',
@@ -60,7 +66,7 @@ function introStep(el, unit, next) {
       h('div.kicker', '🎬 The scene'),
       h('p', unit.scene),
       h('div.kicker', '👂 Listen for'),
-      h('p', unit.focus)),
+      h('p', unit.focus.replace(/^Listen:\s*/, ''))),
     h('p.small.muted', 'About 10–15 minutes. Small steps, one at a time – you can pause after any step and continue later.'),
     h('button.btn.primary.big', { onclick: next }, 'Start ▸')));
 }
