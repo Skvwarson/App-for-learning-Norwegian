@@ -244,7 +244,7 @@ function grammarStep(el, unit, next) {
       const t = tilesWidget(d.tiles.map((x) => x.replace(/[.!?]+$/, '')), { shuffleFn: shuffle, onCheck: (v) => { t.disable(); done(checkAnswer(v, d.a).verdict !== 'wrong'); } });
       add(area, h('div.prompt', h('div.prompt-big', d.en)), t.el, fb);
     } else {
-      const inp = answerInput({ mic: false, onSubmit: (v) => { inp.setDisabled(true); done(checkAnswer(v, d.a).verdict !== 'wrong'); } });
+      const inp = answerInput({ onSubmit: (v) => { inp.setDisabled(true); done(checkAnswer(v, d.a).verdict !== 'wrong'); } });
       add(area, h('div.prompt', h('div.prompt-big.no', d.q)), inp.el, fb);
     }
   };
@@ -323,7 +323,7 @@ function practiceStep(el, unit, next) {
 }
 
 function speakStep(el, unit, next) {
-  add(el, h('div.card.tip', h('b', '🗣️ Your turn to talk. '), 'Read the situation, then answer out loud (🎙) or type. Don’t aim for perfect – aim to be understood. Speaking is where vocabulary turns into conversation.'));
+  add(el, h('div.card.tip', h('b', '🗣️ Your turn to talk. '), 'Read the situation and type your answer. Don’t aim for perfect – aim to be understood.'));
   const host = h('div');
   add(el, host);
   return mountRoleplay(host, unit, { onDone: () => next(), embedded: true });

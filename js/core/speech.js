@@ -5,8 +5,6 @@
 // 2. Otherwise the device's built-in voice. Norwegian voices are ranked by quality
 //    (Edge "Natural", Apple "Enhanced/Premium", Google …) and an English voice is
 //    never allowed to read Norwegian (that's how "Vi sees" turns into "six sees").
-//
-// Speech recognition (the 🎙 buttons) is at the bottom.
 
 import { settings } from './store.js';
 import { normalize } from './text.js';
@@ -165,73 +163,8 @@ function playUrl(url, rate) {
   });
 }
 
-// ---------- Speech recognition ----------
-// The browser's own recognition (Chrome, Edge, Safari). Brave has the API but no
-// recognition service behind it, so the microphone is hidden there.
-
-const Rec = hasWindow ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
-// (On iPhone/iPad every browser runs Safari's engine, so the Brave limitation doesn't apply there.)
-export const isBrave = () => hasWindow && !!navigator.brave && !/iPhone|iPad|iPod/.test(navigator.userAgent);
-const nativeListen = () => !!Rec && !isBrave();
-export const canListen = () => nativeListen();
-
-/** Why the microphone can't work here (empty string if it can). */
-export function listenBlocker() {
-  if (canListen()) return '';
-  if (isBrave()) return 'Brave can’t recognise speech. Type your answers here – the microphone works on iPhone (Safari) and in Chrome.';
-  if (!Rec) return 'This browser can’t recognise speech. Type your answers here – the microphone works on iPhone (Safari) and in Chrome.';
-  return 'The microphone isn’t available in this browser.';
-}
-
-const REC_ERRORS = {
-  'not-allowed': 'Microphone access was blocked. Allow the microphone for this site (click the icon left of the address bar) and try again.',
-  'service-not-allowed': 'Speech recognition is turned off. On iPhone: Settings → General → Keyboard → turn on Enable Dictation.',
-  'audio-capture': 'No microphone was found. Check that one is connected and allowed.',
-  'no-speech': 'I didn’t hear anything. Speak a little louder and closer to the microphone.',
-  network: 'Speech recognition needs an internet connection. Check you’re online and try again.',
-  'language-not-supported': 'This browser can’t recognise Norwegian. Type your answer instead.',
-};
-export const recognitionErrorText = (code) => REC_ERRORS[code] || `Speech recognition error: ${code}`;
-
-let stopActive = null;
-/** Finish listening now (e.g. a second tap on the microphone). */
-export function stopListening() { stopActive?.(); }
-
-/**
- * Listen once in Norwegian. Resolves with alternative transcripts (best first),
- * or [] if nothing was heard. Rejects with an Error that explains the problem.
- * onState('listening' | 'processing') lets the UI show progress.
- */
-export function listen({ timeoutMs = 8000, onState = () => {} } = {}) {
-  const blocker = listenBlocker();
-  if (blocker) return Promise.reject(new Error(blocker));
-  stopSpeaking();
-  return listenNative(timeoutMs, onState);
-}
-
-function listenNative(timeoutMs, onState) {
-  return new Promise((resolve, reject) => {
-    const r = new Rec();
-    r.lang = 'nb-NO';
-    r.interimResults = false;
-    r.maxAlternatives = 5;
-    let settled = false;
-    const stop = () => { try { r.stop(); } catch { /* */ } };
-    const t = setTimeout(stop, timeoutMs);
-    stopActive = stop;
-    const done = () => { settled = true; clearTimeout(t); stopActive = null; };
-    r.onresult = (e) => {
-      done();
-      const alts = [];
-      for (const res of e.results) for (const alt of res) alts.push(alt.transcript.trim());
-      resolve(alts);
-    };
-    r.onerror = (e) => { if (!settled) { done(); reject(new Error(recognitionErrorText(e.error))); } };
-    r.onend = () => { if (!settled) { done(); resolve([]); } };
-    onState('listening');
-    try { r.start(); } catch (e) { done(); reject(e); }
-  });
-}
+// Brave on Windows can't use the system's Norwegian voices (used by deviceTip).
+const isBrave = () => hasWindow && !!navigator.brave && !/iPhone|iPad|iPod/.test(navigator.userAgent);
 
 /** Advice for getting a good free Norwegian voice on this particular device/browser. */
 export function deviceTip() {
