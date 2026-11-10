@@ -1,6 +1,7 @@
 // Norwegian audio.
 //
-// 1. A real recording of the exact sentence (data/recordings.js), if there is one.
+// 1. A real recording of the exact sentence (data/recordings.js) or of the word or
+//    phrase cut from one (data/clips.js), if there is one.
 // 2. Otherwise the device's built-in voice. Norwegian voices are ranked by quality
 //    (Edge "Natural", Apple "Enhanced/Premium", Google …) and an English voice is
 //    never allowed to read Norwegian (that's how "Vi sees" turns into "six sees").
@@ -10,6 +11,7 @@
 import { settings } from './store.js';
 import { normalize } from './text.js';
 import { recordingEntries } from '../../data/recordings.js';
+import { CLIPS } from '../../data/clips.js';
 
 const hasWindow = typeof window !== 'undefined';
 const synth = hasWindow ? window.speechSynthesis : null;
@@ -137,7 +139,8 @@ async function speakDevice(text, rate, pitch) {
 const recKey = (text) => normalize(text);
 let recordingIndex = null;
 function recordingFor(text) {
-  recordingIndex ??= new Map(recordingEntries().map(([no, url]) => [recKey(no), url]));
+  // Whole dialogue lines first; words and phrases cut from them second.
+  recordingIndex ??= new Map([...Object.entries(CLIPS), ...recordingEntries()].map(([no, url]) => [recKey(no), url]));
   return recordingIndex.get(recKey(text)) ?? null;
 }
 export const hasRecording = (text) => !!recordingFor(clean(text));
