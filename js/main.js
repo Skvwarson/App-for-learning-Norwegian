@@ -67,6 +67,7 @@ function renderChrome() {
       h('a.avatar-btn', { href: '#/me', 'aria-label': 'Profile', class: /^\/(me|progress|words|settings)/.test(path) ? 'active' : '' },
         name ? h('span', name.charAt(0).toUpperCase()) : icon('user', 18))));
   renderTabs(tabs, path);
+  requestAnimationFrame(() => document.documentElement.style.setProperty('--topbar-h', `${top.offsetHeight}px`));
 }
 
 // The tabs are chambers of a revolver cylinder, seen from behind: three slots on
@@ -86,7 +87,8 @@ function placeTabs(rot) {
   tabEls.forEach((el, i) => {
     const a = ((i - rot) * STEP * Math.PI) / 180;         // 0 = top of the cylinder
     const depth = Math.cos(a);                            // 1 front/top … −1 underneath
-    const x = rx * Math.sin(a), y = -12 * depth;
+    // Middle chamber raised; side ones centred in the bar (not resting on its bottom edge).
+    const x = rx * Math.sin(a), y = 0.5 - 12.5 * (depth + 0.5) / 1.5;
     // Side slots (depth −0.5) are fully visible; only the chamber passing underneath shrinks and fades.
     const under = Math.max(0, Math.min(1, (depth + 1) / 0.5));
     el.style.transform = `translate(calc(-50% + ${x.toFixed(1)}px), ${y.toFixed(1)}px) scale(${(0.55 + 0.45 * under).toFixed(3)})`;
@@ -131,6 +133,11 @@ function renderTabs(bar, path) {
     if (isCenter) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
   });
 }
+
+// The top bar is see-through over the background glow, and solid once the page scrolls under it.
+const markScrolled = () => $('#topbar')?.classList.toggle('scrolled', scrollY > 4);
+addEventListener('scroll', markScrolled, { passive: true });
+addEventListener('hashchange', () => requestAnimationFrame(markScrolled));
 
 let chromeTimer = null;
 subscribe(() => { clearTimeout(chromeTimer); chromeTimer = setTimeout(renderChrome, 120); });

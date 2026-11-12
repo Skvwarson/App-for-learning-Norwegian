@@ -35,7 +35,8 @@ export function wordsView(root) {
   };
   const search = h('input.input', { placeholder: 'Search…', oninput: (e) => { q = e.target.value; render(); } });
   add(root, h('div.stack',
-    h('div.page-head.row.between', h('div', h('a.back-link', { href: '#/me' }, '‹ Me'), h('h1', 'My words'), h('p.muted', 'The % is how likely you are to remember a word right now.')),
+    h('a.back-link.sticky-back', { href: '#/me' }, '‹ Me'),
+    h('div.page-head.row.between', h('div', h('h1', 'My words'), h('p.muted', 'The % is how likely you are to remember a word right now.')),
       h('button.btn.primary.small', { onclick: () => editModal(null, render) }, '＋ Add')),
     search, counts, list));
   render();

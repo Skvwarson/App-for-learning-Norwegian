@@ -30,7 +30,8 @@ export function progressView(root) {
   })));
 
   add(root, h('div.stack',
-    h('div.page-head', h('a.back-link', { href: '#/me' }, '‹ Me'), h('h1', 'Progress')),
+    h('a.back-link.sticky-back', { href: '#/me' }, '‹ Me'),
+    h('div.page-head', h('h1', 'Progress')),
     h('div.card.level-card',
       h('div.row.between',
         h('div', h('div.kicker', `Level ${lv.level}`), h('div.level-title', lv.title), h('div.small.muted', lv.titleEn)),

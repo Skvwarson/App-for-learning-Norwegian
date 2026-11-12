@@ -32,7 +32,13 @@ export function todayPlan(now = Date.now()) {
   // Speaking: a role-play from the most recent unit you've finished.
   const finished = UNITS.filter((u) => lesson(u.id).done);
   const rpUnit = finished[finished.length - 1] ?? unit;
-  const spokeToday = (day.lessons ?? 0) > 0 || Object.values(s.roleplays).some((r) => isToday(r.last, today));
+  // Missed role-play lines that come back after 15 minutes keep "Speak" open until they're right.
+  const retryId = Object.keys(s.roleplays).find((id) => s.roleplays[id]?.retry);
+  const retryUnit = retryId && UNITS.find((u) => u.id === retryId);
+  const retry = retryUnit && s.roleplays[retryId].retry;
+  const spokeToday = !retry && ((day.lessons ?? 0) > 0 || Object.values(s.roleplays).some((r) => isToday(r.last, today)));
+  const retryHref = retryUnit && (lesson(retryUnit.id).done ? `#/roleplay/${retryUnit.id}` : `#/lesson/${retryUnit.id}/speak`);
+  const clock = (t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const continuing = ul.step && ul.step !== 'intro' && !ul.done;
 
@@ -43,7 +49,8 @@ export function todayPlan(now = Date.now()) {
       cta: 'Start today’s session', sub: `${ready} cards ready for review · ~${Math.max(1, Math.round(ready * 0.15))} min`,
     },
     {
-      id: 'lesson', icon: '📚', label: 'Learn', done: courseDone || (day.lessons ?? 0) > 0 || newBudgetLeft(now) === 0,
+      id: 'lesson', icon: '📚', label: 'Learn', done: courseDone || (day.lessons ?? 0) > 0 || newBudgetLeft(now) === 0
+        || (retryUnit === unit && retry.due > now), // its role-play is waiting 15 min: move on meanwhile
       href: `#/lesson/${unit.id}/${ul.step || 'intro'}`, note: unit.title,
       cta: `${continuing ? 'Continue' : 'Next lesson'}: ${unit.title}`, sub: unit.subtitle,
     },
@@ -52,8 +59,14 @@ export function todayPlan(now = Date.now()) {
       cta: `Read: ${story.title}`, sub: 'A short story you’ll mostly understand',
     },
     {
-      id: 'speak', icon: '🗣️', label: 'Speak', done: spokeToday, href: `#/roleplay/${rpUnit.id}`, note: rpUnit.roleplay.title,
-      cta: `Speak: ${rpUnit.roleplay.title}`, sub: 'A short role-play. Say every answer out loud',
+      id: 'speak', icon: '🗣️', label: 'Speak', done: spokeToday,
+      ...(retry ? {
+        href: retryHref, note: retryUnit.roleplay.title, cta: `Retry: ${retryUnit.roleplay.title}`,
+        sub: retry.due > now ? `Missed lines are ready at ${clock(retry.due)}` : 'Type the lines you missed again',
+      } : {
+        href: `#/roleplay/${rpUnit.id}`, note: rpUnit.roleplay.title,
+        cta: `Speak: ${rpUnit.roleplay.title}`, sub: 'A short role-play. Say every answer out loud',
+      }),
     },
   ];
 }

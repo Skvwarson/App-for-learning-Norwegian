@@ -6,7 +6,8 @@ import { roleplayBest } from './roleplay.js';
 
 export function speakView(root) {
   add(root, h('div.stack',
-    h('div.page-head', h('a.back-link', { href: '#/learn' }, '‹ Course'), h('h1', 'Role-plays'), h('p.muted', 'Say every answer out loud.')),
+    h('a.back-link.sticky-back', { href: '#/learn' }, '‹ Course'),
+    h('div.page-head', h('h1', 'Role-plays'), h('p.muted', 'Say every answer out loud.')),
     h('div.list-card', ...UNITS.map((u, i) => {
       const best = roleplayBest(u.id);
       return h('a.list-row', { href: `#/roleplay/${u.id}` },
