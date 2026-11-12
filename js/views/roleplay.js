@@ -43,6 +43,13 @@ export function judgeLine(given, line, name) {
   return 'wrong';
 }
 
+const RETRY_MS = 15 * 60_000;   // missed lines come back after 15 minutes
+const MAX_TRIES = 3;             // after three wrong tries the answer is shown
+const clock = (t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+/** A role-play's pending retry of missed lines: { due, lines: [line indexes] } or null. */
+export const pendingRetry = (unitId) => getState().roleplays[unitId]?.retry ?? null;
+
 export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
   const rp = unit.roleplay;
   const name = settings().name || 'Alex';
@@ -51,98 +58,162 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
   add(host, h('div.stack',
     h('div.rp-head', h('div.kicker', `🎭 ${rp.title}`), h('div.small.muted', `You talk with ${rp.partner}.`)),
     chat, controls));
-  let i = 0, firstTry = 0, youLines = rp.lines.filter((l) => l.who === 'you').length;
   const combo = createCombo();
-  let alive = true;
+  let alive = true, waitTimer = null;
 
-  const bubble = (who, content) => {
-    const b = h('div.bubble', { class: who }, content);
+  const bubble = (who, content, cls = '') => {
+    const b = h('div.bubble', { class: `${who} ${cls}` }, content);
     add(chat, b);
     b.scrollIntoView({ block: 'end', behavior: 'smooth' });
     return b;
   };
+  const themBubble = (line) => {
+    const en = h('div.bubble-en.hidden', line.en);
+    bubble('them', [h('div.bubble-name', rp.partner), h('div.no', tappable(line.no, { sentence: line.no, translation: line.en, mark: false })), en,
+      h('div.bubble-tools', speakBtn(line.no), h('button.link', { onclick: () => en.classList.toggle('hidden') }, 'EN'))]);
+  };
 
-  const step = async () => {
-    if (!alive) return;
-    clear(controls);
-    if (i >= rp.lines.length) return finish();
-    const line = rp.lines[i];
-    if (line.who === 'them') {
-      const en = h('div.bubble-en.hidden', line.en);
-      bubble('them', [h('div.bubble-name', rp.partner), h('div.no', tappable(line.no, { sentence: line.no, translation: line.en, mark: false })), en,
-        h('div.bubble-tools', speakBtn(line.no), h('button.link', { onclick: () => en.classList.toggle('hidden') }, 'EN'))]);
-      i++;
-      await speak(line.no);
-      if (alive) setTimeout(step, 250);
-      return;
+  // Which lines to play: the whole role-play, or (retry) each missed line with the line before it.
+  const retry = pendingRetry(unit.id);
+  let plan;
+  if (retry) {
+    plan = [];
+    for (const k of retry.lines) {
+      let c = k - 1;
+      while (c >= 0 && rp.lines[c].who !== 'them') c--;
+      if (c >= 0 && !plan.includes(c)) plan.push(c);
+      plan.push(k);
     }
-    // Your turn
+  } else plan = rp.lines.map((_, k) => k);
+  const youCount = plan.filter((k) => rp.lines[k].who === 'you').length;
+  let p = 0, firstTry = 0;
+  const missed = [];
+
+  // Your turn on line k: up to three tries, then the answer is shown and we move on.
+  const yourTurn = (k) => {
+    const line = rp.lines[k];
     let tries = 0, hintLevel = 0;
     const model = line.model.replace('{name}', name);
     const hint = h('div.hint');
     const fb = h('div.feedback');
+    const left = h('span.small.muted.tries', `${MAX_TRIES} tries`);
     const inp = answerInput({
-      placeholder: 'Say or type your answer…',
-      expected: model,
-      onSubmit: (v, alts) => {
-        const candidates = [v, ...(alts || [])].filter(Boolean);
-        let verdict = 'wrong', said = v;
-        for (const c of candidates) { const r = judgeLine(c, line, name); if (r === 'correct' || (r === 'almost' && verdict === 'wrong')) { verdict = r; said = c; } if (r === 'correct') break; }
+      placeholder: 'Type your answer…',
+      onSubmit: (v) => {
+        if (!v.trim()) return;
+        const verdict = judgeLine(v, line, name);
         tries++;
         clear(fb);
         if (verdict !== 'wrong') {
           if (tries === 1 && hintLevel === 0) { firstTry++; combo.hit(); }
           sfx.correct(combo.value); haptic(10);
-          bubble('you', [h('div.no', said), verdict === 'almost' ? h('div.small.bubble-fix', 'Natural: ', model) : null]);
+          bubble('you', [h('div.no', v), verdict === 'almost' ? h('div.small.bubble-fix', 'Natural: ', model) : null]);
           addXp((verdict === 'correct' ? 8 : 5) * combo.multiplier(), 'roleplay');
-          i++;
+          p++;
           setTimeout(step, 500);
-        } else {
-          combo.miss(); sfx.wrong(); haptic([30, 30, 30]);
-          if (tries >= 2) {
-            add(fb, h('div.bad', 'One way to say it: ', h('b.no', model), ' ', speakBtn(model)),
-              h('div.small.muted', 'Say it out loud once, then continue.'),
-              h('div.row.end', h('button.btn', { onclick: () => { bubble('you', h('div.no', model)); i++; step(); } }, 'Continue ▸')));
-            speak(model);
-          } else {
-            add(fb, h('div.bad', 'Not quite. Try again, or take a hint.'), said ? h('div.small', 'Closest answer: ', diffView(said, model)) : null);
-          }
+          return;
         }
+        combo.miss(); sfx.wrong(); haptic([30, 30, 30]);
+        if (tries < MAX_TRIES) {
+          left.textContent = `${MAX_TRIES - tries} ${MAX_TRIES - tries === 1 ? 'try' : 'tries'} left`;
+          add(fb, h('div.bad', 'Not quite. Try again, or take a hint.'), h('div.small', 'Closest: ', diffView(v, model)));
+          return;
+        }
+        // Third miss: show the answer, say it, remember the line for later.
+        inp.setDisabled(true);
+        missed.push(k);
+        bubble('you', [h('div.small.bubble-miss', 'The answer was:'), h('div.no', model)], 'missed');
+        clear(controls);
+        add(controls, h('div.small.muted.center', 'This line comes back in 15 minutes.'));
+        speak(model).then(() => { if (alive) setTimeout(() => { p++; step(); }, 700); });
       },
     });
     const words = model.split(/\s+/);
-    add(controls, 
+    add(controls,
       h('div.cue', h('span.cue-label', 'You'), line.cue),
       inp.el,
-      h('div.row.wrap',
+      h('div.row.between',
         h('button.btn.ghost.small', {
           onclick: () => { hintLevel++; hint.textContent = '💡 ' + words.slice(0, Math.min(words.length, hintLevel * 2)).join(' ') + (hintLevel * 2 < words.length ? ' …' : ''); },
         }, '💡 Hint'),
-        h('button.btn.ghost.small', { onclick: () => { hintLevel = 99; hint.textContent = '💡 ' + model; speak(model); } }, 'Show answer')),
+        left),
       hint, fb);
   };
 
+  const step = async () => {
+    if (!alive) return;
+    clear(controls);
+    if (p >= plan.length) return finish();
+    const k = plan[p];
+    const line = rp.lines[k];
+    if (line.who === 'them') {
+      themBubble(line);
+      p++;
+      await speak(line.no);
+      if (alive) setTimeout(step, 250);
+      return;
+    }
+    yourTurn(k);
+  };
+
   const finish = () => {
-    const pct = youLines ? firstTry / youLines : 1;
-    const xp = addXp(40 + firstTry * 5, 'roleplay done');
-    unlock('speaker');
-    update((s) => { const prev = s.roleplays[unit.id]?.best ?? 0; s.roleplays[unit.id] = { best: Math.max(prev, pct), last: Date.now() }; });
-    if (pct >= 0.8) confetti(80);
+    const pct = youCount ? firstTry / youCount : 1;
+    const xp = addXp(missed.length ? 15 : 40 + firstTry * 5, 'roleplay done');
     sfx.goal();
-    add(controls, h('div.card.center-col.stack',
-      h('div.big-emoji', pct >= 0.8 ? '🏆' : '🙌'),
-      h('h3', `${firstTry} of ${youLines} answers on the first try`),
+    if (missed.length) {
+      // Not done yet: the missed lines come back in 15 minutes.
+      const due = Date.now() + RETRY_MS;
+      update((s) => { s.roleplays[unit.id] = { ...(s.roleplays[unit.id] ?? {}), last: Date.now(), retry: { due, lines: [...missed] } }; });
+      add(controls, h('div.card.center-col.stack.rp-result',
+        h('div.big-emoji', '⏳'),
+        h('h3', `${missed.length} ${missed.length === 1 ? 'line' : 'lines'} to practise again`),
+        h('div.pill.xp', `+${xp} XP`),
+        h('p', `Come back at ${clock(due)} and type ${missed.length === 1 ? 'it' : 'them'} again from memory. That gap is what makes it stick.`),
+        h('p.small.muted', 'This role-play counts as done once you get them right.'),
+        h('a.btn.primary', { href: '#/' }, 'Back to Today')));
+      return;
+    }
+    // All correct (or a retry passed): this role-play is done.
+    unlock('speaker');
+    update((s) => {
+      const prev = s.roleplays[unit.id] ?? {};
+      s.roleplays[unit.id] = { best: Math.max(prev.best ?? 0, retry ? (prev.best ?? 0) : pct), last: Date.now() };
+    });
+    if (pct >= 0.8) confetti(80);
+    add(controls, h('div.card.center-col.stack.rp-result',
+      h('div.big-emoji', retry ? '✅' : pct >= 0.8 ? '🏆' : '🙌'),
+      h('h3', retry ? 'All the missed lines are right now!' : `${firstTry} of ${youCount} answers on the first try`),
       h('div.pill.xp', `+${xp} XP`),
-      h('p.small.muted', 'Repeat role-plays a few days apart. Each time it gets more automatic, and automatic is what makes real conversations feel easy.'),
+      h('p.small.muted', 'Repeat role-plays a few days apart. Each time it gets more automatic.'),
       embedded ? null : nextStepBlock('speak'),
       h('div.row.wrap.center',
-        h('button.btn', { onclick: () => { clear(chat); i = 0; firstTry = 0; step(); } }, '↻ Again'),
-        onDone ? h('button.btn.primary', { onclick: onDone }, embedded ? 'Finish lesson ▸' : 'Done') : h('a.btn', { href: '#/speak' }, 'More conversations'))));
+        onDone ? h('button.btn.primary', { onclick: onDone }, embedded ? 'Finish lesson ▸' : 'Done') : h('a.btn', { href: '#/speak' }, 'More role-plays'))));
     if (!embedded) flushCelebrations();
   };
 
+  // A retry that isn't due yet: show when to come back.
+  if (retry && retry.due > Date.now()) {
+    const left = h('b');
+    const tick = () => {
+      const ms = retry.due - Date.now();
+      if (ms <= 0) { clear(host); mountRoleplay(host, unit, { onDone, embedded }); return; }
+      left.textContent = `${Math.floor(ms / 60_000)}:${String(Math.floor((ms % 60_000) / 1000)).padStart(2, '0')}`;
+      waitTimer = setTimeout(tick, 1000);
+    };
+    clear(host);
+    add(host, h('div.card.center-col.stack.rp-wait',
+      h('div.big-emoji', '⏳'),
+      h('h3', `${retry.lines.length} ${retry.lines.length === 1 ? 'line' : 'lines'} waiting for you`),
+      h('p', 'Ready at ', h('b', clock(retry.due)), ' · in ', left),
+      h('p.small.muted', 'The short break is on purpose: recalling it after a gap is what moves it into memory.'),
+      h('a.btn', { href: '#/' }, 'Back to Today')));
+    tick();
+    return () => { alive = false; clearTimeout(waitTimer); };
+  }
+
+  if (retry) add(chat, h('div.small.muted.center.rp-note', 'Only the lines you missed earlier, each with the line before it.'));
   step();
-  return () => { alive = false; stopSpeaking(); };
+  return () => { alive = false; clearTimeout(waitTimer); stopSpeaking(); };
 }
 
 export function roleplayView(root, { unitId }) {

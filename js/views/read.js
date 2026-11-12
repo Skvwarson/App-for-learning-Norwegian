@@ -30,7 +30,8 @@ export function readHub(root) {
       rec?.st === st ? h('div.small.accent', '★ Recommended for you now') : null));
   }
   add(root, h('div.stack',
-    h('div.page-head', h('a.back-link', { href: '#/learn' }, '‹ Course'), h('h1', 'Stories'), h('p.muted', 'The % is how much of the story you already know.')),
+    h('a.back-link.sticky-back', { href: '#/learn' }, '‹ Course'),
+    h('div.page-head', h('h1', 'Stories'), h('p.muted', 'The % is how much of the story you already know.')),
     list));
 }
 
@@ -71,7 +72,8 @@ export function storyView(root, { id }) {
     },
   }, '▶ Read aloud');
   add(root, h('div.stack.reader',
-    h('div.row.between', h('a.btn.ghost.small', { href: '#/read' }, '← Stories'), h('span.small.muted', st.level)),
+    h('a.back-link.sticky-back', { href: '#/read' }, '‹ Stories'),
+    h('div.small.muted', st.level),
     h('h1', st.title), covEl,
     h('div.row.wrap', playBtn, h('button.btn.ghost', { onclick: () => lines.querySelectorAll('.line-en').forEach((e) => e.classList.toggle('hidden')) }, 'Show/hide English')),
     h('p.small.muted', 'Try to get the gist first. Tap only the words that stop you from understanding.'),

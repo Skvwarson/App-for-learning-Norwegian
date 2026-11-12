@@ -48,7 +48,8 @@ export function settingsView(root) {
   const volLabel = h('b', `${Math.round((s.volume ?? 1) * 100)}%`);
 
   add(root, h('div.stack.settings',
-    h('div.page-head', h('a.back-link', { href: '#/me' }, '‹ Me'), h('h1', 'Settings')),
+    h('a.back-link.sticky-back', { href: '#/me' }, '‹ Me'),
+    h('div.page-head', h('h1', 'Settings')),
     h('div.card.stack',
       field('Your name', h('input.input', { value: s.name, onchange: (e) => set('name', e.target.value.trim()) })),
       field('Appearance', themeSeg),

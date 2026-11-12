@@ -3,9 +3,11 @@ vocabulary, examples and role-play lines are spoken by the real voices too.
 
 For every phrase a unit says aloud (words, their examples, grammar examples,
 role-play lines) that has no recording of its own, find it inside a recorded
-dialogue line – the same unit first, then any unit – using Whisper word
+dialogue line, using Whisper word
 timestamps, cut it out, and keep it only if Whisper hears exactly that phrase
-in the clip. Writes audio/clips/*.mp3 and data/clips.js.
+in the clip. One voice for everything you learn (TEACHER: words, examples,
+grammar, model answers); role-play lines only from that same character.
+Writes audio/clips/*.mp3 and data/clips.js.
 
 Needs: pip install faster-whisper numpy   (downloads the Whisper "small" model once)
 usage: python3 scripts/make-clips.py
@@ -16,6 +18,7 @@ from faster_whisper import WhisperModel
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(tempfile.gettempdir(), 'norsk-clip-words.json')
+TEACHER = 'Emma'  # the voice for words, grammar and practice until a dedicated recording exists
 OUT = os.path.join(REPO, 'audio', 'clips')
 
 data = json.loads(subprocess.run(['node', '-e', f"""
@@ -23,12 +26,12 @@ Promise.all([import('{REPO}/data/units.js'), import('{REPO}/data/recordings.js')
   const rec = new Map(recordingEntries());
   const lines = [], targets = [];
   for (const u of UNITS) {{
-    u.dialogue.forEach(([sp, no]) => {{ if (rec.has(no)) lines.push({{ unit: u.id, no, file: rec.get(no) }}); }});
-    const say = (t) => {{ if (t && !rec.has(t)) targets.push({{ unit: u.id, text: t }}); }};
+    u.dialogue.forEach(([sp, no]) => {{ if (rec.has(no)) lines.push({{ unit: u.id, sp, no, file: rec.get(no) }}); }});
+    const say = (t, voice = 'TEACHER') => {{ if (t && !rec.has(t)) targets.push({{ unit: u.id, text: t, voice }}); }};
     for (const w of u.words) {{ say(w.no); if (w.ex) say(w.ex[0]); }}
     for (const [no] of u.grammar.examples ?? []) say(no);
     for (const d of u.grammar.drills ?? []) if (typeof d.a === 'string') say(d.a);
-    for (const l of u.roleplay.lines) say(l.who === 'you' ? l.model : l.no);
+    for (const l of u.roleplay.lines) say(l.who === 'you' ? l.model : l.no, l.who === 'you' ? 'TEACHER' : u.roleplay.partner);
   }}
   console.log(JSON.stringify({{ lines, targets }}));
 }});"""], capture_output=True, text=True, check=True).stdout)
@@ -76,8 +79,9 @@ for tg in data['targets']:
     want = norm(tg['text'])
     key = ' '.join(want)
     if not want or key in done: continue
-    done.add(key)
-    order = sorted(timed, key=lambda l: l['unit'] != tg['unit'])
+    done.add(key)  # first request for a text wins (units are in order)
+    voice = TEACHER if tg['voice'] == 'TEACHER' else tg['voice']
+    order = sorted([l for l in timed if l['sp'] == voice], key=lambda l: l['unit'] != tg['unit'])
     for l in order:
         s, n = l['script'], len(want)
         hits = [i for i in range(len(s) - n + 1) if s[i:i + n] == want]
