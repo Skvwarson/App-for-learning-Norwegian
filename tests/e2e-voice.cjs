@@ -19,7 +19,7 @@ const fakeSpeech = (voices) => `
 async function freshPage(browser, voices) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(fakeSpeech(voices));
-  await ctx.addInitScript(() => localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true } })));
+  await ctx.addInitScript(() => localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true, toured: true } })));
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -85,7 +85,7 @@ const speak = (page, text) => page.evaluate(async (t) => (await import('/js/core
     await ctx.addInitScript(fakeSpeech([{ name: 'Microsoft David', lang: 'en-US', voiceURI: 'david' }]));
     await ctx.addInitScript(() => {
       Object.defineProperty(navigator, 'brave', { value: { isBrave: () => Promise.resolve(true) } });
-      localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true } }));
+      localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true, toured: true } }));
     });
     const page = await ctx.newPage();
     const errors = [];

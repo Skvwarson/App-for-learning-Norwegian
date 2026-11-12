@@ -1,12 +1,13 @@
 // Settings: the few things people actually change, plus backup. Learning
 // tweaks sit folded away under "Advanced".
 
-import { h, toast, download, confirmModal, add, clear } from '../ui/dom.js';
+import { h, toast, download, confirmModal, add, clear, sfx } from '../ui/dom.js';
 import { settings, update, exportData, importData, resetAll } from '../core/store.js';
-import { voicesReady, voiceStatus, deviceTip, speak } from '../core/speech.js';
+import { voicesReady, voiceStatus, deviceTip, speak, applyVolume } from '../core/speech.js';
 import { APP_VERSION } from '../core/version.js';
 import { openPlanModal } from './onboarding.js';
 import { navigate } from '../ui/router.js';
+import { startTour } from '../ui/tour.js';
 
 const TEST_SENTENCE = 'Hei! Vi sees i morgen.';
 
@@ -44,16 +45,23 @@ export function settingsView(root) {
     },
   });
   const retLabel = h('b', `${Math.round(s.retention * 100)}%`);
+  const volLabel = h('b', `${Math.round((s.volume ?? 1) * 100)}%`);
 
   add(root, h('div.stack.settings',
     h('div.page-head', h('a.back-link', { href: '#/me' }, '‹ Me'), h('h1', 'Settings')),
     h('div.card.stack',
       field('Your name', h('input.input', { value: s.name, onchange: (e) => set('name', e.target.value.trim()) })),
       field('Appearance', themeSeg),
-      h('button.btn.ghost', { type: 'button', onclick: openPlanModal }, 'Daily reminder')),
+      h('button.btn.ghost', { type: 'button', onclick: openPlanModal }, 'Daily reminder'),
+      h('button.btn.ghost', { type: 'button', onclick: () => { navigate('#/'); setTimeout(() => startTour(), 450); } }, 'Show the tutorial again')),
     h('div.card.stack',
       h('div.kicker', 'Sound'),
       voiceLine,
+      field(h('span', 'Volume ', volLabel), h('input.volume', {
+        id: 'volume', type: 'range', min: 0, max: 1, step: 0.05, value: s.volume ?? 1,
+        oninput: (e) => { volLabel.textContent = `${Math.round(e.target.value * 100)}%`; update((st) => { st.settings.volume = Number(e.target.value); }); applyVolume(); },
+        onchange: () => sfx.correct(),
+      }), 'For everything in the app: voices and sounds.'),
       field('Speaking speed', h('input', { id: 'voice-rate', type: 'range', min: 0.6, max: 1.1, step: 0.05, value: s.ttsRate, onchange: (e) => set('ttsRate', Number(e.target.value)) })),
       h('button.btn', { type: 'button', onclick: () => speak(TEST_SENTENCE) }, '▶ Test voice'),
       toggle('autoplay', 'Play Norwegian automatically'),

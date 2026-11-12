@@ -13,7 +13,7 @@ const ORIGIN = `http://app.localhost:${PORT}`;
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext();
-  await ctx.addInitScript(() => { try { localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true } })); } catch { /* */ } });
+  await ctx.addInitScript(() => { try { localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true, toured: true } })); } catch { /* */ } });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -26,19 +26,19 @@ const ORIGIN = `http://app.localhost:${PORT}`;
 
   await page.goto(`${ORIGIN}/`);
   await page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 15000 });
-  assert.equal(await version(), '19');
-  console.log('✓ v19 installed and controlled by the service worker');
+  assert.equal(await version(), '20');
+  console.log('✓ v20 installed and controlled by the service worker');
 
-  // Publish "version 20": change the app and the service worker, as a real update does.
+  // Publish "version 21": change the app and the service worker, as a real update does.
   const vFile = path.join(DIR, 'js/core/version.js');
-  fs.writeFileSync(vFile, fs.readFileSync(vFile, 'utf8').replace("APP_VERSION = '19'", "APP_VERSION = '20'"));
+  fs.writeFileSync(vFile, fs.readFileSync(vFile, 'utf8').replace("APP_VERSION = '20'", "APP_VERSION = '21'"));
   const swFile = path.join(DIR, 'sw.js');
-  fs.writeFileSync(swFile, fs.readFileSync(swFile, 'utf8').replace("norsk-na-v19", "norsk-na-v20"));
+  fs.writeFileSync(swFile, fs.readFileSync(swFile, 'utf8').replace("norsk-na-v20", "norsk-na-v21"));
 
   // Next visit (online): the new version must show without clearing anything.
   await page.goto(`${ORIGIN}/`);
   await page.waitForTimeout(2500); // let the new worker install, activate and trigger the one-time reload
-  assert.equal(await version(), '20');
+  assert.equal(await version(), '21');
   console.log('✓ update picked up on the next visit');
 
   // Offline: the cached copy still works.
