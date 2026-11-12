@@ -11,7 +11,7 @@ const STEPS = [
   { sel: '.chip-streak', title: 'Your streak', text: 'Days in a row with some Norwegian. A few minutes is enough to keep it going.' },
   { sel: '.race-card', title: 'The race', text: 'You against your friend: who learns more this week?' },
   { sel: '.tabbar', growTop: 30, title: 'Getting around', text: 'The page you’re on sits in the middle. Tap a side one and the menu spins round to it.' },
-  { sel: '.avatar-btn', title: 'You', text: 'Your progress, your words and settings – volume, voice speed and backup.' },
+  { sel: '.avatar-btn', title: 'You', text: 'Your progress, your words and settings (volume, voice speed and backup).' },
 ];
 
 let active = null;
@@ -52,7 +52,7 @@ export function startTour({ onDone } = {}) {
     const step = list[i];
     title.textContent = step.title;
     text.textContent = step.text;
-    nextBtn.textContent = i === list.length - 1 ? 'Got it – let’s start' : 'Next';
+    nextBtn.textContent = i === list.length - 1 ? 'Got it, let’s start' : 'Next';
     dots.replaceChildren(...list.map((_, k) => h('span', { class: k === i ? 'on' : '' })));
     const r = step.el.getBoundingClientRect();
     if (r.top < 70 || r.bottom > innerHeight - 90) step.el.scrollIntoView({ block: 'center', behavior: 'instant' });

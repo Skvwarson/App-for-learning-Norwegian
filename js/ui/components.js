@@ -48,7 +48,7 @@ export function wordSheet(word, { sentence = '', translation = '', src = 'reader
     h('div.row.between',
       h('div', h('div.sheet-word', word), info.lemma !== word.toLowerCase() && info.source !== 'none' ? h('div.muted.small', `→ ${lemmaDisplay}`) : null),
       speakBtn(word)),
-    info.en ? h('div.sheet-gloss', info.en) : h('div.muted', 'Not in the built-in glossary – look it up below and write the meaning yourself (writing it yourself helps you remember: the generation effect).'),
+    info.en ? h('div.sheet-gloss', info.en) : h('div.muted', 'Not in the built-in glossary. Look it up below and write the meaning yourself (writing it yourself helps you remember: the generation effect).'),
     sentence && sentence !== word ? h('div.sheet-context', h('span.muted.small', 'Context: '), h('span.no', sentence)) : null,
     info.card
       ? h('div.pill.ok', `✓ In your deck · ${info.card.srs.state === 2 ? 'known' : 'learning'}`)
@@ -65,7 +65,7 @@ export function wordSheet(word, { sentence = '', translation = '', src = 'reader
             if (created) {
               update((s) => { s.game ??= {}; s.game.mined = (s.game.mined || 0) + 1; });
               if ((getGame().mined || 0) >= 10) unlock('miner');
-              toast(`Added “${formNo.value.trim()}” – it will be introduced in your next session.`, { icon: '➕' });
+              toast(`Added “${formNo.value.trim()}”. It will be introduced in your next session.`, { icon: '➕' });
               sfx.tap(); haptic(8);
             } else toast('Already in your deck.');
             m.close(); onChange?.();
@@ -95,7 +95,7 @@ export function answerInput({ placeholder = 'Type in Norwegian…', onSubmit, au
   }, c)));
   const el = h('div.answer-row', input, h('button.btn.primary', { type: 'button', onclick: submit }, 'Check'));
   if (autofocus) {
-    // Focus as soon as the caller has inserted the field – still inside the tap that led here,
+    // Focus as soon as the caller has inserted the field, still inside the tap that led here,
     // so phones open the keyboard (iOS ignores focus() from a timer). The timer is a fallback.
     queueMicrotask(() => { if (input.isConnected) input.focus({ preventScroll: true }); });
     setTimeout(() => { if (input.isConnected && !input.disabled && document.activeElement !== input) input.focus({ preventScroll: true }); }, 60);

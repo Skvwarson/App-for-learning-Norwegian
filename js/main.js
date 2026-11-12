@@ -136,7 +136,7 @@ let chromeTimer = null;
 subscribe(() => { clearTimeout(chromeTimer); chromeTimer = setTimeout(renderChrome, 120); });
 
 // ---------- Celebrations ----------
-// Level-ups celebrate without blocking – never break someone's flow mid-exercise.
+// Level-ups celebrate without blocking, never break someone's flow mid-exercise.
 G.on('levelup', (lv) => {
   sfx.levelUp(); haptic([20, 40, 20, 40, 60]); confetti(160);
   toast(h('span.levelup-toast', h('span.small', 'Nytt nivå!'), h('b', ` Level ${lv.level} · ${lv.title}`), h('br'), h('span.small', lv.titleEn)),
@@ -148,7 +148,7 @@ G.on('comeback', ({ days }) => {
     const m = modal(h('div.stack.center-col',
       h('div.big-emoji', '🌈'),
       h('h2', 'Velkommen tilbake!'),
-      h('p', `It’s been ${days} days – that’s fine. Coming back is what matters.`),
+      h('p', `It’s been ${days} days. That’s fine: coming back is what matters.`),
       h('button.btn.primary.big', { onclick: () => m.close() }, 'Let’s go')));
     G.unlock('comeback');
   }, 600);
@@ -174,7 +174,7 @@ start($('#view'), {
 setTimeout(maybeOnboard, 300);
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.hostname.match(/^(localhost|127\.)/)) {
-  // When an update is installed, switch to it right away – but never in the middle of a lesson or review.
+  // When an update is installed, switch to it right away, but never in the middle of a lesson or review.
   const hadController = !!navigator.serviceWorker.controller;
   let pendingReload = false;
   const reloadWhenIdle = () => {

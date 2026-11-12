@@ -1,5 +1,5 @@
 // Text utilities for Norwegian (Bokmål): tokenising, answer checking,
-// rough lemmatisation and language detection. Pure functions – no DOM.
+// rough lemmatisation and language detection. Pure functions, no DOM.
 
 const WORD_RE = /[\p{L}\p{M}]+(?:['’-][\p{L}\p{M}]+)*/gu;
 
@@ -105,15 +105,15 @@ export function checkAnswer(input, expected, alts = []) {
   }
   const len = bestV.length;
   const tolerance = len >= 12 ? 2 : len >= 4 ? 1 : 0;
-  if (best <= tolerance) return { verdict: 'almost', note: 'Small spelling slip – compare carefully.' };
+  if (best <= tolerance) return { verdict: 'almost', note: 'Small spelling slip. Compare carefully.' };
   if (bestV.includes(' ')) {
     const { dist, len: tl } = tokenDistance(fGiven, foldDiacritics(bestV));
-    if (tl >= 4 && dist / tl <= 0.2) return { verdict: 'almost', note: 'Very close – one word differs.' };
+    if (tl >= 4 && dist / tl <= 0.2) return { verdict: 'almost', note: 'Very close: one word differs.' };
   }
   return { verdict: 'wrong', note: '' };
 }
 
-/** Similarity 0–1 between two sentences (used for speaking/role-play). */
+/** Similarity 0-1 between two sentences (used for speaking/role-play). */
 export function similarity(a, b) {
   const x = foldDiacritics(normalize(a)), y = foldDiacritics(normalize(b));
   if (!x || !y) return 0;
@@ -164,7 +164,7 @@ export function splitSentences(text) {
 
 /**
  * Candidate dictionary forms for an inflected Norwegian word.
- * Over-generates on purpose – the caller keeps the first one found in a dictionary.
+ * Over-generates on purpose, the caller keeps the first one found in a dictionary.
  * bilene→bil, jenta→jente, snakket→snakke, spiste→spise, stort→stor, bor→bo …
  */
 export function lemmaCandidates(word) {

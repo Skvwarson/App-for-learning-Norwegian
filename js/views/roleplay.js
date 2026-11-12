@@ -105,7 +105,7 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
               h('div.row.end', h('button.btn', { onclick: () => { bubble('you', h('div.no', model)); i++; step(); } }, 'Continue ▸')));
             speak(model);
           } else {
-            add(fb, h('div.bad', 'Not quite – try again, or take a hint.'), said ? h('div.small', 'Closest answer: ', diffView(said, model)) : null);
+            add(fb, h('div.bad', 'Not quite. Try again, or take a hint.'), said ? h('div.small', 'Closest answer: ', diffView(said, model)) : null);
           }
         }
       },
@@ -133,7 +133,7 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
       h('div.big-emoji', pct >= 0.8 ? '🏆' : '🙌'),
       h('h3', `${firstTry} of ${youLines} answers on the first try`),
       h('div.pill.xp', `+${xp} XP`),
-      h('p.small.muted', 'Repeat role-plays a few days apart – each time it gets more automatic, and automatic is what makes real conversations feel easy.'),
+      h('p.small.muted', 'Repeat role-plays a few days apart. Each time it gets more automatic, and automatic is what makes real conversations feel easy.'),
       embedded ? null : nextStepBlock('speak'),
       h('div.row.wrap.center',
         h('button.btn', { onclick: () => { clear(chat); i = 0; firstTry = 0; step(); } }, '↻ Again'),

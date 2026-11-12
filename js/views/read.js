@@ -19,7 +19,7 @@ export function readHub(root) {
   const s = getState();
   const list = h('div.stack');
   const withCov = STORIES.map((st) => ({ st, cov: coverage(st.sentences.map((x) => x[0]).join(' '), map).pct }));
-  // Recommend the first unread story in the comprehensible zone (85–98 %)
+  // Recommend the first unread story in the comprehensible zone (85-98 %)
   const rec = withCov.find((x) => !s.stories[x.st.id] && x.cov >= 0.85) ?? withCov.find((x) => !s.stories[x.st.id]);
   for (const { st, cov } of withCov) {
     const unitNo = UNITS.findIndex((u) => u.id === st.unit) + 1;

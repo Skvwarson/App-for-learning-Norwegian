@@ -1,11 +1,11 @@
 // FSRS-5 spaced-repetition scheduler (Free Spaced Repetition Scheduler).
 //
 // FSRS models each memory with two numbers:
-//   stability  (S) – days until recall probability drops to 90 %
-//   difficulty (D) – 1 (easy) … 10 (hard), how fast stability grows
+//   stability  (S), days until recall probability drops to 90 %
+//   difficulty (D), 1 (easy) … 10 (hard), how fast stability grows
 // and predicts retrievability R(t) = (1 + F·t/S)^-0.5.
 // Each review is scheduled for the moment R is predicted to fall to your
-// desired retention (default 90 %) – i.e. just before you would forget.
+// desired retention (default 90 %), i.e. just before you would forget.
 // That is the "spacing effect" turned into an algorithm.
 //
 // Formulas follow the open FSRS-5 reference (open-spaced-repetition/py-fsrs).
@@ -29,7 +29,7 @@ export function newSrsState(now = Date.now()) {
   return { state: State.New, due: now, s: 0, d: 0, step: 0, reps: 0, lapses: 0, last: 0 };
 }
 
-/** Probability (0–1) of recalling a memory with stability `s` after `elapsedDays`. */
+/** Probability (0-1) of recalling a memory with stability `s` after `elapsedDays`. */
 export function retrievability(elapsedDays, s) {
   if (!s || s <= 0) return 0;
   return Math.pow(1 + (FACTOR * Math.max(0, elapsedDays)) / s, DECAY);

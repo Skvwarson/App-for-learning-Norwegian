@@ -1032,7 +1032,7 @@ for (const line of RAW.split('\n')) {
   const m = line.match(/^\s*(.+?)\s*(?:\((en|ei|et)\))?\s*=\s*(.+?)\s*$/);
   if (!m) continue;
   const [, word, g, en] = m;
-  // Infinitives are written "å spise" but appear in texts as "spise" – index them without "å".
+  // Infinitives are written "å spise" but appear in texts as "spise", index them without "å".
   const key = word.toLowerCase().replace(/^å\s+/, '');
   const prev = DICTIONARY.get(key);
   if (prev) { if (!prev.en.includes(en)) prev.en += `; ${en}`; continue; }

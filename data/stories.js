@@ -1,4 +1,4 @@
-// Graded readers – short original stories, each built mostly from words of
+// Graded readers, short original stories, each built mostly from words of
 // the units before it (comprehensible input, "i + 1"). Sentence pairs: [no, en].
 
 export const STORIES = [
@@ -167,7 +167,7 @@ export const STORIES = [
       ['Sofie kommer på besøk med suppe og appelsiner.', 'Sofie comes to visit with soup and oranges.'],
       ['«Du bør drikke mye te,» sier Sofie.', '“You should drink lots of tea,” says Sofie.'],
       ['Emma ligger på sofaen og ser på norske serier.', 'Emma lies on the sofa and watches Norwegian series.'],
-      ['Hun lærer mange nye ord – også når hun er syk!', 'She learns lots of new words – even when she’s ill!'],
+      ['Hun lærer mange nye ord, også når hun er syk!', 'She learns lots of new words, even when she’s ill!'],
       ['På fredag føler hun seg mye bedre.', 'On Friday she feels much better.'],
     ],
   },
