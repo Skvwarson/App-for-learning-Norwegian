@@ -69,25 +69,66 @@ function renderChrome() {
   renderTabs(tabs, path);
 }
 
-// The tab you're on always sits in the middle, raised in a circle; the other two
-// sit left and right. Tapping one slides the row round so it comes to the middle.
+// The tabs are chambers of a revolver cylinder, seen from behind: three slots on
+// a tilted ring. The current page is the chamber at the top (in the middle,
+// raised). Tapping a side tab turns the cylinder one step: that tab rolls to
+// the top, and the one on the far side rolls round underneath and comes back up
+// on the other side.
 let centerTab = 0;
 let tabEls = null;
+let spin = 0;          // cylinder rotation in steps (keeps counting, so turns always go the short way)
+let shown = 0;         // the rotation currently drawn (animates towards `spin`)
+let spinFrame = 0;
+const STEP = 360 / TABS.length;
+function placeTabs(rot) {
+  const wide = Math.min(innerWidth, 440);
+  const rx = (wide / 3) / Math.sin((STEP * Math.PI) / 180); // side tabs land a third of the bar from the middle
+  tabEls.forEach((el, i) => {
+    const a = ((i - rot) * STEP * Math.PI) / 180;         // 0 = top of the cylinder
+    const depth = Math.cos(a);                            // 1 front/top … −1 underneath
+    const x = rx * Math.sin(a), y = -12 * depth;
+    // Side slots (depth −0.5) are fully visible; only the chamber passing underneath shrinks and fades.
+    const under = Math.max(0, Math.min(1, (depth + 1) / 0.5));
+    el.style.transform = `translate(calc(-50% + ${x.toFixed(1)}px), ${y.toFixed(1)}px) scale(${(0.55 + 0.45 * under).toFixed(3)})`;
+    el.style.opacity = under.toFixed(2);
+    el.style.zIndex = String(Math.round((depth + 1) * 10));
+  });
+}
+function turnTo(target) {
+  cancelAnimationFrame(spinFrame);
+  const from = shown, t0 = performance.now(), ms = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 520;
+  const ease = (t) => 1 + 2.2 * (t - 1) ** 3 + 1.2 * (t - 1) ** 2; // ease-out with a small click into place
+  const frame = (now) => {
+    const t = ms ? Math.min(1, (now - t0) / ms) : 1;
+    shown = from + (target - from) * ease(t);
+    placeTabs(shown);
+    if (t < 1) spinFrame = requestAnimationFrame(frame); else shown = target;
+  };
+  spinFrame = requestAnimationFrame(frame);
+}
 function renderTabs(bar, path) {
   const hit = TABS.findIndex(([, , , isActive]) => isActive(path));
-  if (hit >= 0) centerTab = hit; // on pages outside the tabs (profile…), keep the last one
+  const n = TABS.length;
   if (!tabEls) {
     tabEls = TABS.map(([p, ic, label]) => h('a.tab', { href: `#${p}`, 'aria-label': label },
       h('span.tab-bubble', icon(ic, 24, 'tab-icon')), h('span.tab-label', label)));
     add(clear(bar), h('div.tab-track', ...tabEls));
+    if (hit >= 0) centerTab = hit;
+    spin = shown = centerTab;
+    placeTabs(shown);
+    addEventListener('resize', () => placeTabs(shown));
+  } else if (hit >= 0 && hit !== centerTab) {
+    // Turn one step the short way round (right tab → turn right, left tab → turn left).
+    const diff = ((hit - centerTab + n) % n);
+    spin += diff === 1 ? 1 : diff === n - 1 ? -1 : diff;
+    centerTab = hit;
+    turnTo(spin);
   }
-  const n = TABS.length;
   tabEls.forEach((el, i) => {
-    const pos = ((i - centerTab + n + 1) % n) - 1; // -1 left · 0 middle · 1 right
-    el.dataset.pos = String(pos);
-    el.classList.toggle('active', pos === 0 && hit >= 0);
-    el.classList.toggle('center', pos === 0);
-    if (pos === 0) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+    const isCenter = i === centerTab;
+    el.classList.toggle('active', isCenter && hit >= 0);
+    el.classList.toggle('center', isCenter);
+    if (isCenter) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
   });
 }
 
