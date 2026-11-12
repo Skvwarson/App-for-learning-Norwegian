@@ -1,5 +1,5 @@
 // Word lookup for tap-to-translate: your own cards first, then course words,
-// then the built-in glossary – trying inflected → dictionary forms.
+// then the built-in glossary, trying inflected → dictionary forms.
 
 import { DICTIONARY } from '../../data/dictionary.js';
 import { UNITS } from '../../data/units.js';

@@ -52,7 +52,7 @@ export function reviewView(root, params = {}) {
       h('div.session-progress', progressBar(seen / target)),
       combo.value >= 2 ? h('div.combo', { class: combo.value >= 10 ? 'hot' : '' }, `🔥 ×${combo.value}`) : null,
       h('div.session-xp', `${xpEarned} XP`),
-      zone ? h('div.zone.small', { title: 'The app adjusts difficulty so you succeed about 85 % of the time – the sweet spot for learning and flow.' }, zone) : null,
+      zone ? h('div.zone.small', { title: 'The app adjusts difficulty so you succeed about 85 % of the time: the sweet spot for learning and flow.' }, zone) : null,
     );
   };
 
@@ -72,7 +72,7 @@ export function reviewView(root, params = {}) {
       const c = getCard(freshIds.shift());
       if (c && c.srs.state === State.New && !c.seen) return { card: c, intro: true };
     }
-    // Learn ahead a little at the end – but never re-show a card seconds after you saw it.
+    // Learn ahead a little at the end, but never re-show a card seconds after you saw it.
     const ahead = all.learning.find((c) => c.srs.due <= now + 20 * 60_000 && c.id !== lastId && now - c.srs.last >= 90_000);
     if (ahead) return { card: ahead, intro: false };
     return null;
@@ -111,7 +111,7 @@ export function reviewView(root, params = {}) {
     add(stage, h('div.card-face.stack',
       h('div.tag.new', '✨ New word'),
       h('div.face-no.no', card.no, ' ', genderTag(card.g)),
-      h('div.face-en', card.en || h('span.muted', '(no meaning saved – edit it in Words)')),
+      h('div.face-en', card.en || h('span.muted', '(no meaning saved: edit it in Words)')),
       card.note ? h('div.small.muted', card.note) : null,
       card.ex?.no ? h('div.face-ex', h('div.no', tappable(card.ex.no, { mark: false })), card.ex.en ? h('div.small.muted', card.ex.en) : null) : null,
       h('div.row.center', speakBtn(card.no)),
@@ -293,7 +293,7 @@ export function reviewView(root, params = {}) {
       add(stage, h('div.stack.center-col',
         h('div.big-emoji', '🌿'),
         h('h2', 'All caught up!'),
-        h('p', fresh.learning.length ? 'Some cards are waiting a few minutes to be spaced out – come back soon.' : 'No reviews due right now. That’s spacing working for you.'),
+        h('p', fresh.learning.length ? 'Some cards are waiting a few minutes to be spaced out. Come back soon.' : 'No reviews due right now. That’s spacing working for you.'),
         nextStepBlock('reviews'),
         h('div.row.wrap.center',
           h('a.btn', { href: '#/read' }, '📖 Read'),
@@ -316,7 +316,7 @@ export function reviewView(root, params = {}) {
     const fc = forecast(2)[1];
     add(stage, h('div.stack.center-col.summary',
       h('div.big-emoji', acc >= 0.9 ? '🏆' : acc >= 0.7 ? '🔥' : '💪'),
-      h('h2', acc >= 0.9 ? 'Strålende!' : acc >= 0.7 ? 'Bra jobba!' : 'Godt jobba – that was real effort!'),
+      h('h2', acc >= 0.9 ? 'Strålende!' : acc >= 0.7 ? 'Bra jobba!' : 'Godt jobba! That was real effort.'),
       h('div.stat-row',
         h('div.stat', h('div.stat-n', String(seen)), h('div.stat-l', 'cards')),
         h('div.stat', h('div.stat-n', `${Math.round(acc * 100)}%`), h('div.stat-l', 'recalled')),

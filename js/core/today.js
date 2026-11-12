@@ -1,5 +1,5 @@
 // Today's plan: the few things that make a complete day of Norwegian, in the
-// order that works best – retrieval first, then new input, then output. Home shows it as a checklist; every finish screen offers the next
+// order that works best, retrieval first, then new input, then output. Home shows it as a checklist; every finish screen offers the next
 // unfinished item, so one session flows straight into the next.
 
 import { buildQueue, newBudgetLeft } from './deck.js';
@@ -53,7 +53,7 @@ export function todayPlan(now = Date.now()) {
     },
     {
       id: 'speak', icon: '🗣️', label: 'Speak', done: spokeToday, href: `#/roleplay/${rpUnit.id}`, note: rpUnit.roleplay.title,
-      cta: `Speak: ${rpUnit.roleplay.title}`, sub: 'A short role-play – say every answer out loud',
+      cta: `Speak: ${rpUnit.roleplay.title}`, sub: 'A short role-play. Say every answer out loud',
     },
   ];
 }

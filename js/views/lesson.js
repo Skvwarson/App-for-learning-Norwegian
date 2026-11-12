@@ -50,7 +50,7 @@ export function lessonView(root, { unitId, step }) {
 }
 
 function introStep(el, unit, next) {
-  // Emma announces the unit ("Unit 3") – the same voice as the dialogues.
+  // Emma announces the unit ("Unit 3"), the same voice as the dialogues.
   const no = String(UNITS.indexOf(unit) + 1).padStart(2, '0');
   const announce = () => playFile(`audio/units/u${no}.mp3`);
   if (settings().autoplay) setTimeout(announce, 250);
@@ -67,7 +67,7 @@ function introStep(el, unit, next) {
       h('p', unit.scene),
       h('div.kicker', '👂 Listen for'),
       h('p', unit.focus.replace(/^Listen:\s*/, ''))),
-    h('p.small.muted', 'About 10–15 minutes. Small steps, one at a time – you can pause after any step and continue later.'),
+    h('p.small.muted', 'About 10-15 minutes. One small step at a time: you can stop after any step and continue later.'),
     h('button.btn.primary.big', { onclick: next }, 'Start ▸')));
 }
 
@@ -137,7 +137,7 @@ function wordsStep(el, unit, next) {
       add(el, h('div.stack.center-col',
         h('div.big-emoji', '🧠'),
         h('h2', `${unit.words.length} new words & phrases`),
-        h('p', 'They are now in your memory deck. They will come back in about 10 minutes, then tomorrow, then in a few days – each time just before you would forget them.'),
+        h('p', 'They are now in your memory deck. They will come back in about 10 minutes, then tomorrow, then in a few days: each time just before you would forget them.'),
         h('button.btn.primary.big', { onclick: next }, 'Next: grammar ▸')));
       return;
     }
@@ -163,9 +163,9 @@ function wordsStep(el, unit, next) {
         ex ? h('div.word-ex', h('span.no', tappable(ex.no, { sentence: ex.no, translation: ex.en, mark: false })), h('div.small.muted', ex.en)) : null);
     });
     add(el, header(),
-      h('div.card.tip.small', '📖 Read each one out loud, and imagine yourself saying it. Then you’ll be asked to recall them – that recall is what moves them into long-term memory.'),
+      h('div.card.tip.small', '📖 Read each one out loud, and imagine yourself saying it. Then you’ll be asked to recall them. That recall is what moves them into long-term memory.'),
       h('div.word-list', ...items),
-      h('div.row.end', h('button.btn.primary.big', { onclick: () => quiz(chunk) }, 'I’m ready – test me ▸')));
+      h('div.row.end', h('button.btn.primary.big', { onclick: () => quiz(chunk) }, 'I’m ready, test me ▸')));
     if (settings().autoplay) speak(chunk[0].no);
   };
 
@@ -197,7 +197,7 @@ function wordsStep(el, unit, next) {
             ch.buttons[opts.indexOf(w)].classList.add('right');
             combo.miss(); sfx.wrong(); haptic([30, 30, 30]);
             queue.push({ w, first: false }); // try again at the end of this group
-            add(fb, h('div.bad', 'Not quite – ', h('b.no', w.no), ' = ', w.en));
+            add(fb, h('div.bad', 'Not quite: ', h('b.no', w.no), ' = ', w.en));
           } else {
             combo.hit(); sfx.correct(combo.value); haptic(10);
             addXp(8 * combo.multiplier(), 'new word');
@@ -323,7 +323,7 @@ function practiceStep(el, unit, next) {
 }
 
 function speakStep(el, unit, next) {
-  add(el, h('div.card.tip', h('b', '🗣️ Your turn to talk. '), 'Read the situation and type your answer. Don’t aim for perfect – aim to be understood.'));
+  add(el, h('div.card.tip', h('b', '🗣️ Your turn to talk. '), 'Read the situation and type your answer. Don’t aim for perfect. Aim to be understood.'));
   const host = h('div');
   add(el, host);
   return mountRoleplay(host, unit, { onDone: () => next(), embedded: true });
@@ -341,8 +341,8 @@ function doneStep(el, unit, next, go) {
     h('p.lead', `You can now: ${unit.goal.charAt(0).toLowerCase() + unit.goal.slice(1)}`),
     h('div.card.stack',
       h('div.kicker', '⏰ What happens next'),
-      h('p', 'Your new words come back in your daily review – in about 10 minutes, tomorrow, and then at growing intervals. Five minutes a day keeps them forever.'),
-      h('p', 'Meanwhile, read the short story for this unit – you’ll know almost every word.')),
+      h('p', 'Your new words come back in your daily review: in about 10 minutes, tomorrow, and then at growing intervals. Five minutes a day keeps them forever.'),
+      h('p', 'Meanwhile, read the short story for this unit. You’ll know almost every word.')),
     nextStepBlock('lesson'),
     h('div.row.wrap.center',
       nextUnit ? h('a.btn', { href: `#/lesson/${nextUnit.id}/intro` }, `Next unit: ${nextUnit.title}`) : h('a.btn', { href: '#/speak' }, 'Practise speaking'),

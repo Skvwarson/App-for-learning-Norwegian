@@ -83,7 +83,7 @@ const A1_UNITS = [
         { who: 'them', no: 'Det går bra, takk. Og med deg?', en: 'Fine, thanks. And you?' },
         { who: 'you', cue: 'Say you’re fine, thanks.', accept: ['det går bra takk', 'bare bra takk', 'bra takk', 'det går fint takk'], model: 'Bare bra, takk!' },
         { who: 'them', no: 'Snakker du norsk?', en: 'Do you speak Norwegian?' },
-        { who: 'you', cue: 'Say: yes, a little – you are learning Norwegian.', accept: ['ja litt jeg lærer norsk', 'ja litt jeg lærer norsk nå', 'ja jeg snakker litt norsk'], model: 'Ja, litt. Jeg lærer norsk.' },
+        { who: 'you', cue: 'Say: yes, a little, you are learning Norwegian.', accept: ['ja litt jeg lærer norsk', 'ja litt jeg lærer norsk nå', 'ja jeg snakker litt norsk'], model: 'Ja, litt. Jeg lærer norsk.' },
         { who: 'them', no: 'Så bra! Ha det bra!', en: 'How great! Goodbye!' },
         { who: 'you', cue: 'Say goodbye and “see you”.', accept: ['ha det vi sees', 'ha det bra vi sees'], model: 'Ha det! Vi sees!' },
       ],
@@ -95,7 +95,7 @@ const A1_UNITS = [
     id: 'u02',
     title: 'Hvor kommer du fra?',
     subtitle: 'Where you’re from, where you live, survival phrases',
-    goal: 'Say where you come from and live, which languages you speak – and keep a conversation going when you don’t understand.',
+    goal: 'Say where you come from and live, which languages you speak, and keep a conversation going when you don’t understand.',
     scene: 'Emma goes to a “språkkafé” (language café) and talks to Sofie.',
     focus: 'Listen: where does Sofie come from, and where does she live now?',
     dialogue: [
@@ -135,7 +135,7 @@ const A1_UNITS = [
     ],
     grammar: {
       title: 'The verb is always word number two (V2)',
-      body: `<p>In a Norwegian statement the <b>verb is always in position 2</b>. If you start with something other than the subject – a time, a place – the subject moves <i>behind</i> the verb.</p>
+      body: `<p>In a Norwegian statement the <b>verb is always in position 2</b>. If you start with something other than the subject (a time, a place), the subject moves <i>behind</i> the verb.</p>
 <table class="mini order"><tr><th>1</th><th>2 (verb)</th><th>3</th><th>…</th></tr>
 <tr><td>Jeg</td><td><b>bor</b></td><td>i Oslo</td><td>nå.</td></tr>
 <tr><td>Nå</td><td><b>bor</b></td><td>jeg</td><td>i Oslo.</td></tr>
@@ -176,7 +176,7 @@ const A1_UNITS = [
     id: 'u03',
     title: 'Har du tid på lørdag?',
     subtitle: 'Numbers, days and telling the time',
-    goal: 'Make a plan: days of the week, times, prices – and the famous “halv sju”.',
+    goal: 'Make a plan: days of the week, times, prices, and the famous “halv sju”.',
     scene: 'Lars calls Emma to suggest going to the cinema.',
     focus: 'Listen: what time does the film start, and when will they meet?',
     drill: 'numbers',
@@ -195,7 +195,7 @@ const A1_UNITS = [
     words: [
       W('Hva er klokka?', 'What time is it?', { pos: 'phrase', alt: ['hva er klokken'], ex: ['Unnskyld, hva er klokka?', 'Excuse me, what time is it?'] }),
       W('Klokka er tre.', 'It’s three o’clock.', { pos: 'phrase', alt: ['klokken er tre'], ex: ['Klokka er tre, og jeg er sulten.', 'It’s three o’clock and I’m hungry.'] }),
-      W('halv', 'half – “halv sju” = 6:30 (half way TO seven)', { pos: 'word' }),
+      W('halv', 'half: “halv sju” = 6:30 (half way TO seven)', { pos: 'word' }),
       W('kvart over', 'quarter past', { pos: 'phrase', ex: ['Klokka er kvart over to.', 'It’s quarter past two.'] }),
       W('kvart på', 'quarter to', { pos: 'phrase', ex: ['Klokka er kvart på ni.', 'It’s quarter to nine.'] }),
       W('Har du tid?', 'Do you have time?', { pos: 'phrase' }),
@@ -215,7 +215,7 @@ const A1_UNITS = [
       W('søndag', 'Sunday', { pos: 'noun', ex: ['På søndag slapper jeg av.', 'On Sunday I relax.'] }),
     ],
     grammar: {
-      title: 'Telling the time – think “towards” the next hour',
+      title: 'Telling the time: think “towards” the next hour',
       body: `<p>Norwegians count the half hour <b>towards the next hour</b>: <b>halv sju</b> = 6:30 (half-way to seven). Minutes around the half hour are counted from <i>halv</i>:</p>
 <table class="mini"><tr><td>6:00</td><td>klokka seks</td></tr><tr><td>6:15</td><td>kvart over seks</td></tr>
 <tr><td>6:25</td><td>fem på halv sju</td></tr><tr><td><b>6:30</b></td><td><b>halv sju</b></td></tr>
@@ -244,7 +244,7 @@ const A1_UNITS = [
         { who: 'them', no: 'Ja, det passer bra.', en: 'Yes, that suits me.' },
         { who: 'you', cue: 'Ask how much the ticket costs.', accept: ['hvor mye koster billetten', 'hvor mye koster det'], model: 'Hvor mye koster billetten?' },
         { who: 'them', no: 'Hundre og femti kroner.', en: '150 kroner.' },
-        { who: 'you', cue: 'Say OK – see you on Friday!', accept: ['greit vi sees på fredag'], model: 'Greit. Vi sees på fredag!' },
+        { who: 'you', cue: 'Say OK, see you on Friday!', accept: ['greit vi sees på fredag'], model: 'Greit. Vi sees på fredag!' },
       ],
     },
   },
@@ -254,9 +254,9 @@ const A1_UNITS = [
     id: 'u04',
     title: 'På kafé',
     subtitle: 'Ordering food and drink',
-    goal: 'Order in a café, ask for the bill and pay – politely.',
+    goal: 'Order in a café, ask for the bill and pay politely.',
     scene: 'Emma and Sofie go to a café in the city centre.',
-    focus: 'Listen: what do Emma and Sofie order – and do they eat in or take away?',
+    focus: 'Listen: what do Emma and Sofie order, and do they eat in or take away?',
     dialogue: [
       ['Servitøren', 'Hei! Hva skal det være?', 'Hi! What can I get you?'],
       ['Emma', 'Kan jeg få en kaffe, takk?', 'Can I have a coffee, please?'],
@@ -292,7 +292,7 @@ const A1_UNITS = [
       title: 'Every noun has a gender: en, ei, et',
       body: `<p>Norwegian nouns are <b>masculine</b> (<i>en</i>), <b>feminine</b> (<i>ei</i>) or <b>neuter</b> (<i>et</i>). In Bokmål you may always use <i>en</i> instead of <i>ei</i>, so in practice learn two: <b>en</b> or <b>et</b>.</p>
 <table class="mini"><tr><td>en kaffe</td><td>a coffee</td></tr><tr><td>en vaffel</td><td>a waffle</td></tr><tr><td>ei / en bolle</td><td>a bun</td></tr><tr><td>et glass</td><td>a glass</td></tr><tr><td>et eple</td><td>an apple</td></tr></table>
-<p><b>Tip:</b> about 75 % of nouns are <i>en</i>-words. Always learn a noun <i>with</i> its article – that’s why your cards say “en kaffe”, not just “kaffe”.</p>`,
+<p><b>Tip:</b> about 75 % of nouns are <i>en</i>-words. Always learn a noun <i>with</i> its article. That’s why your cards say “en kaffe”, not just “kaffe”.</p>`,
       examples: [
         ['Jeg vil gjerne ha en te.', 'I’d like a tea.'],
         ['Kan jeg få et glass vann?', 'Can I have a glass of water?'],
@@ -311,7 +311,7 @@ const A1_UNITS = [
         { who: 'them', no: 'Hei! Hva skal det være?', en: 'Hi! What can I get you?' },
         { who: 'you', cue: 'Ask for a coffee, please.', accept: ['kan jeg få en kaffe takk', 'jeg vil gjerne ha en kaffe', 'en kaffe takk', 'kan jeg få en kaffe'], model: 'Kan jeg få en kaffe, takk?' },
         { who: 'them', no: 'Selvfølgelig. Noe annet?', en: 'Of course. Anything else?' },
-        { who: 'you', cue: 'Say yes – a waffle, please.', accept: ['ja en vaffel takk', 'ja en vaffel', 'ja kan jeg få en vaffel', 'ja takk en vaffel'], model: 'Ja, en vaffel, takk.' },
+        { who: 'you', cue: 'Say yes, a waffle, please.', accept: ['ja en vaffel takk', 'ja en vaffel', 'ja kan jeg få en vaffel', 'ja takk en vaffel'], model: 'Ja, en vaffel, takk.' },
         { who: 'them', no: 'Vil du spise her eller ta med?', en: 'Eat in or take away?' },
         { who: 'you', cue: 'Say you’ll eat here.', accept: ['jeg spiser her', 'spise her', 'her takk', 'jeg vil spise her'], model: 'Jeg spiser her.' },
         { who: 'them', no: 'Det blir nittifem kroner.', en: 'That’ll be 95 kroner.' },
@@ -345,8 +345,8 @@ const A1_UNITS = [
     ],
     words: [
       W('en familie', 'a family', { pos: 'noun', g: 'en' }),
-      W('mamma', 'mum (formal: mor – mother)', { pos: 'noun', alt: ['mor'] }),
-      W('pappa', 'dad (formal: far – father)', { pos: 'noun', alt: ['far'] }),
+      W('mamma', 'mum (formal: mor = mother)', { pos: 'noun', alt: ['mor'] }),
+      W('pappa', 'dad (formal: far = father)', { pos: 'noun', alt: ['far'] }),
       W('foreldre', 'parents (foreldrene = the parents)', { pos: 'noun' }),
       W('en bror', 'a brother (broren = the brother)', { pos: 'noun', g: 'en' }),
       W('en søster', 'a sister (also: ei søster)', { pos: 'noun', g: 'en', alt: ['ei søster'] }),
@@ -363,9 +363,9 @@ const A1_UNITS = [
       W('enebarn', 'only child', { pos: 'noun' }),
     ],
     grammar: {
-      title: '“The brother mine” – definite nouns and possessives',
+      title: '“The brother mine”: definite nouns and possessives',
       body: `<p>Norwegian puts “the” <b>at the end</b> of the noun: <i>en bror</i> → <i>bror<b>en</b></i> (the brother), <i>et bilde</i> → <i>bilde<b>t</b></i> (the picture).</p>
-<p>“My/your” usually come <b>after</b> that definite noun – and agree with it:</p>
+<p>“My/your” usually come <b>after</b> that definite noun and agree with it:</p>
 <table class="mini"><tr><td>en-word</td><td>broren <b>min</b> / <b>din</b></td></tr><tr><td>ei-word</td><td>søstera <b>mi</b> (or søsteren min)</td></tr>
 <tr><td>et-word</td><td>huset <b>mitt</b> / <b>ditt</b></td></tr><tr><td>plural</td><td>foreldrene <b>mine</b> / <b>dine</b></td></tr></table>
 <p><i>Min bror</i> (before) also exists, but sounds emphatic: “<b>my</b> brother (not yours)”.</p>`,
@@ -386,7 +386,7 @@ const A1_UNITS = [
       partner: 'Lars',
       lines: [
         { who: 'them', no: 'Har du søsken?', en: 'Do you have siblings?' },
-        { who: 'you', cue: 'Say yes – you have a brother and a sister.', accept: ['ja jeg har en bror og en søster', 'ja jeg har en bror og ei søster'], model: 'Ja, jeg har en bror og en søster.' },
+        { who: 'you', cue: 'Say yes, you have a brother and a sister.', accept: ['ja jeg har en bror og en søster', 'ja jeg har en bror og ei søster'], model: 'Ja, jeg har en bror og en søster.' },
         { who: 'them', no: 'Hva heter broren din?', en: 'What’s your brother called?' },
         { who: 'you', cue: 'Say your brother is called Tom.', accept: ['broren min heter *', 'han heter *'], model: 'Broren min heter Tom.' },
         { who: 'them', no: 'Hvor gammel er han?', en: 'How old is he?' },
@@ -515,12 +515,12 @@ const A1_UNITS = [
       W('hvilken', 'which (en-word; hvilket for et-words, hvilke plural)', { pos: 'question word' }),
     ],
     grammar: {
-      title: 'Adjectives agree: stor – stort – store',
+      title: 'Adjectives agree: stor, stort, store',
       body: `<p>An adjective gets an ending that matches the noun:</p>
 <table class="mini"><tr><td>en-/ei-word</td><td>en <b>stor</b> jakke</td><td>jakken er stor</td></tr>
 <tr><td>et-word</td><td>et <b>stort</b> skjerf</td><td>skjerfet er stort</td></tr>
 <tr><td>plural</td><td><b>store</b> jakker</td><td>jakkene er store</td></tr></table>
-<p>So: base form for en/ei, <b>+t</b> for et, <b>+e</b> for plural. A few exceptions: <i>billig</i> (no -t), <i>liten – lite – små</i>.</p>`,
+<p>So: base form for en/ei, <b>+t</b> for et, <b>+e</b> for plural. A few exceptions: <i>billig</i> (no -t), <i>liten, lite, små</i>.</p>`,
       examples: [
         ['Jeg har et varmt skjerf.', 'I have a warm scarf.'],
         ['Skoene er dyre.', 'The shoes are expensive.'],
@@ -538,13 +538,13 @@ const A1_UNITS = [
       partner: 'Ekspeditøren',
       lines: [
         { who: 'them', no: 'Hei! Kan jeg hjelpe deg?', en: 'Hi! Can I help you?' },
-        { who: 'you', cue: 'Say yes please – you’re looking for a jacket.', accept: ['ja takk jeg ser etter en jakke', 'ja jeg ser etter en jakke', 'ja takk jeg ser etter en varm jakke'], model: 'Ja, takk. Jeg ser etter en jakke.' },
+        { who: 'you', cue: 'Say yes please, you’re looking for a jacket.', accept: ['ja takk jeg ser etter en jakke', 'ja jeg ser etter en jakke', 'ja takk jeg ser etter en varm jakke'], model: 'Ja, takk. Jeg ser etter en jakke.' },
         { who: 'them', no: 'Hva med denne?', en: 'What about this one?' },
         { who: 'you', cue: 'Say it’s nice and ask if you can try it on.', accept: ['den er fin kan jeg prøve den'], model: 'Den er fin! Kan jeg prøve den?' },
         { who: 'them', no: 'Ja, selvfølgelig. … Passer den?', en: 'Yes, of course. … Does it fit?' },
         { who: 'you', cue: 'Say it’s a bit too big.', accept: ['den er litt for stor', 'nei den er litt for stor'], model: 'Nei, den er litt for stor.' },
         { who: 'them', no: 'Her er en mindre.', en: 'Here’s a smaller one.' },
-        { who: 'you', cue: 'Say perfect – you’ll take it.', accept: ['perfekt den tar jeg', 'den tar jeg'], model: 'Perfekt! Den tar jeg.' },
+        { who: 'you', cue: 'Say perfect, you’ll take it.', accept: ['perfekt den tar jeg', 'den tar jeg'], model: 'Perfekt! Den tar jeg.' },
         { who: 'them', no: 'Vil du ha en pose?', en: 'Would you like a bag?' },
         { who: 'you', cue: 'Say no thanks, that’s fine.', accept: ['nei takk det går fint', 'nei takk'], model: 'Nei takk, det går fint.' },
       ],
@@ -584,7 +584,7 @@ const A1_UNITS = [
       W('et minutt', 'a minute', { pos: 'noun', g: 'et' }),
       W('en stasjon', 'a station', { pos: 'noun', g: 'en', ex: ['Stasjonen ligger på høyre side.', 'The station is on the right side.'] }),
       W('en buss', 'a bus', { pos: 'noun', g: 'en' }),
-      W('dit', '(to) there – with movement', { pos: 'adverb' }),
+      W('dit', '(to) there, with movement', { pos: 'adverb' }),
       W('Takk for hjelpen!', 'Thanks for the help!', { pos: 'phrase' }),
       W('Bare hyggelig!', 'My pleasure! / You’re welcome!', { pos: 'phrase' }),
       W('ved', 'by, next to', { pos: 'preposition' }),
@@ -696,7 +696,7 @@ const A1_UNITS = [
     id: 'u10',
     title: 'For et vær!',
     subtitle: 'Weather, seasons and small talk',
-    goal: 'Make small talk about the weather – the Norwegian national sport.',
+    goal: 'Make small talk about the weather: the Norwegian national sport.',
     scene: 'Emma and Sofie are waiting at a bus stop. It’s raining.',
     focus: 'Listen: how many degrees is it? Which season does each of them prefer?',
     dialogue: [
@@ -752,9 +752,9 @@ const A1_UNITS = [
       partner: 'En nabo',
       lines: [
         { who: 'them', no: 'For et vær! Det regner igjen.', en: 'What weather! It’s raining again.' },
-        { who: 'you', cue: 'Agree – and say it’s so cold.', accept: ['ja og det er så kaldt', 'ja det er så kaldt'], model: 'Ja, og det er så kaldt!' },
+        { who: 'you', cue: 'Agree, and say it’s so cold.', accept: ['ja og det er så kaldt', 'ja det er så kaldt'], model: 'Ja, og det er så kaldt!' },
         { who: 'them', no: 'Liker du vinteren?', en: 'Do you like winter?' },
-        { who: 'you', cue: 'Say no – you prefer summer.', accept: ['nei jeg foretrekker sommeren', 'nei jeg liker sommeren bedre'], model: 'Nei, jeg foretrekker sommeren.' },
+        { who: 'you', cue: 'Say no, you prefer summer.', accept: ['nei jeg foretrekker sommeren', 'nei jeg liker sommeren bedre'], model: 'Nei, jeg foretrekker sommeren.' },
         { who: 'them', no: 'Men i morgen skal det bli sol!', en: 'But tomorrow it’s supposed to be sunny!' },
         { who: 'you', cue: 'Say “finally!”', accept: ['endelig'], model: 'Endelig!' },
       ],
@@ -766,7 +766,7 @@ const A1_UNITS = [
     id: 'u11',
     title: 'Hva gjorde du i helga?',
     subtitle: 'Talking about the past',
-    goal: 'Tell what you did yesterday or at the weekend – and ask others.',
+    goal: 'Tell what you did yesterday or at the weekend, and ask others.',
     scene: 'Monday morning. Emma’s colleague Jonas asks about her weekend.',
     focus: 'Listen: what did Emma do on Saturday and on Sunday? Was Jonas’ film good?',
     dialogue: [
@@ -800,11 +800,11 @@ const A1_UNITS = [
     ],
     grammar: {
       title: 'The past tense (preteritum)',
-      body: `<p>Regular verbs fall into four groups – the stem decides:</p>
+      body: `<p>Regular verbs fall into four groups. The stem decides which:</p>
 <table class="mini"><tr><td><b>-et</b></td><td>jobbe → jobb<b>et</b>, snakke → snakk<b>et</b></td></tr>
 <tr><td><b>-te</b></td><td>spise → spis<b>te</b>, lese → les<b>te</b>, ringe → ring<b>te</b></td></tr>
 <tr><td><b>-de</b></td><td>prøve → prøv<b>de</b></td></tr><tr><td><b>-dde</b></td><td>bo → bo<b>dde</b>, tro → tro<b>dde</b></td></tr></table>
-<p>The most common verbs are irregular – learn them as chunks: <i>er → <b>var</b>, går → <b>gikk</b>, ser → <b>så</b>, drikker → <b>drakk</b>, gjør → <b>gjorde</b>, sier → <b>sa</b>, får → <b>fikk</b>, tar → <b>tok</b></i>.</p>`,
+<p>The most common verbs are irregular. Learn them as chunks: <i>er → <b>var</b>, går → <b>gikk</b>, ser → <b>så</b>, drikker → <b>drakk</b>, gjør → <b>gjorde</b>, sier → <b>sa</b>, får → <b>fikk</b>, tar → <b>tok</b></i>.</p>`,
       examples: [
         ['I går var jeg på kino.', 'Yesterday I was at the cinema.'],
         ['Vi bodde i Bergen før.', 'We used to live in Bergen.'],
@@ -841,7 +841,7 @@ const A1_UNITS = [
     subtitle: 'Opinions and the glue of real conversation',
     goal: 'Give your opinion, agree or disagree, and use the little words that make you sound natural.',
     scene: 'Emma and Lars chat about life in Oslo and Norwegian food.',
-    focus: 'Listen: what does Emma think of brown cheese – and of fish balls?',
+    focus: 'Listen: what does Emma think of brown cheese, and of fish balls?',
     dialogue: [
       ['Lars', 'Hva synes du om Oslo så langt?', 'What do you think of Oslo so far?'],
       ['Emma', 'Jeg synes Oslo er en veldig fin by. Men den er litt dyr!', 'I think Oslo is a really nice city. But it’s a bit expensive!'],
@@ -858,7 +858,7 @@ const A1_UNITS = [
     ],
     words: [
       W('Hva synes du om …?', 'What do you think of …?', { pos: 'phrase', alt: ['hva synes du om'] }),
-      W('Jeg synes (at) …', 'I think (that) … – an opinion', { pos: 'phrase', alt: ['jeg synes'] }),
+      W('Jeg synes (at) …', 'I think (that) … (an opinion)', { pos: 'phrase', alt: ['jeg synes'] }),
       W('Jeg er enig.', 'I agree.', { pos: 'phrase', ex: ['Ja, det er jeg enig i.', 'Yes, I agree with that.'] }),
       W('Jeg er uenig.', 'I disagree.', { pos: 'phrase', ex: ['Beklager, men jeg er uenig.', 'Sorry, but I disagree.'] }),
       W('egentlig', 'actually, really', { pos: 'adverb' }),
@@ -870,7 +870,7 @@ const A1_UNITS = [
       W('heller ikke', 'not … either', { pos: 'phrase' }),
       W('forresten', 'by the way', { pos: 'adverb' }),
       W('vanskelig', 'difficult, hard', { pos: 'adj' }),
-      W('lett', 'easy; light', { pos: 'adj', ex: ['Norsk er ikke så vanskelig – det er ganske lett!', 'Norwegian isn’t that hard – it’s quite easy!'] }),
+      W('lett', 'easy; light', { pos: 'adj', ex: ['Norsk er ikke så vanskelig. Det er ganske lett!', 'Norwegian isn’t that hard. It’s quite easy!'] }),
       W('akkurat', 'exactly; just', { pos: 'adverb' }),
       W('liksom', 'sort of, like (filler word)', { pos: 'adverb' }),
       W('sammen', 'together', { pos: 'adverb' }),
@@ -902,7 +902,7 @@ const A1_UNITS = [
         { who: 'them', no: 'Hva synes du om Norge?', en: 'What do you think of Norway?' },
         { who: 'you', cue: 'Say you think Norway is very beautiful (vakkert / fint).', accept: ['jeg synes norge er veldig vakkert', 'jeg synes norge er veldig fint', 'jeg synes at norge er veldig fint', 'jeg synes at norge er veldig vakkert'], model: 'Jeg synes Norge er veldig vakkert.' },
         { who: 'them', no: 'Ja, men det er dyrt her, ikke sant?', en: 'Yes, but it’s expensive here, isn’t it?' },
-        { who: 'you', cue: 'Say you agree – everything costs a lot.', accept: ['jeg er enig alt koster mye', 'ja jeg er enig alt koster mye', 'ja det er jeg enig i alt koster mye'], model: 'Ja, jeg er enig. Alt koster mye.' },
+        { who: 'you', cue: 'Say you agree, everything costs a lot.', accept: ['jeg er enig alt koster mye', 'ja jeg er enig alt koster mye', 'ja det er jeg enig i alt koster mye'], model: 'Ja, jeg er enig. Alt koster mye.' },
         { who: 'them', no: 'Liker du norsk mat?', en: 'Do you like Norwegian food?' },
         { who: 'you', cue: 'Say: actually, you think brown cheese is quite good.', accept: ['egentlig synes jeg brunost er ganske godt', 'jeg synes egentlig brunost er ganske godt'], model: 'Egentlig synes jeg brunost er ganske godt.' },
         { who: 'them', no: 'Virkelig? Det er sjelden å høre!', en: 'Really? That’s rare to hear!' },
@@ -912,7 +912,7 @@ const A1_UNITS = [
   },
 ];
 
-/** Units 1–12 (A1) and 13–18 (A2, in units-a2.js). */
+/** Units 1-12 (A1) and 13-18 (A2, in units-a2.js). */
 export const UNITS = [...A1_UNITS, ...A2_UNITS];
 
 export const unitById = (id) => UNITS.find((u) => u.id === id);

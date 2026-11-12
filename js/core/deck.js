@@ -75,7 +75,7 @@ export function deleteCard(id) {
   update((s) => { delete s.cards[id]; });
 }
 
-/** Mark a new card as introduced (shown with its meaning) – it comes back shortly for a real recall attempt. */
+/** Mark a new card as introduced (shown with its meaning), it comes back shortly for a real recall attempt. */
 export function markSeen(id, now = Date.now()) {
   update((s) => {
     const c = s.cards[id];
@@ -116,9 +116,9 @@ export function newBudgetLeft(now = Date.now()) {
 
 /**
  * What to study now.
- *  learning – cards in short-term steps (minutes)
- *  reviews  – long-term reviews due today, most-at-risk first
- *  fresh    – user-added cards never shown yet (within the daily new budget)
+ *  learning, cards in short-term steps (minutes)
+ *  reviews , long-term reviews due today, most-at-risk first
+ *  fresh   , user-added cards never shown yet (within the daily new budget)
  */
 export function buildQueue(now = Date.now()) {
   const cutoff = nextDayStart(now);

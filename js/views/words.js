@@ -20,7 +20,7 @@ export function wordsView(root) {
     const nq = normalize(q);
     const shown = cards.filter((c) => (filter === 'all' || statusOf(c) === filter) && (!nq || normalize(c.no).includes(nq) || normalize(c.en).includes(nq)));
     clear(list);
-    if (!shown.length) add(list, h('div.muted.card', cards.length ? 'Nothing matches.' : 'No words yet – start Unit 1, or tap words while reading to add them.'));
+    if (!shown.length) add(list, h('div.muted.card', cards.length ? 'Nothing matches.' : 'No words yet. Start Unit 1, or tap words while reading to add them.'));
     const now = Date.now();
     for (const c of shown.slice(0, 500)) {
       const st = statusOf(c);
@@ -44,7 +44,7 @@ export function wordsView(root) {
 function editModal(card, onSave) {
   const no = h('input.input', { value: card?.no ?? '', placeholder: 'Norwegian (e.g. en bil, å spise)' });
   const en = h('input.input', { value: card?.en ?? '', placeholder: 'Meaning' });
-  const exNo = h('input.input', { value: card?.ex?.no ?? '', placeholder: 'Example sentence in Norwegian (optional – context helps!)' });
+  const exNo = h('input.input', { value: card?.ex?.no ?? '', placeholder: 'Example sentence in Norwegian (optional, context helps!)' });
   const exEn = h('input.input', { value: card?.ex?.en ?? '', placeholder: 'Example translation (optional)' });
   const note = h('input.input', { value: card?.note ?? '', placeholder: 'Note, e.g. verb forms (optional)' });
   let m;
@@ -58,7 +58,7 @@ function editModal(card, onSave) {
   m = modal(h('div.stack',
     h('div.row.between', h('div.kicker', card ? 'Edit card' : 'New card'), card ? speakBtn(card.no) : null),
     no, en, exNo, exEn, note,
-    card ? h('div.small.muted', `Reviews: ${card.srs.reps} · lapses: ${card.srs.lapses} · stability: ${card.srs.s ? card.srs.s.toFixed(1) + ' days' : '–'} · source: ${card.src}`) : null,
+    card ? h('div.small.muted', `Reviews: ${card.srs.reps} · lapses: ${card.srs.lapses} · stability: ${card.srs.s ? card.srs.s.toFixed(1) + ' days' : '-'} · source: ${card.src}`) : null,
     h('div.row.wrap.between',
       card ? h('div.row.wrap',
         h('button.btn.ghost.small', { onclick: () => { editCard(card.id, { suspended: !card.suspended }); m.close(); onSave(); } }, card.suspended ? 'Unsuspend' : 'Suspend'),

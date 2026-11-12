@@ -1,4 +1,4 @@
-// Generated drills: numbers and telling the time – infinite, quick, great for flow.
+// Generated drills: numbers and telling the time, infinite, quick, great for flow.
 
 import { h, clear, sfx, haptic, progressBar, confetti, add } from '../ui/dom.js';
 import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
@@ -44,7 +44,7 @@ export function practiceView(root, { kind }) {
   let i = 0, right = 0, level = 0;
   const combo = createCombo();
   const head = h('div.lesson-head', h('a.icon-btn', { href: '#/learn', 'aria-label': 'Back' }, '✕'),
-    h('div.lesson-title', h('div.strong', isTime ? 'Hva er klokka?' : 'Tall – numbers')));
+    h('div.lesson-title', h('div.strong', isTime ? 'Hva er klokka?' : 'Tall (numbers)')));
   const body = h('div.lesson-body');
   add(root, head, body);
 
@@ -88,7 +88,7 @@ export function practiceView(root, { kind }) {
       inp = answerInput({ placeholder: 'Type the number in digits…', onSubmit: (v) => { inp.setDisabled(true); done(Number(v.trim()) === t.n, v); } });
       inp.input.inputMode = 'numeric';
       add(body, h('div.chunk-head', h('div.small.muted', `${i + 1} / ${rounds}`), progressBar(i / rounds), combo.value >= 3 ? h('div.combo', `🔥 ×${combo.value}`) : null),
-        h('div.prompt', h('div.small.muted', 'Listen – which number?'), h('button.btn.big.listen-btn', { onclick: () => speak(t.ans) }, '🔊 Play')), inp.el, fb);
+        h('div.prompt', h('div.small.muted', 'Listen: which number?'), h('button.btn.big.listen-btn', { onclick: () => speak(t.ans) }, '🔊 Play')), inp.el, fb);
       setTimeout(() => speak(t.ans), 200);
     } else {
       inp = answerInput({

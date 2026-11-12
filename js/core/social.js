@@ -1,6 +1,6 @@
 // The race between friends. Builds a comparable snapshot of each player.
 // Today the friend is DEMO data; once Firebase is connected, friends' real
-// snapshots come from there and replace demoFriends() – the screens stay the same.
+// snapshots come from there and replace demoFriends(), the screens stay the same.
 
 import { getState, settings, dayKey } from './store.js';
 import { levelInfo, streak, activity, getGame } from './gamify.js';

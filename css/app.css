@@ -735,4 +735,3 @@ body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 .tour-dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--ring-bg); transition: width .25s, background .25s; }
 .tour-dots span.on { width: 18px; background: var(--accent); }
 body.touring { overflow: hidden; }
-input[type=range] { accent-color: var(--accent); }

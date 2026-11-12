@@ -3,12 +3,12 @@
 const KEY = 'norsk-na.v1';
 
 export const DEFAULT_SETTINGS = Object.freeze({
-  newPerDay: 15,          // new words/phrases per day – cognitive-load guard
+  newPerDay: 15,          // new words/phrases per day, cognitive-load guard
   maxReviews: 200,        // cap per session so a backlog never becomes a wall
   retention: 0.9,         // desired retention for FSRS
   reviewMode: 'adaptive', // adaptive | production | recognition
   ttsRate: 0.9,
-  volume: 1,              // 0–1: recordings, the device voice and sound effects
+  volume: 1,              // 0-1: recordings, the device voice and sound effects
   voiceURI: '',
   autoplay: true,
   dailyGoalXp: 100,       // daily XP goal (≈10 min); small goals make the habit easy
@@ -26,7 +26,7 @@ function freshState() {
     version: 1,
     createdAt: Date.now(),
     cards: {},       // id -> card
-    known: {},       // lemma -> true ("I already know this" – counts for coverage)
+    known: {},       // lemma -> true ("I already know this", counts for coverage)
     lessons: {},     // unitId -> { step, done, completedAt }
     stories: {},     // storyId -> { read: n, last }
     roleplays: {},   // unitId -> { best, last }

@@ -46,7 +46,7 @@ export function progressView(root) {
       h('div.kicker', 'Conversation readiness'),
       h('div.row.between', h('div.big-num', `≈${Math.round(ready.pct * 100)}%`), h('div.small.muted.right', `${known} known · ${learningN} in progress`, h('br'), `${unitsDone}/${UNITS.length} units`)),
       progressBar(ready.pct, '', { animate: true }),
-      h('div.milestones', ...ready.milestones.map((m) => h('div.milestone', { class: known >= m.at ? 'reached' : '' }, h('b', known >= m.at ? '✓ ' : '○ '), `${m.label} – ${m.at} words`))),
+      h('div.milestones', ...ready.milestones.map((m) => h('div.milestone', { class: known >= m.at ? 'reached' : '' }, h('b', known >= m.at ? '✓ ' : '○ '), `${m.label}, ${m.at} words`))),
       h('div.small.muted', 'How much of everyday spoken Norwegian uses words you know.')),
     h('div.card',
       h('div.kicker', 'Memory'),

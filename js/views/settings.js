@@ -70,7 +70,7 @@ export function settingsView(root) {
     h('details.card.advanced',
       h('summary', h('b', 'Advanced')),
       h('div.stack',
-        field('New words per day', num('newPerDay', 1, 60), '10–20 is a good range.'),
+        field('New words per day', num('newPerDay', 1, 60), '10-20 is a good range.'),
         field('Max reviews per day', num('maxReviews', 20, 1000, 10)),
         field(h('span', 'Target recall ', retLabel), h('input', { type: 'range', min: 0.8, max: 0.95, step: 0.01, value: s.retention, oninput: (e) => { retLabel.textContent = `${Math.round(e.target.value * 100)}%`; }, onchange: (e) => set('retention', Number(e.target.value)) }), 'Higher = more reviews, better memory. 90% is the sweet spot.'),
         field('Exercise style', h('select.input', { onchange: (e) => set('reviewMode', e.target.value) },

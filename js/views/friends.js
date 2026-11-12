@@ -1,4 +1,4 @@
-// "Kappløpet" – the race between you and your friend(s).
+// "Kappløpet", the race between you and your friend(s).
 
 import { h, add, clear, progressBar } from '../ui/dom.js';
 import { raceSnapshot, raceFeed } from '../core/social.js';
@@ -63,7 +63,7 @@ export function friendsView(root) {
     }),
     h('p.duel-msg', me.xpWeek >= rival.xpWeek
       ? `🏆 You're ahead by ${me.xpWeek - rival.xpWeek} XP this week. Keep it up!`
-      : `📣 ${rival.name} is ${rival.xpWeek - me.xpWeek} XP ahead this week – about ${Math.max(1, Math.ceil((rival.xpWeek - me.xpWeek) / 120))} short session${Math.ceil((rival.xpWeek - me.xpWeek) / 120) > 1 ? 's' : ''} to catch up.`));
+      : `📣 ${rival.name} is ${rival.xpWeek - me.xpWeek} XP ahead this week. About ${Math.max(1, Math.ceil((rival.xpWeek - me.xpWeek) / 120))} short session${Math.ceil((rival.xpWeek - me.xpWeek) / 120) > 1 ? 's' : ''} to catch up.`));
 
   // This week, day by day: one chart, each player's bar side by side per day.
   const max = Math.max(50, ...players.flatMap((q) => q.week));

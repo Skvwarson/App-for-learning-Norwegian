@@ -1,5 +1,5 @@
-// Units 13–18 (A2): the situations of everyday life in Norway, building on
-// units 1–12. Same arc and fields as data/units.js.
+// Units 13-18 (A2): the situations of everyday life in Norway, building on
+// units 1-12. Same arc and fields as data/units.js.
 
 const W = (no, en, extra = {}) => ({ no, en, ...extra });
 
@@ -11,7 +11,7 @@ export const A2_UNITS = [
     subtitle: 'Health, the body and “must / should / can”',
     goal: 'Say what hurts, understand simple advice from a doctor and ask what you have to do.',
     scene: 'Emma has had a sore throat for days. She goes to her GP (fastlege).',
-    focus: 'Listen: what is wrong with Emma – and what does the doctor tell her to do?',
+    focus: 'Listen: what is wrong with Emma, and what does the doctor tell her to do?',
     dialogue: [
       ['Legen', 'Hei, Emma. Hva kan jeg hjelpe deg med?', 'Hi, Emma. What can I help you with?'],
       ['Emma', 'Jeg føler meg ikke bra. Jeg har vondt i halsen og hodet.', 'I don’t feel well. I have a sore throat and a headache.'],
@@ -44,7 +44,7 @@ export const A2_UNITS = [
     ],
     grammar: {
       title: 'Modal verbs: kan, må, vil, skal, bør',
-      body: `<p>Modal verbs are followed by the <b>bare infinitive – no å</b>:</p>
+      body: `<p>Modal verbs are followed by the <b>bare infinitive, no å</b>:</p>
 <p class="formula">Jeg <b>må</b> hvile. &nbsp;·&nbsp; Du <b>bør</b> drikke vann. &nbsp;·&nbsp; <b>Kan</b> jeg gå på jobb?</p>
 <table class="mini"><tr><td><b>kan</b></td><td>can, may</td></tr><tr><td><b>må</b></td><td>must, have to</td></tr>
 <tr><td><b>vil</b></td><td>want to</td></tr><tr><td><b>skal</b></td><td>am going to, shall (plans)</td></tr><tr><td><b>bør</b></td><td>should, ought to</td></tr></table>
@@ -66,7 +66,7 @@ export const A2_UNITS = [
       partner: 'Legen',
       lines: [
         { who: 'them', no: 'Hei! Hva kan jeg hjelpe deg med?', en: 'Hi! What can I help you with?' },
-        { who: 'you', cue: 'Say you don’t feel well – you have a headache.', accept: ['jeg føler meg ikke bra jeg har vondt i hodet', 'jeg har vondt i hodet'], model: 'Jeg føler meg ikke bra. Jeg har vondt i hodet.' },
+        { who: 'you', cue: 'Say you don’t feel well: you have a headache.', accept: ['jeg føler meg ikke bra jeg har vondt i hodet', 'jeg har vondt i hodet'], model: 'Jeg føler meg ikke bra. Jeg har vondt i hodet.' },
         { who: 'them', no: 'Hvor lenge har du hatt vondt?', en: 'How long have you been in pain?' },
         { who: 'you', cue: 'Say: since Monday.', accept: ['siden mandag'], model: 'Siden mandag.' },
         { who: 'them', no: 'Har du feber?', en: 'Do you have a fever?' },
@@ -86,7 +86,7 @@ export const A2_UNITS = [
     subtitle: 'Your home, rooms and “the …” in singular and plural',
     goal: 'Describe a flat or house, ask about the rent and offer to help.',
     scene: 'Sofie has moved. She shows Emma her new flat.',
-    focus: 'Listen: which rooms does the flat have – and what does Emma like best?',
+    focus: 'Listen: which rooms does the flat have, and what does Emma like best?',
     dialogue: [
       ['Sofie', 'Velkommen! Kom inn.', 'Welcome! Come in.'],
       ['Emma', 'For en fin leilighet! Hvor mange rom har den?', 'What a nice flat! How many rooms does it have?'],
@@ -118,14 +118,14 @@ export const A2_UNITS = [
       W('fortsatt', 'still', { pos: 'adverb' }),
     ],
     grammar: {
-      title: '“The” at the end – in singular and plural',
+      title: '“The” at the end: in singular and plural',
       body: `<p>You know <i>en leilighet → leilighet<b>en</b></i>. Plural adds <b>-er</b>, and “the …” in plural adds <b>-ene</b>:</p>
 <table class="mini"><tr><th></th><th>a</th><th>the</th><th>(some)</th><th>the (pl.)</th></tr>
 <tr><td>en</td><td>leilighet</td><td>leiligheten</td><td>leiligheter</td><td>leilighetene</td></tr>
 <tr><td>ei</td><td>stue</td><td>stua</td><td>stuer</td><td>stuene</td></tr>
 <tr><td>et</td><td>kjøkken</td><td>kjøkkenet</td><td>kjøkken</td><td>kjøkkenene</td></tr>
 <tr><td>et</td><td>rom</td><td>rommet</td><td><b>rom</b></td><td>rommene</td></tr></table>
-<p><b>Tip:</b> short et-words (one syllable) get <i>no</i> ending in the plural: <i>et hus – to hus, et rom – tre rom</i>.</p>`,
+<p><b>Tip:</b> short et-words (one syllable) get <i>no</i> ending in the plural: <i>et hus → to hus, et rom → tre rom</i>.</p>`,
       examples: [
         ['Leiligheten har tre rom.', 'The flat has three rooms.'],
         ['Rommene er store og lyse.', 'The rooms are big and bright.'],
@@ -143,13 +143,13 @@ export const A2_UNITS = [
       partner: 'Utleieren',
       lines: [
         { who: 'them', no: 'Hei! Velkommen. Dette er leiligheten.', en: 'Hi! Welcome. This is the flat.' },
-        { who: 'you', cue: 'Say what a nice flat – and ask how many rooms it has.', accept: ['for en fin leilighet hvor mange rom har den', 'hvor mange rom har den', 'for en fin leilighet hvor mange rom har leiligheten'], model: 'For en fin leilighet! Hvor mange rom har den?' },
+        { who: 'you', cue: 'Say what a nice flat, and ask how many rooms it has.', accept: ['for en fin leilighet hvor mange rom har den', 'hvor mange rom har den', 'for en fin leilighet hvor mange rom har leiligheten'], model: 'For en fin leilighet! Hvor mange rom har den?' },
         { who: 'them', no: 'Den har en stue, to soverom og et lite kjøkken.', en: 'It has a living room, two bedrooms and a small kitchen.' },
         { who: 'you', cue: 'Ask if it has a balcony.', accept: ['har den balkong', 'har den en balkong', 'har leiligheten balkong', 'er det balkong', 'er det en balkong'], model: 'Har den balkong?' },
         { who: 'them', no: 'Ja, med utsikt over byen.', en: 'Yes, with a view over the city.' },
         { who: 'you', cue: 'Ask if the rent is high.', accept: ['er husleia høy', 'er husleien høy', 'hvor høy er husleia', 'hvor mye er husleia'], model: 'Er husleia høy?' },
         { who: 'them', no: 'Den er tolv tusen kroner i måneden.', en: 'It’s twelve thousand kroner a month.' },
-        { who: 'you', cue: 'Say that’s fine – you’ll take it!', accept: ['det er greit jeg tar den', 'greit jeg tar den', 'jeg tar den', 'den tar jeg'], model: 'Det er greit. Jeg tar den!' },
+        { who: 'you', cue: 'Say that’s fine, you’ll take it!', accept: ['det er greit jeg tar den', 'greit jeg tar den', 'jeg tar den', 'den tar jeg'], model: 'Det er greit. Jeg tar den!' },
       ],
     },
   },
@@ -159,7 +159,7 @@ export const A2_UNITS = [
     id: 'u15',
     title: 'På jobb',
     subtitle: 'Work, colleagues and “I have lived / have worked”',
-    goal: 'Talk about your job and how long you have lived somewhere – the classic small-talk questions.',
+    goal: 'Talk about your job and how long you have lived somewhere: the classic small-talk questions.',
     scene: 'Lunch break at Emma’s new job. A colleague, Ahmed, sits down next to her.',
     focus: 'Listen: what does Ahmed do, and how long has he been in Norway?',
     dialogue: [
@@ -180,7 +180,7 @@ export const A2_UNITS = [
       W('Jeg jobber med …', 'I work with/in …', { pos: 'phrase', alt: ['jeg jobber med'] }),
       W('ny', 'new', { pos: 'adj', forms: 'ny · nytt · nye' }),
       W('i forrige uke', 'last week', { pos: 'phrase' }),
-      W('en ingeniør', 'an engineer (Jeg er ingeniør – no article for jobs)', { pos: 'noun', g: 'en' }),
+      W('en ingeniør', 'an engineer (Jeg er ingeniør: no article for jobs)', { pos: 'noun', g: 'en' }),
       W('en kollega', 'a colleague', { pos: 'noun', g: 'en', ex: ['Ahmed er en hyggelig kollega.', 'Ahmed is a nice colleague.'] }),
       W('alltid', 'always', { pos: 'adverb' }),
       W('for … siden', '… ago (for ti år siden = ten years ago)', { pos: 'phrase', ex: ['Jeg kom til Norge for ti år siden.', 'I came to Norway ten years ago.'] }),
@@ -216,13 +216,13 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
       partner: 'Ahmed',
       lines: [
         { who: 'them', no: 'Hei! Er du ny her?', en: 'Hi! Are you new here?' },
-        { who: 'you', cue: 'Say yes – you started last week.', accept: ['ja jeg begynte i forrige uke'], model: 'Ja, jeg begynte i forrige uke.' },
+        { who: 'you', cue: 'Say yes, you started last week.', accept: ['ja jeg begynte i forrige uke'], model: 'Ja, jeg begynte i forrige uke.' },
         { who: 'them', no: 'Velkommen! Hva jobber du med?', en: 'Welcome! What do you do?' },
         { who: 'you', cue: 'Say what you work with (for example IT).', accept: ['jeg jobber med *', 'jeg er *'], model: 'Jeg jobber med IT.' },
         { who: 'them', no: 'Spennende! Hvor lenge har du bodd i Norge?', en: 'Exciting! How long have you lived in Norway?' },
         { who: 'you', cue: 'Say you have lived here for one year.', accept: ['jeg har bodd her i ett år', 'jeg har bodd her i et år', 'jeg har bodd i norge i ett år', 'i ett år', 'jeg har bodd her i * år'], model: 'Jeg har bodd her i ett år.' },
         { who: 'them', no: 'Du snakker jo bra norsk!', en: 'You speak good Norwegian!' },
-        { who: 'you', cue: 'Say thanks – you practise every day.', accept: ['takk jeg øver hver dag', 'tusen takk jeg øver hver dag'], model: 'Takk! Jeg øver hver dag.' },
+        { who: 'you', cue: 'Say thanks, you practise every day.', accept: ['takk jeg øver hver dag', 'tusen takk jeg øver hver dag'], model: 'Takk! Jeg øver hver dag.' },
         { who: 'them', no: 'Skal vi spise lunsj sammen i morgen?', en: 'Shall we have lunch together tomorrow?' },
         { who: 'you', cue: 'Say: yes, gladly!', accept: ['ja gjerne', 'gjerne', 'ja takk gjerne'], model: 'Ja, gjerne!' },
       ],
@@ -236,7 +236,7 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
     subtitle: 'Travel, hotels and comparing things',
     goal: 'Check in at a hotel, ask what’s included and compare options (cheaper, faster, better).',
     scene: 'Emma travels to Tromsø to see the northern lights. She arrives at her hotel.',
-    focus: 'Listen: how many nights is Emma staying – and is the bus or the taxi faster?',
+    focus: 'Listen: how many nights is Emma staying, and is the bus or the taxi faster?',
     dialogue: [
       ['Resepsjonisten', 'God kveld! Velkommen til Tromsø.', 'Good evening! Welcome to Tromsø.'],
       ['Emma', 'Hei! Jeg har bestilt et rom. Navnet er Emma Brown.', 'Hi! I’ve booked a room. The name is Emma Brown.'],
@@ -257,10 +257,10 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
       W('ei natt', 'a night (plural: netter)', { pos: 'noun', g: 'ei', alt: ['en natt'], ex: ['Vi sov godt i natt.', 'We slept well last night.'] }),
       W('inkludert', 'included', { pos: 'adj' }),
       W('nordlys', 'northern lights (nordlyset)', { pos: 'noun', g: 'et' }),
-      W('mørk', 'dark (mørk – mørkere – mørkest)', { pos: 'adj' }),
-      W('rolig', 'calm, quiet (rolig – roligere – roligst)', { pos: 'adj' }),
-      W('billigere', 'cheaper (billig – billigere – billigst)', { pos: 'adj' }),
-      W('rask', 'fast, quick (rask – raskere – raskest)', { pos: 'adj' }),
+      W('mørk', 'dark (mørk, mørkere, mørkest)', { pos: 'adj' }),
+      W('rolig', 'calm, quiet (rolig, roligere, roligst)', { pos: 'adj' }),
+      W('billigere', 'cheaper (billig, billigere, billigst)', { pos: 'adj' }),
+      W('rask', 'fast, quick (rask, raskere, raskest)', { pos: 'adj' }),
       W('eller', 'or', { pos: 'conjunction' }),
       W('en taxi', 'a taxi', { pos: 'noun', g: 'en' }),
       W('da', 'then, in that case', { pos: 'adverb' }),
@@ -273,7 +273,7 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
 <table class="mini"><tr><td>billig</td><td>billig<b>ere</b></td><td>billig<b>st</b></td></tr><tr><td>rask</td><td>rask<b>ere</b></td><td>rask<b>est</b></td></tr>
 <tr><td>mørk</td><td>mørk<b>ere</b></td><td>mørk<b>est</b></td></tr></table>
 <p class="formula">Bussen er billig<b>ere enn</b> taxien.</p>
-<p>The most common ones are irregular – learn them as a set: <i>god – <b>bedre</b> – <b>best</b>, stor – <b>større</b> – <b>størst</b>, liten – <b>mindre</b> – <b>minst</b>, mange – <b>flere</b> – <b>flest</b></i>.</p>`,
+<p>The most common ones are irregular. Learn them as a set: <i>god → <b>bedre</b> → <b>best</b>, stor → <b>større</b> → <b>størst</b>, liten → <b>mindre</b> → <b>minst</b>, mange → <b>flere</b> → <b>flest</b></i>.</p>`,
       examples: [
         ['Toget er raskere enn bussen.', 'The train is faster than the bus.'],
         ['Oslo er større enn Tromsø.', 'Oslo is bigger than Tromsø.'],
@@ -295,7 +295,7 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
         { who: 'them', no: 'Hva er navnet?', en: 'What’s the name?' },
         { who: 'you', cue: 'Say your name (“Navnet er …”).', accept: ['navnet er *', 'jeg heter *', 'mitt navn er *'], model: 'Navnet er {name}.' },
         { who: 'them', no: 'Takk. Et dobbeltrom i to netter?', en: 'Thank you. A double room for two nights?' },
-        { who: 'you', cue: 'Say no – a single room for two nights.', accept: ['nei et enkeltrom i to netter', 'nei et enkeltrom'], model: 'Nei, et enkeltrom i to netter.' },
+        { who: 'you', cue: 'Say no, a single room for two nights.', accept: ['nei et enkeltrom i to netter', 'nei et enkeltrom'], model: 'Nei, et enkeltrom i to netter.' },
         { who: 'them', no: 'Å, unnskyld! Ja, et enkeltrom.', en: 'Oh, sorry! Yes, a single room.' },
         { who: 'you', cue: 'Ask if breakfast is included.', accept: ['er frokost inkludert', 'er frokosten inkludert'], model: 'Er frokost inkludert?' },
         { who: 'them', no: 'Ja, fra klokka sju. God tur!', en: 'Yes, from seven o’clock. Have a good trip!' },
@@ -311,7 +311,7 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
     subtitle: 'Phone calls, changing plans and “because / if / that”',
     goal: 'Call someone, say you can’t come and why, and agree on a new time.',
     scene: 'Emma can’t make Friday. She calls Lars to change their plans.',
-    focus: 'Listen: why can’t Emma come on Friday – and when do they meet instead?',
+    focus: 'Listen: why can’t Emma come on Friday, and when do they meet instead?',
     dialogue: [
       ['Lars', 'Hallo, det er Lars.', 'Hello, it’s Lars.'],
       ['Emma', 'Hei, Lars! Det er Emma. Har du tid til å snakke?', 'Hi, Lars! It’s Emma. Do you have time to talk?'],
@@ -366,7 +366,7 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
         { who: 'them', no: 'Hei! Kommer du på kino på fredag?', en: 'Hi! Are you coming to the cinema on Friday?' },
         { who: 'you', cue: 'Say unfortunately you can’t, because you have to work.', accept: ['jeg kan dessverre ikke fordi jeg må jobbe', 'dessverre kan jeg ikke fordi jeg må jobbe', 'jeg kan ikke fordi jeg må jobbe', 'nei dessverre jeg må jobbe'], model: 'Jeg kan dessverre ikke, fordi jeg må jobbe.' },
         { who: 'them', no: 'Så synd! Passer det på lørdag i stedet?', en: 'What a pity! Does Saturday work instead?' },
-        { who: 'you', cue: 'Say yes – and ask: how about two o’clock?', accept: ['ja hva med klokka to', 'ja hva med klokken to', 'hva med klokka to'], model: 'Ja! Hva med klokka to?' },
+        { who: 'you', cue: 'Say yes, and ask: how about two o’clock?', accept: ['ja hva med klokka to', 'ja hva med klokken to', 'hva med klokka to'], model: 'Ja! Hva med klokka to?' },
         { who: 'them', no: 'Perfekt. Jeg sender deg en melding.', en: 'Perfect. I’ll send you a message.' },
         { who: 'you', cue: 'Say: Deal! Talk soon!', accept: ['avtale vi snakkes', 'avtale vi sees'], model: 'Avtale! Vi snakkes!' },
       ],
@@ -380,7 +380,7 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
     subtitle: 'Feelings, missing home and looking forward',
     goal: 'Say how you really feel, talk about missing people and what you look forward to.',
     scene: 'Sofie notices that Emma seems a bit down. They talk over a cup of tea.',
-    focus: 'Listen: why is Emma a bit sad – and what is she looking forward to?',
+    focus: 'Listen: why is Emma a bit sad, and what is she looking forward to?',
     dialogue: [
       ['Sofie', 'Hei, Emma. Du ser litt trist ut. Hvordan har du det egentlig?', 'Hi, Emma. You look a bit sad. How are you really?'],
       ['Emma', 'Jeg er litt sliten. Og jeg savner familien min.', 'I’m a bit tired. And I miss my family.'],
@@ -437,11 +437,11 @@ For a finished moment use the past tense: <i>I går <b>jobbet</b> jeg hjemme.</i
         { who: 'them', no: 'Hvordan har du det egentlig?', en: 'How are you really?' },
         { who: 'you', cue: 'Say you’re a bit tired, and you miss your family.', accept: ['jeg er litt sliten og jeg savner familien min', 'jeg er litt sliten og savner familien min'], model: 'Jeg er litt sliten, og jeg savner familien min.' },
         { who: 'them', no: 'Det forstår jeg. Skal du hjem til jul?', en: 'I understand. Are you going home for Christmas?' },
-        { who: 'you', cue: 'Say yes – you’re really looking forward to it!', accept: ['ja jeg gleder meg veldig', 'ja jeg gleder meg', 'ja jeg gleder meg masse'], model: 'Ja, jeg gleder meg veldig!' },
+        { who: 'you', cue: 'Say yes, you’re really looking forward to it!', accept: ['ja jeg gleder meg veldig', 'ja jeg gleder meg', 'ja jeg gleder meg masse'], model: 'Ja, jeg gleder meg veldig!' },
         { who: 'them', no: 'Vil du feire nyttårsaften med oss?', en: 'Would you like to celebrate New Year’s Eve with us?' },
         { who: 'you', cue: 'Say: Really? I’d love to!', accept: ['virkelig det har jeg lyst til', 'ja det har jeg lyst til', 'virkelig ja gjerne'], model: 'Virkelig? Det har jeg lyst til!' },
         { who: 'them', no: 'Så bra! Du er ikke alene, vet du.', en: 'Great! You’re not alone, you know.' },
-        { who: 'you', cue: 'Say thanks – now you’re in a much better mood.', accept: ['takk nå er jeg i mye bedre humør', 'takk nå er jeg i bedre humør'], model: 'Takk! Nå er jeg i mye bedre humør.' },
+        { who: 'you', cue: 'Say thanks, now you’re in a much better mood.', accept: ['takk nå er jeg i mye bedre humør', 'takk nå er jeg i bedre humør'], model: 'Takk! Nå er jeg i mye bedre humør.' },
       ],
     },
   },

@@ -53,7 +53,7 @@ export function addXp(amount, reason = '', ts = Date.now()) {
     g.xpDays[k] = (g.xpDays[k] ?? 0) + amount;
   });
   emit('xp', { amount, reason });
-  // The first real activity of the day extends the streak – celebrate it (once a day).
+  // The first real activity of the day extends the streak, celebrate it (once a day).
   const k = dayKey(ts);
   if (game().streakShownDay !== k && activeDay(k)) {
     update(() => { game().streakShownDay = k; });
@@ -94,7 +94,7 @@ export function maybeBonus(rnd = Math.random) {
   return r < 0.6 ? 20 : r < 0.9 ? 40 : 100;
 }
 
-/** XP for a single review answer. Effort is rewarded too – mistakes are part of learning. */
+/** XP for a single review answer. Effort is rewarded too, mistakes are part of learning. */
 export function reviewXp(rating, combo) {
   const base = rating >= 3 ? 10 : rating === 2 ? 6 : 2;
   return base * (rating >= 2 ? combo.multiplier() : 1);
@@ -239,7 +239,7 @@ export function activity(days = 84, ts = Date.now()) {
 // ---------- Plan (implementation intention) ----------
 export function setPlan(plan) { update(() => { game().plan = plan; game().onboarded = true; }); }
 
-/** An .ics calendar file with a daily recurring reminder – works on every phone & computer. */
+/** An .ics calendar file with a daily recurring reminder, works on every phone & computer. */
 export function planIcs(plan) {
   const [hh, mm] = (plan.time || '08:00').split(':').map(Number);
   const now = new Date();
@@ -253,7 +253,7 @@ export function planIcs(plan) {
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Norsk Na//EN', 'BEGIN:VEVENT',
     `UID:norsk-na-daily-${Date.now()}@local`, `DTSTAMP:${fmt(now)}`,
     `DTSTART:${fmt(start)}`, `DTEND:${fmt(end)}`, 'RRULE:FREQ=DAILY',
-    'SUMMARY:🇳🇴 Norsk – dagens økt', `DESCRIPTION:${cue} ${url}`.replace(/,/g, '\\,'),
+    'SUMMARY:🇳🇴 Norsk: dagens økt', `DESCRIPTION:${cue} ${url}`.replace(/,/g, '\\,'),
     'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Tid for norsk!', 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');

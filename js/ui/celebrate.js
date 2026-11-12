@@ -1,5 +1,5 @@
 // Big moments: the daily streak and a completed day. Shown at the *end* of a
-// session (peak-end rule) – never in the middle of an exercise.
+// session (peak-end rule), never in the middle of an exercise.
 
 import { h, add, confetti, sfx, haptic, toast } from './dom.js';
 import { nextStep } from '../core/today.js';
@@ -31,7 +31,7 @@ function streakPop({ streak, week }) {
     h('div.streak-pop-card',
       h('div.streak-flame', { 'aria-hidden': 'true' }, '🔥'),
       h('div.streak-num', String(streak)),
-      h('div.streak-label', streak === 1 ? 'day streak – day one!' : 'day streak!'),
+      h('div.streak-label', streak === 1 ? 'day streak. Day one!' : 'day streak!'),
       h('div.week.pop-week', ...week.map((d, i) => h('div.day', { class: `${d.xp >= 10 ? 'on' : d.frozen ? 'frozen' : ''} ${i === week.length - 1 ? 'today' : ''}` },
         h('span', DAY_NAMES[new Date(d.k + 'T12:00').getDay()])))),
       h('p.small.muted', streak === 1 ? 'Come back tomorrow to make it two.' : 'Come back tomorrow to keep the fire going.'),
@@ -44,7 +44,7 @@ function streakPop({ streak, week }) {
 
 /**
  * "What's next?" for finish screens: a big button to the next unfinished part of
- * today's plan – or, when everything is done, a small celebration (once a day).
+ * today's plan, or, when everything is done, a small celebration (once a day).
  */
 export function nextStepBlock(except = null) {
   const n = nextStep(except);

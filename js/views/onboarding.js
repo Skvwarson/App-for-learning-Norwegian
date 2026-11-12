@@ -40,7 +40,7 @@ function planForm(data, onSave, saveLabel) {
   if (!CUES.includes(data.cue)) { cueSel.value = '__custom'; custom.hidden = false; custom.value = data.cue; }
   return [
     h('h2', 'Daily reminder'),
-    h('p.small.muted', 'Tie Norwegian to something you already do every day – it’s the easiest way to never forget.'),
+    h('p.small.muted', 'Tie Norwegian to something you already do every day. It’s the easiest way to never forget.'),
     h('div.plan-sentence', 'After I ', cueSel, custom, ' I will practise Norwegian.'),
     h('label.small.muted', 'Around what time?'),
     h('input.input', { type: 'time', value: data.time, onchange: (e) => { data.time = e.target.value; } }),

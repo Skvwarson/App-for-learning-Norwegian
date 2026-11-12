@@ -62,12 +62,12 @@ export function isUnlocked(unit) {
   return prev.done || STEPS.indexOf(prev.step) >= STEPS.indexOf('practice');
 }
 
-/** First unit that isn't finished – "where you are" on the journey. */
+/** First unit that isn't finished, "where you are" on the journey. */
 export function currentUnit() {
   return UNITS.find((u) => !lesson(u.id).done) ?? UNITS[UNITS.length - 1];
 }
 
-/** 0–1: how much of the unit's vocabulary is in long-term memory. */
+/** 0-1: how much of the unit's vocabulary is in long-term memory. */
 export function unitMastery(unit) {
   let n = 0, strong = 0;
   for (const w of unit.words) {

@@ -1,5 +1,5 @@
 // Real recordings of dialogue lines (made with natural ElevenLabs voices).
-// Files live in audio/<unit id>/<line number>.mp3 – e.g. audio/u01/01.mp3 is the
+// Files live in audio/<unit id>/<line number>.mp3, e.g. audio/u01/01.mp3 is the
 // first line of unit 1's dialogue. Each speaker is recorded once for the whole
 // course and cut with:  python3 scripts/align-recording.py <Speaker> <file.mp3> --write
 // Then add the speaker below.

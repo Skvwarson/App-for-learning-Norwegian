@@ -123,7 +123,7 @@ export function confetti(pieces = 120) {
   })();
 }
 
-// ---------- Sounds (synthesised – no audio files needed) ----------
+// ---------- Sounds (synthesised, no audio files needed) ----------
 let actx = null;
 function audio() {
   if (!actx) {
@@ -152,7 +152,7 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.12 } = {}) {
 export const sfx = {
   correct(combo = 0) {
     if (!settings().sound) return;
-    const lift = Math.min(combo, 12) * 0.04; // pitch rises with the combo – momentum you can hear
+    const lift = Math.min(combo, 12) * 0.04; // pitch rises with the combo, momentum you can hear
     tone(784 * (1 + lift), 0, 0.12); tone(1175 * (1 + lift), 0.07, 0.18);
   },
   almost() { if (settings().sound) { tone(660, 0, 0.12, { type: 'triangle' }); tone(740, 0.08, 0.14, { type: 'triangle' }); } },

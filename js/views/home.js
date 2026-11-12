@@ -44,7 +44,7 @@ export function homeView(root) {
   const ul = lesson(unit.id);
   const m = unitMastery(unit);
 
-  // Without a Norwegian voice, say so here – once, plainly.
+  // Without a Norwegian voice, say so here, once, plainly.
   const voiceSlot = h('div');
   voicesReady().then(() => {
     if (canSpeakNorwegian()) return;
@@ -54,7 +54,7 @@ export function homeView(root) {
   add(root, h('div.home.stack',
     h('div.page-head',
       h('h1', `${greeting()}${name ? `, ${name}` : ''}!`),
-      h('p.muted', st ? `${st}-day streak – keep it going.` : 'About 10 minutes a day is all it takes.')),
+      h('p.muted', st ? `${st}-day streak. Keep it going!` : 'About 10 minutes a day is all it takes.')),
     h('div.card.today-card',
       h('div.row.between', h('div.kicker', 'Today'), h('span.small.muted', `${doneCount}/${plan.length} done`)),
       steps,

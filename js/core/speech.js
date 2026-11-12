@@ -25,7 +25,7 @@ if (synth) {
   synth.addEventListener?.('voiceschanged', loadVoices);
 }
 
-/** Chrome loads voices asynchronously – wait briefly before concluding there are none. */
+/** Chrome loads voices asynchronously, wait briefly before concluding there are none. */
 export function voicesReady(timeoutMs = 1200) {
   if (!synth || loadVoices().length) return Promise.resolve(voicesCache);
   return new Promise((resolve) => {
@@ -62,7 +62,7 @@ export const hasNorwegianVoice = () => norwegianVoices().length > 0;
 /** Can we play correct Norwegian audio right now? (Used to decide on listening exercises.) */
 export const canSpeakNorwegian = () => hasNorwegianVoice();
 
-/** What's speaking, in words – shown in Settings and the voice warning. */
+/** What's speaking, in words, shown in Settings and the voice warning. */
 export function voiceStatus() {
   if (!synth) return { ok: false, quality: 0, label: 'No speech engine in this browser' };
   const v = pickVoice();
@@ -80,7 +80,7 @@ const audioEl = hasWindow && typeof Audio !== 'undefined' ? new Audio() : null;
 let unlocked = false;
 // iOS only lets audio play after a tap; "unlock" our single audio element on the first one.
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
-/** The app's own volume (Settings), 0–1. */
+/** The app's own volume (Settings), 0-1. */
 export const appVolume = () => Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
 
 // iPhone Safari ignores <audio>.volume, so recordings go through a Web Audio gain
@@ -130,7 +130,7 @@ export async function speak(text, { rate, pitch = 1 } = {}) {
   if (recorded) {
     try {
       return await playUrl(recorded, rate ?? 1); // natural speed unless slowed on purpose
-    } catch { /* missing file – fall back to a voice */ }
+    } catch { /* missing file, fall back to a voice */ }
   }
   return speakDevice(t, rate ?? settings().ttsRate ?? 0.9, pitch);
 }
