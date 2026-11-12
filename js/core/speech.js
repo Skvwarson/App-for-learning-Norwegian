@@ -80,13 +80,38 @@ const audioEl = hasWindow && typeof Audio !== 'undefined' ? new Audio() : null;
 let unlocked = false;
 // iOS only lets audio play after a tap; "unlock" our single audio element on the first one.
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+/** The app's own volume (Settings), 0–1. */
+export const appVolume = () => Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
+
+// iPhone Safari ignores <audio>.volume, so recordings go through a Web Audio gain
+// node once the first tap allows it. Elsewhere the element volume is enough.
+let gctx = null, gainNode = null;
+function routeThroughGain() {
+  if (gainNode || !audioEl) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  try {
+    gctx = new AC();
+    gainNode = gctx.createGain();
+    gctx.createMediaElementSource(audioEl).connect(gainNode).connect(gctx.destination);
+  } catch { gctx = null; gainNode = null; }
+}
+/** Apply the volume setting right away (also to a recording that's playing). */
+export function applyVolume() {
+  const v = appVolume();
+  if (gainNode) { gainNode.gain.value = v; if (audioEl) audioEl.volume = 1; } else if (audioEl) audioEl.volume = v;
+}
 function unlockAudio() {
+  if (gctx && gctx.state !== 'running') gctx.resume().catch(() => {});
   if (!audioEl || unlocked) return;
+  routeThroughGain();
+  applyVolume();
   unlocked = true;
   audioEl.src = SILENT_WAV;
   audioEl.play().then(() => audioEl.pause()).catch(() => { unlocked = false; });
 }
 if (hasWindow && typeof document !== 'undefined') document.addEventListener('pointerdown', unlockAudio, { capture: true, passive: true });
+// unlockAudio also wakes the volume node after the phone suspended it.
 
 export function stopSpeaking() {
   synth?.cancel();
@@ -124,6 +149,7 @@ async function speakDevice(text, rate, pitch) {
     u.lang = v?.lang || 'nb-NO';
     u.rate = rate;
     u.pitch = pitch;
+    u.volume = appVolume();
     let done = false;
     const finish = (ok) => { if (!done) { done = true; resolve(ok); } };
     u.onend = () => finish(true);
@@ -150,6 +176,8 @@ export async function playFile(url, rate = 1) {
 }
 
 function playUrl(url, rate) {
+  applyVolume();
+  if (gctx && gctx.state !== 'running') gctx.resume().catch(() => {});
   return new Promise((resolve, reject) => {
     if (!audioEl) return reject(new Error('Audio playback is not available.'));
     audioEl.src = url;

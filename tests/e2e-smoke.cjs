@@ -27,7 +27,14 @@ async function tapAllTiles(page) {
   await page.waitForSelector('.onboard', { timeout: 5000 });
   await shot('01-onboarding');
   await page.fill('#ob-name', 'Alex');
-  await page.click('text=Start my first lesson');
+  await page.click('text=Continue');
+  // First-run tour on Today: step through it, then press Start.
+  await page.waitForSelector('.tour.show .tour-tip');
+  await page.waitForTimeout(500);
+  await shot('02-tour');
+  for (let k = 0; k < 8 && (await page.$('.tour')); k++) { await page.click('.tour-actions .btn.primary'); await page.waitForTimeout(450); }
+  await page.waitForSelector('.tour', { state: 'detached' });
+  await page.click('.start-btn');
   await page.waitForSelector('text=Start ▸');
   await shot('03-lesson-intro');
   await page.click('text=Start ▸');
@@ -185,7 +192,7 @@ async function tapAllTiles(page) {
   const dark = await browser.newContext({ viewport: { width: 1280, height: 860 }, colorScheme: 'dark' });
   const p2 = await dark.newPage();
   p2.on('pageerror', (e) => errors.push('dark pageerror: ' + e.message));
-  await p2.addInitScript(() => localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true }, settings: { name: 'Alex' } })));
+  await p2.addInitScript(() => localStorage.setItem('norsk-na.v1', JSON.stringify({ game: { onboarded: true, toured: true }, settings: { name: 'Alex' } })));
   await p2.goto(BASE + '#/');
   await p2.waitForSelector('.today-card');
   await p2.waitForTimeout(600);

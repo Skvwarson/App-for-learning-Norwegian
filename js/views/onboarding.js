@@ -4,11 +4,16 @@ import { h, modal, download, toast, confetti, add } from '../ui/dom.js';
 import { update, settings } from '../core/store.js';
 import { getGame, setPlan, planIcs } from '../core/gamify.js';
 import { navigate } from '../ui/router.js';
+import { startTour } from '../ui/tour.js';
 
 const CUES = ['have my morning coffee', 'sit down on the bus/train', 'eat lunch', 'get home from work', 'brush my teeth at night'];
 
 export function maybeOnboard() {
-  if (getGame().onboarded) return;
+  if (getGame().onboarded) {
+    // Already set up but never saw the tour (e.g. from before it existed): show it once on Today.
+    if (!getGame().toured && (location.hash === '' || location.hash === '#/')) startTour();
+    return;
+  }
   let name = settings().name || '';
   let m;
   const start = () => {
@@ -16,7 +21,8 @@ export function maybeOnboard() {
     setPlan(getGame().plan);
     m.close();
     confetti(80);
-    navigate('#/lesson/u01/intro');
+    navigate('#/');
+    setTimeout(() => startTour(), 500); // then a quick tour of Today
   };
   m = modal(h('div.onboard.stack',
     h('div.big-emoji', '🇳🇴'),
@@ -24,7 +30,7 @@ export function maybeOnboard() {
     h('p', 'Learn to speak Norwegian in about 10 minutes a day. Press one button, and the app does the rest.'),
     h('label.small.muted', 'What’s your first name?'),
     h('input.input#ob-name', { value: name, placeholder: 'Your first name', oninput: (e) => { name = e.target.value; } }),
-    h('button.btn.primary.big', { onclick: start }, 'Start my first lesson')), { dismissable: false });
+    h('button.btn.primary.big', { onclick: start }, 'Continue')), { dismissable: false });
 }
 
 function planForm(data, onSave, saveLabel) {

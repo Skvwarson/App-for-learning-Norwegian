@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   retention: 0.9,         // desired retention for FSRS
   reviewMode: 'adaptive', // adaptive | production | recognition
   ttsRate: 0.9,
+  volume: 1,              // 0–1: recordings, the device voice and sound effects
   voiceURI: '',
   autoplay: true,
   dailyGoalXp: 100,       // daily XP goal (≈10 min); small goals make the habit easy

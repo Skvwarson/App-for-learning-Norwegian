@@ -141,6 +141,8 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.12 } = {}) {
   const o = a.createOscillator(), g = a.createGain();
   o.type = type; o.frequency.value = freq;
   g.gain.setValueAtTime(0, a.currentTime + start);
+  vol *= Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
+  if (vol <= 0) return;
   g.gain.linearRampToValueAtTime(vol, a.currentTime + start + 0.01);
   g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + start + dur);
   o.connect(g).connect(a.destination);
