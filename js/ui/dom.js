@@ -163,6 +163,51 @@ function click(start, { freq = 2500, q = 6, dur = 0.03, vol = 0.12 } = {}) {
   src.start(a.currentTime + start);
 }
 
+// ---- UI sound designs: short, soft and "physical" rather than beeps ----
+function out(a, vol) { const g = a.createGain(); g.gain.value = vol * Math.max(0, Math.min(1, Number(settings().volume ?? 1))); g.connect(a.destination); return g; }
+/** A sine (plus optional overtones) with a fast attack, exponential decay and an optional pitch glide. */
+function blip(start, { f0, f1 = f0, glide = 0.02, decay = 0.02, vol = 0.2, partials = [[1, 1]] }) {
+  const a = audio(); if (!a) return;
+  const t0 = a.currentTime + start, g = out(a, 1), env = a.createGain();
+  env.gain.setValueAtTime(0, t0); env.gain.linearRampToValueAtTime(vol, t0 + 0.0015); env.gain.exponentialRampToValueAtTime(0.0001, t0 + decay * 6);
+  env.connect(g);
+  for (const [mul, amp] of partials) {
+    const o = a.createOscillator(), pg = a.createGain();
+    o.frequency.setValueAtTime(f0 * mul, t0); o.frequency.exponentialRampToValueAtTime(f1 * mul, t0 + glide);
+    pg.gain.value = amp; o.connect(pg).connect(env); o.start(t0); o.stop(t0 + decay * 6 + 0.02);
+  }
+}
+/** Filtered noise that swells and fades, with the filter sweeping up: a soft "whoosh". */
+function whoosh(start, dur = 0.26, vol = 0.12) {
+  const a = audio(); if (!a) return;
+  const t0 = a.currentTime + start, n = Math.ceil(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / n) ** 2;
+  const src = a.createBufferSource(), bp = a.createBiquadFilter();
+  src.buffer = buf; bp.type = 'bandpass'; bp.Q.value = 0.9;
+  bp.frequency.setValueAtTime(600, t0); bp.frequency.exponentialRampToValueAtTime(2400, t0 + dur);
+  src.connect(bp).connect(out(a, vol)); src.start(t0);
+}
+const TAP = {
+  tick: () => blip(0, { f0: 2400, f1: 1500, glide: 0.012, decay: 0.005, vol: 0.09 }),
+  wood: () => { blip(0, { f0: 820, decay: 0.007, vol: 0.13, partials: [[1, 1], [2, 0.45], [3, 0.2]] }); click(0, { freq: 2500, dur: 0.01, vol: 0.04 }); },
+  pop: () => blip(0, { f0: 380, f1: 950, glide: 0.035, decay: 0.008, vol: 0.13 }),
+  off: null,
+};
+const NAV = {
+  whoosh: () => { whoosh(0); blip(0.22, { f0: 700, decay: 0.008, vol: 0.1, partials: [[1, 1], [2, 0.4]] }); },
+  revolver: () => {
+    [[0, 1500, 0.05], [0.09, 1600, 0.06], [0.16, 1700, 0.07]].forEach(([t, f, v]) => blip(t, { f0: f, decay: 0.004, vol: v, partials: [[1, 1], [2, 0.3]] }));
+    blip(0.26, { f0: 180, decay: 0.012, vol: 0.2, partials: [[1, 1], [2, 0.6], [6.1, 0.3]] });
+  },
+  chime: () => { blip(0, { f0: 784, decay: 0.05, vol: 0.08, partials: [[1, 1], [2, 0.25]] }); blip(0.07, { f0: 1175, decay: 0.05, vol: 0.1, partials: [[1, 1], [2, 0.25]] }); },
+  off: null,
+};
+export const SOUND_CHOICES = {
+  tap: [['tick', 'Soft tick'], ['wood', 'Wooden tock'], ['pop', 'Bubble pop'], ['off', 'None']],
+  nav: [['revolver', 'Revolver'], ['whoosh', 'Whoosh'], ['chime', 'Chime'], ['off', 'None']],
+};
+export const playSound = (kind, id) => (kind === 'tap' ? TAP : NAV)[id]?.();
+
 export const sfx = {
   correct(combo = 0) {
     if (!settings().sound) return;
@@ -175,15 +220,10 @@ export const sfx = {
   levelUp() { if (settings().sound) [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.09, 0.35, { type: 'triangle', vol: 0.12 })); },
   goal() { if (settings().sound) [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.11, 0.4, { vol: 0.11 })); },
   tap() { if (settings().sound) tone(1200, 0, 0.04, { vol: 0.04 }); },
-  /** Soft click for any button, card or row you press. */
-  press() { if (settings().sound) { click(0, { freq: 3200, dur: 0.025, vol: 0.09 }); tone(1500, 0, 0.03, { vol: 0.015 }); } },
-  /** The bottom menu turning like a revolver cylinder: ticks, then it locks in place. */
-  spin() {
-    if (!settings().sound) return;
-    [0, 0.06, 0.12, 0.19].forEach((t, i) => click(t, { freq: 2600 + i * 250, dur: 0.02, vol: 0.07 }));
-    click(0.3, { freq: 900, q: 3, dur: 0.06, vol: 0.2 });   // the "clack" as the chamber locks
-    tone(180, 0.3, 0.09, { type: 'triangle', vol: 0.05 });
-  },
+  /** Sound for anything you press – picked in Settings (tapSound). */
+  press() { if (settings().sound) TAP[settings().tapSound ?? 'tick']?.(); },
+  /** Sound for changing page with the bottom menu – picked in Settings (navSound). */
+  spin() { if (settings().sound) NAV[settings().navSound ?? 'revolver']?.(); },
 };
 
 export function haptic(pattern = 12) {

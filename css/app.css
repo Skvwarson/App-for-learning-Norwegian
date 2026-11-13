@@ -829,3 +829,15 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
 
 /* Space between the pinned lesson/review header and what comes under it. */
 #view.focus-view > .lesson-head + *, #view.focus-view > .session-head + * { margin-top: 20px; }
+
+.sound-pick button { font-size: .82rem; padding: 0 4px; }
+
+/* On Settings / Me / Progress / My words the middle slot shows that page; hover reveals the tab
+   you came from (tap goes back to it). */
+.tab-ctx { pointer-events: none; z-index: 30; opacity: 0; transform: translate(-50%, -12px); transition: opacity .25s ease; }
+.tabbar.away .tab-ctx { opacity: 1; }
+.tabbar.away .tab.center:not(.tab-ctx) > * { opacity: 0; transition: opacity .25s ease; }
+@media (hover: hover) {
+  .tabbar.away .tab.center:not(.tab-ctx):hover > * { opacity: 1; }
+  .tabbar.away .tab.center:not(.tab-ctx):hover ~ .tab-ctx { opacity: 0; }
+}

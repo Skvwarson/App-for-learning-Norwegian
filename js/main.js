@@ -108,13 +108,23 @@ function turnTo(target) {
   };
   spinFrame = requestAnimationFrame(frame);
 }
+// Pages outside the three tabs: the middle slot shows them; hovering it reveals the tab
+// you came from, and tapping goes back there.
+const AWAY = [
+  [/^\/settings/, 'settings', 'Settings'],
+  [/^\/progress/, 'chart', 'Progress'],
+  [/^\/words/, 'words', 'My words'],
+  [/^\/me/, 'user', 'Me'],
+];
+let ctxEl = null;
 function renderTabs(bar, path) {
   const hit = TABS.findIndex(([, , , isActive]) => isActive(path));
   const n = TABS.length;
   if (!tabEls) {
     tabEls = TABS.map(([p, ic, label]) => h('a.tab', { href: `#${p}`, 'aria-label': label },
       h('span.tab-bubble', icon(ic, 24, 'tab-icon')), h('span.tab-label', label)));
-    add(clear(bar), h('div.tab-track', ...tabEls));
+    ctxEl = h('div.tab.center.tab-ctx', { 'aria-hidden': 'true' });
+    add(clear(bar), h('div.tab-track', ...tabEls, ctxEl));
     if (hit >= 0) centerTab = hit;
     spin = shown = centerTab;
     placeTabs(shown);
@@ -127,6 +137,13 @@ function renderTabs(bar, path) {
     sfx.spin();
     turnTo(spin);
   }
+  const away = hit < 0 && AWAY.find(([re]) => re.test(path));
+  bar.classList.toggle('away', !!away);
+  if (away) {
+    const [, ic, label] = away;
+    add(clear(ctxEl), h('span.tab-bubble', icon(ic, 24, 'tab-icon')), h('span.tab-label', label));
+    tabEls[centerTab].setAttribute('aria-label', `Back to ${TABS[centerTab][2]}`);
+  } else tabEls[centerTab].setAttribute('aria-label', TABS[centerTab][2]);
   tabEls.forEach((el, i) => {
     const isCenter = i === centerTab;
     el.classList.toggle('active', isCenter && hit >= 0);
