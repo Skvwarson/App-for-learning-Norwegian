@@ -772,3 +772,7 @@ body::before {
 /* ---------- no visible scrollbars anywhere (scrolling still works) ---------- */
 * { scrollbar-width: none; -ms-overflow-style: none; }
 *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* Lesson / role-play / review headers sit flush with the top edge, also before you scroll. */
+#view.focus-view { padding-top: 0; }
+#view.focus-view > .lesson-head, #view.focus-view > .session-head { padding-top: calc(12px + env(safe-area-inset-top)); }
