@@ -1,7 +1,7 @@
 // Settings: the few things people actually change, plus backup. Learning
 // tweaks sit folded away under "Advanced".
 
-import { h, toast, download, confirmModal, add, clear, sfx } from '../ui/dom.js';
+import { h, toast, download, confirmModal, add, clear, sfx, SOUND_CHOICES, playSound } from '../ui/dom.js';
 import { settings, update, exportData, importData, resetAll } from '../core/store.js';
 import { voicesReady, voiceStatus, deviceTip, speak, applyVolume } from '../core/speech.js';
 import { APP_VERSION } from '../core/version.js';
@@ -67,6 +67,13 @@ export function settingsView(root) {
       h('button.btn', { type: 'button', onclick: () => speak(TEST_SENTENCE) }, '▶ Test voice'),
       toggle('autoplay', 'Play Norwegian automatically'),
       toggle('sound', 'Sound effects'),
+      ...[['tap', 'tapSound', 'Tapping things'], ['nav', 'navSound', 'Changing page']].map(([kind, key, label]) => {
+        const seg = h('div.segmented.sound-pick', ...SOUND_CHOICES[kind].map(([id, name]) => h('button', {
+          type: 'button', class: (s[key] ?? SOUND_CHOICES[kind][0][0]) === id ? 'on' : '', 'data-quiet': '',
+          onclick: (e) => { set(key, id); seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === e.currentTarget)); playSound(kind, id); },
+        }, name)));
+        return field(label, seg);
+      }),
       toggle('haptics', 'Vibration')),
     h('details.card.advanced',
       h('summary', h('b', 'Advanced')),

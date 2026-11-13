@@ -8,6 +8,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   retention: 0.9,         // desired retention for FSRS
   reviewMode: 'adaptive', // adaptive | production | recognition
   ttsRate: 0.9,
+  tapSound: 'tick',       // sound for pressing things: tick | wood | pop | off
+  navSound: 'revolver',   // sound for changing page: revolver | whoosh | chime | off
   volume: 1,              // 0-1: recordings, the device voice and sound effects
   voiceURI: '',
   autoplay: true,

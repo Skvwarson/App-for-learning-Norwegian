@@ -5,10 +5,11 @@ import fs from 'node:fs';
 const R = process.argv[2], OUT = process.argv[3];
 const { UNITS } = await import(`${R}/data/units.js`);
 const { recordingEntries } = await import(`${R}/data/recordings.js`);
-const { CLIPS } = await import(`${R}/data/clips.js`);
 const { normalize, makeCloze } = await import(`${R}/js/core/text.js`);
 const { exampleFor } = await import(`${R}/js/core/course.js`);
-const have = new Set([...recordingEntries().map(([t]) => t), ...Object.keys(CLIPS)].map(normalize));
+// Only whole recorded dialogue lines count as done: words cut out of dialogues are a stopgap,
+// and the Teacher voice should say every word, example and answer.
+const have = new Set(recordingEntries().map(([t]) => t).map(normalize));
 // Write each item so it reads naturally but still matches what the app plays.
 const tidy = (t) => t.replace(/\s*…\s*/g, ' ').replace(/\s*\/\s*/g, ', ').replace(/[()]/g, '').replace(/\s+/g, ' ').trim()
 ;
