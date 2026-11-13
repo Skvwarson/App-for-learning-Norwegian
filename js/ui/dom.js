@@ -149,6 +149,20 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.12 } = {}) {
   o.start(a.currentTime + start); o.stop(a.currentTime + start + dur + 0.05);
 }
 
+// A short burst of filtered noise: sounds like a mechanical click rather than a beep.
+function click(start, { freq = 2500, q = 6, dur = 0.03, vol = 0.12 } = {}) {
+  const a = audio();
+  if (!a) return;
+  vol *= Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
+  if (vol <= 0) return;
+  const n = Math.ceil(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 3; // sharp attack, quick decay
+  const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
+  src.buffer = buf; bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = q; g.gain.value = vol;
+  src.connect(bp).connect(g).connect(a.destination);
+  src.start(a.currentTime + start);
+}
+
 export const sfx = {
   correct(combo = 0) {
     if (!settings().sound) return;
@@ -161,6 +175,15 @@ export const sfx = {
   levelUp() { if (settings().sound) [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.09, 0.35, { type: 'triangle', vol: 0.12 })); },
   goal() { if (settings().sound) [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.11, 0.4, { vol: 0.11 })); },
   tap() { if (settings().sound) tone(1200, 0, 0.04, { vol: 0.04 }); },
+  /** Soft click for any button, card or row you press. */
+  press() { if (settings().sound) { click(0, { freq: 3200, dur: 0.025, vol: 0.09 }); tone(1500, 0, 0.03, { vol: 0.015 }); } },
+  /** The bottom menu turning like a revolver cylinder: ticks, then it locks in place. */
+  spin() {
+    if (!settings().sound) return;
+    [0, 0.06, 0.12, 0.19].forEach((t, i) => click(t, { freq: 2600 + i * 250, dur: 0.02, vol: 0.07 }));
+    click(0.3, { freq: 900, q: 3, dur: 0.06, vol: 0.2 });   // the "clack" as the chamber locks
+    tone(180, 0.3, 0.09, { type: 'triangle', vol: 0.05 });
+  },
 };
 
 export function haptic(pattern = 12) {

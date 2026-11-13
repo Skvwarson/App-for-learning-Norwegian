@@ -124,6 +124,7 @@ function renderTabs(bar, path) {
     const diff = ((hit - centerTab + n) % n);
     spin += diff === 1 ? 1 : diff === n - 1 ? -1 : diff;
     centerTab = hit;
+    sfx.spin();
     turnTo(spin);
   }
   tabEls.forEach((el, i) => {
@@ -138,6 +139,16 @@ function renderTabs(bar, path) {
 const markScrolled = () => $('#topbar')?.classList.toggle('scrolled', scrollY > 4);
 addEventListener('scroll', markScrolled, { passive: true });
 addEventListener('hashchange', () => requestAnimationFrame(markScrolled));
+
+// A soft click for everything you press. Answers keep their own right/wrong sounds,
+// and the bottom menu has its own revolver sound.
+const PRESSABLE = 'button, a[href], [role="button"], summary, label.toggle-row, .tile';
+const QUIET = '.tab, .answer-row .btn.primary, .choice, [data-quiet]';
+document.addEventListener('pointerdown', (e) => {
+  const el = e.target.closest?.(PRESSABLE);
+  if (!el || el.closest(QUIET) || el.disabled) return;
+  sfx.press();
+}, { capture: true, passive: true });
 
 let chromeTimer = null;
 subscribe(() => { clearTimeout(chromeTimer); chromeTimer = setTimeout(renderChrome, 120); });
