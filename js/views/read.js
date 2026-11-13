@@ -50,7 +50,7 @@ export function storyView(root, { id }) {
   const renderLines = () => {
     clear(lines);
     st.sentences.forEach(([no, en], i) => {
-      const enEl = h('div.line-en.hidden', en);
+      const enEl = h('div.line-en.hidden', h('span', en));
       add(lines, h('div.story-line', { dataset: { i } },
         h('div.no', tappable(no, { sentence: no, translation: en, src: `story:${st.id}`, onChange: () => { renderLines(); renderCov(); } })),
         h('div.story-tools', speakBtn(no), h('button.link.small', { onclick: () => enEl.classList.toggle('hidden') }, 'EN')),

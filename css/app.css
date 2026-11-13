@@ -819,3 +819,15 @@ body::before {
   .lesson-head:has(> .steps) .lesson-title { max-width: 62%; }
   .lesson-head > .steps { min-width: 84px; }
 }
+
+/* Dialogue, role-play and story text can't be text-selected (tapping a word still opens its meaning). */
+.dialogue, .chat, .story { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* The English line slides open/closed instead of jumping. */
+.line-en, .bubble-en {
+  display: grid; grid-template-rows: 1fr; opacity: 1;
+  transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1), opacity .28s ease, margin-top .32s cubic-bezier(.2, .8, .2, 1);
+}
+.line-en > *, .bubble-en > * { min-height: 0; overflow: hidden; }
+.line-en.hidden, .bubble-en.hidden { display: grid !important; grid-template-rows: 0fr; opacity: 0; margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .line-en, .bubble-en { transition: none; } }
