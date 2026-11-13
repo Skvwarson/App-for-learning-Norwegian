@@ -693,7 +693,8 @@ body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 .line.sp-2 { --sp: var(--sp2); }
 .line.sp-3 { --sp: var(--sp3); }
 .line .line-sp { color: var(--sp, var(--muted)); }
-.line.playing { border-color: var(--sp, var(--muted)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp, var(--muted)) 22%, transparent); }
+.line { box-shadow: var(--shadow); }
+.line.playing { border-color: var(--sp, var(--muted)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp, var(--muted)) 22%, transparent), var(--shadow); }
 .unit-announce { border: 0; background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 5px 14px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; font: inherit; }
 
 /* ---------- course ---------- */
@@ -790,16 +791,6 @@ body::before {
 #view.focus-view { padding-top: 0; }
 #view.focus-view > .lesson-head, #view.focus-view > .session-head { padding-top: calc(12px + env(safe-area-inset-top)); }
 
-/* Tapping a dialogue line: a quick press and a pulse in the speaker's colour. */
-.line { transition: transform .12s ease, border-color .2s, box-shadow .2s; }
-.line:active { transform: scale(.985); }
-.line.tapped { animation: lineTap .45s cubic-bezier(.2, .8, .2, 1); }
-@keyframes lineTap {
-  0% { transform: scale(.975); box-shadow: 0 0 0 0 color-mix(in srgb, var(--sp, var(--muted)) 45%, transparent); }
-  45% { transform: scale(1.01); }
-  100% { transform: scale(1); box-shadow: 0 0 0 10px color-mix(in srgb, var(--sp, var(--muted)) 0%, transparent); }
-}
-@media (prefers-reduced-motion: reduce) { .line.tapped { animation: none; } }
 
 /* Lesson header on one row: ✕ · title · step bar. */
 .lesson-head:has(> .steps) { flex-wrap: nowrap; gap: 14px; padding-bottom: 10px; }
@@ -820,14 +811,18 @@ body::before {
   .lesson-head > .steps { min-width: 84px; }
 }
 
-/* Dialogue, role-play and story text can't be text-selected (tapping a word still opens its meaning). */
-.dialogue, .chat, .story { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* Nothing in the app can be text-selected (no blue highlight on double-click or long-press);
+   only what you type into an answer box can. */
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 
 /* The English line slides open/closed instead of jumping. */
 .line-en, .bubble-en {
   display: grid; grid-template-rows: 1fr; opacity: 1;
-  transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1), opacity .28s ease, margin-top .32s cubic-bezier(.2, .8, .2, 1);
+  transition: grid-template-rows .42s ease-in-out, margin-top .42s ease-in-out, opacity .3s ease-in .12s;
 }
 .line-en > *, .bubble-en > * { min-height: 0; overflow: hidden; }
 .line-en.hidden, .bubble-en.hidden { display: grid !important; grid-template-rows: 0fr; opacity: 0; margin-top: 0; }
+/* Closing: the text fades first, then the height eases shut. */
+.line-en.hidden, .bubble-en.hidden { transition: grid-template-rows .42s ease-in-out .08s, margin-top .42s ease-in-out .08s, opacity .18s ease; }
 @media (prefers-reduced-motion: reduce) { .line-en, .bubble-en { transition: none; } }

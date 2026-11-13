@@ -81,9 +81,6 @@ function listenStep(el, unit, next) {
       class: `sp-${speakers.indexOf(sp) % 4}`,
       // In audio-only mode a tap reveals the line; otherwise it shows the English.
       onclick: () => (dialogue.classList.contains('audio-only') ? row.classList.toggle('peek') : enEl.classList.toggle('hidden')),
-      // The tap animation plays wherever the line is touched (also on a word, which opens its meaning).
-      onpointerdown: () => { row.classList.remove('tapped'); void row.offsetWidth; row.classList.add('tapped'); },
-      onanimationend: (e) => { if (e.animationName === 'lineTap') row.classList.remove('tapped'); },
     },
       h('div.line-sp', sp),
       h('div.line-main', h('div.line-no.no', tappable(no, { sentence: no, translation: en, src: `course:${unit.id}`, mark: false })), enEl),
