@@ -129,7 +129,8 @@ export async function speak(text, { rate, pitch = 1 } = {}) {
   const recorded = recordingFor(t);
   if (recorded) {
     try {
-      return await playUrl(recorded, rate ?? 1); // natural speed unless slowed on purpose
+      const ready = preloaded.has(recorded) ? await preloaded.get(recorded) : null;
+      return await playUrl(ready || recorded, rate ?? 1); // natural speed unless slowed on purpose
     } catch { /* missing file, fall back to a voice */ }
   }
   return speakDevice(t, rate ?? settings().ttsRate ?? 0.9, pitch);
@@ -168,6 +169,21 @@ function recordingFor(text) {
   return recordingIndex.get(recKey(text)) ?? null;
 }
 export const hasRecording = (text) => !!recordingFor(clean(text));
+
+// Recordings fetched ahead of time (e.g. the next dialogue line while this one plays),
+// so there's no gap while a file downloads. Kept small; oldest dropped first.
+const preloaded = new Map(); // url → Promise<objectURL | null>
+/** Start loading the recording of this text now, so it plays without delay later. */
+export function preload(text) {
+  const url = recordingFor(clean(text));
+  if (!url || preloaded.has(url)) return;
+  preloaded.set(url, fetch(url).then((r) => (r.ok ? r.blob() : null)).then((b) => (b ? URL.createObjectURL(b) : null)).catch(() => null));
+  if (preloaded.size > 24) {
+    const [old, p] = preloaded.entries().next().value;
+    preloaded.delete(old);
+    p.then((u) => u && URL.revokeObjectURL(u));
+  }
+}
 
 /** Play an audio file from the app (e.g. a unit's spoken title). Resolves false if it can't play. */
 export async function playFile(url, rate = 1) {
