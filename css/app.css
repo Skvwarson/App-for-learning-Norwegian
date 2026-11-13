@@ -826,3 +826,6 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
 /* Closing: the text fades first, then the height eases shut. */
 .line-en.hidden, .bubble-en.hidden { transition: grid-template-rows .42s ease-in-out .08s, margin-top .42s ease-in-out .08s, opacity .18s ease; }
 @media (prefers-reduced-motion: reduce) { .line-en, .bubble-en { transition: none; } }
+
+/* Space between the pinned lesson/review header and what comes under it. */
+#view.focus-view > .lesson-head + *, #view.focus-view > .session-head + * { margin-top: 20px; }
