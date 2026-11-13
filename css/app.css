@@ -789,3 +789,14 @@ body::before {
 /* Lesson / role-play / review headers sit flush with the top edge, also before you scroll. */
 #view.focus-view { padding-top: 0; }
 #view.focus-view > .lesson-head, #view.focus-view > .session-head { padding-top: calc(12px + env(safe-area-inset-top)); }
+
+/* Tapping a dialogue line: a quick press and a pulse in the speaker's colour. */
+.line { transition: transform .12s ease, border-color .2s, box-shadow .2s; }
+.line:active { transform: scale(.985); }
+.line.tapped { animation: lineTap .45s cubic-bezier(.2, .8, .2, 1); }
+@keyframes lineTap {
+  0% { transform: scale(.975); box-shadow: 0 0 0 0 color-mix(in srgb, var(--sp, var(--muted)) 45%, transparent); }
+  45% { transform: scale(1.01); }
+  100% { transform: scale(1); box-shadow: 0 0 0 10px color-mix(in srgb, var(--sp, var(--muted)) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .line.tapped { animation: none; } }

@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, stopSpeaking, canSpeakNorwegian, hasRecording, playFile } from '../core/speech.js';
+import { speak, stopSpeaking, canSpeakNorwegian, hasRecording, playFile, preload } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { settings } from '../core/store.js';
@@ -81,6 +81,9 @@ function listenStep(el, unit, next) {
       class: `sp-${speakers.indexOf(sp) % 4}`,
       // In audio-only mode a tap reveals the line; otherwise it shows the English.
       onclick: () => (dialogue.classList.contains('audio-only') ? row.classList.toggle('peek') : enEl.classList.toggle('hidden')),
+      // The tap animation plays wherever the line is touched (also on a word, which opens its meaning).
+      onpointerdown: () => { row.classList.remove('tapped'); void row.offsetWidth; row.classList.add('tapped'); },
+      onanimationend: (e) => { if (e.animationName === 'lineTap') row.classList.remove('tapped'); },
     },
       h('div.line-sp', sp),
       h('div.line-main', h('div.line-no.no', tappable(no, { sentence: no, translation: en, src: `course:${unit.id}`, mark: false })), enEl),
@@ -92,11 +95,14 @@ function listenStep(el, unit, next) {
     onclick: async () => {
       if (playing) { playing = false; stopSpeaking(); playAll.textContent = '▶ Play conversation'; return; }
       playing = true; playAll.textContent = '■ Stop';
+      unit.dialogue.slice(0, 2).forEach(([, no]) => preload(no));
       for (let i = 0; i < unit.dialogue.length && playing; i++) {
         lines.forEach((l) => l.classList.toggle('playing', l === lines[i]));
         lines[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        if (unit.dialogue[i + 1]) preload(unit.dialogue[i + 1][1]); // next line loads while this one plays
         await speak(unit.dialogue[i][1], { pitch: pitch(unit.dialogue[i][0]) });
-        await new Promise((r) => setTimeout(r, 350));
+        // A short, natural turn-taking gap: longer only when the same person keeps talking.
+        if (unit.dialogue[i + 1]) await new Promise((r) => setTimeout(r, unit.dialogue[i + 1][0] === unit.dialogue[i][0] ? 350 : 220));
       }
       lines.forEach((l) => l.classList.remove('playing'));
       playing = false; playAll.textContent = '▶ Play conversation';

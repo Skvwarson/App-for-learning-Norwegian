@@ -5,7 +5,7 @@ import { h, clear, sfx, haptic, confetti, add } from '../ui/dom.js';
 import { nextStepBlock, flushCelebrations } from '../ui/celebrate.js';
 import { tappable, speakBtn, answerInput, diffView } from '../ui/components.js';
 import { normalize, foldDiacritics, similarity, levenshtein } from '../core/text.js';
-import { speak, stopSpeaking } from '../core/speech.js';
+import { speak, stopSpeaking, preload } from '../core/speech.js';
 import { addXp, unlock, createCombo } from '../core/gamify.js';
 import { settings, update, getState } from '../core/store.js';
 import { unitById, UNITS } from '../core/course.js';
@@ -149,6 +149,8 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
     if (line.who === 'them') {
       themBubble(line);
       p++;
+      const after = plan.slice(p).map((x) => rp.lines[x]).find((l) => l.who === 'them');
+      if (after) preload(after.no);
       await speak(line.no);
       if (alive) setTimeout(step, 250);
       return;
