@@ -35,7 +35,7 @@ export function lessonView(root, { unitId, step }) {
   add(root, 
     h('div.lesson-head',
       h('a.icon-btn', { href: '#/learn', 'aria-label': 'Back to course' }, '✕'),
-      h('div.lesson-title', h('div.small.muted', `Unit ${idx}`), h('div.strong', unit.title)),
+      h('div.lesson-title', h('div.small.muted', `Unit ${idx}`, h('span.lt-step', ` · ${STEP_LABELS[cur]}`)), h('div.strong', unit.title)),
       h('div.steps', ...STEPS.filter((s) => s !== 'done').map((s) => h('a.step-dot', {
         href: `#/lesson/${unitId}/${s}`,
         class: `${s === cur ? 'active' : ''} ${STEPS.indexOf(s) < STEPS.indexOf(lesson(unitId).step) || lesson(unitId).done ? 'done' : ''}`,
@@ -76,7 +76,7 @@ function listenStep(el, unit, next) {
   const pitch = (sp) => [1, 1.15, 0.9, 1.25][speakers.indexOf(sp) % 4];
   let playing = false;
   const lines = unit.dialogue.map(([sp, no, en], i) => {
-    const enEl = h('div.line-en.hidden', en);
+    const enEl = h('div.line-en.hidden', h('span', en));
     const row = h('div.line', {
       class: `sp-${speakers.indexOf(sp) % 4}`,
       // In audio-only mode a tap reveals the line; otherwise it shows the English.

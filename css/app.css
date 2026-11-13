@@ -800,3 +800,34 @@ body::before {
   100% { transform: scale(1); box-shadow: 0 0 0 10px color-mix(in srgb, var(--sp, var(--muted)) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) { .line.tapped { animation: none; } }
+
+/* Lesson header on one row: ✕ · title · step bar. */
+.lesson-head:has(> .steps) { flex-wrap: nowrap; gap: 14px; padding-bottom: 10px; }
+.lesson-head:has(> .steps) .lesson-title { flex: 0 1 auto; min-width: 0; max-width: 38%; }
+.lesson-head:has(> .steps) .lesson-title .strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lesson-head > .steps { flex: 1; width: auto; min-width: 0; align-self: center; }
+.lt-step { display: none; }
+/* Phones: the bar becomes slim segments; the current step's name moves next to "Unit N". */
+@media (max-width: 640px) {
+  .lesson-head > .steps { gap: 3px; }
+  .lesson-head > .steps .step-dot { padding: 0; height: 6px; border-bottom: 0; border-radius: 3px; background: var(--ring-bg); }
+  .lesson-head > .steps .step-dot.done { background: var(--ok); }
+  .lesson-head > .steps .step-dot.active { background: var(--accent); }
+  .lesson-head > .steps .step-dot span { display: none; }
+  .lt-step { display: inline; color: var(--accent); font-weight: 750; }
+  .lesson-head:has(> .steps) { gap: 12px; }
+  .lesson-head:has(> .steps) .lesson-title { max-width: 62%; }
+  .lesson-head > .steps { min-width: 84px; }
+}
+
+/* Dialogue, role-play and story text can't be text-selected (tapping a word still opens its meaning). */
+.dialogue, .chat, .story { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* The English line slides open/closed instead of jumping. */
+.line-en, .bubble-en {
+  display: grid; grid-template-rows: 1fr; opacity: 1;
+  transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1), opacity .28s ease, margin-top .32s cubic-bezier(.2, .8, .2, 1);
+}
+.line-en > *, .bubble-en > * { min-height: 0; overflow: hidden; }
+.line-en.hidden, .bubble-en.hidden { display: grid !important; grid-template-rows: 0fr; opacity: 0; margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .line-en, .bubble-en { transition: none; } }

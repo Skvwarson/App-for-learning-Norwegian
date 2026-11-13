@@ -68,7 +68,7 @@ export function mountRoleplay(host, unit, { onDone, embedded = false } = {}) {
     return b;
   };
   const themBubble = (line) => {
-    const en = h('div.bubble-en.hidden', line.en);
+    const en = h('div.bubble-en.hidden', h('span', line.en));
     bubble('them', [h('div.bubble-name', rp.partner), h('div.no', tappable(line.no, { sentence: line.no, translation: line.en, mark: false })), en,
       h('div.bubble-tools', speakBtn(line.no), h('button.link', { onclick: () => en.classList.toggle('hidden') }, 'EN'))]);
   };
