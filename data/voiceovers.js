@@ -1,9 +1,6 @@
 // Voice-overs: text → audio file, for words, examples, grammar, practice answers,
 // stories and role-plays. Cut from the recordings with scripts/cut-voiceover.py.
-// The older word clips (data/clips.js) only fill in what isn't recorded yet.
-import { CLIPS } from './clips.js';
-
-const RECORDED = [["Velkommen! Hva jobber du med?","audio/vo/rp-ahmed/001.mp3"],
+export const VOICEOVERS = [["Velkommen! Hva jobber du med?","audio/vo/rp-ahmed/001.mp3"],
  ["Spennende! Hvor lenge har du bodd i Norge?","audio/vo/rp-ahmed/002.mp3"],
  ["Du snakker jo bra norsk!","audio/vo/rp-ahmed/003.mp3"],
  ["Skal vi spise lunsj sammen i morgen?","audio/vo/rp-ahmed/004.mp3"],
@@ -373,7 +370,13 @@ const RECORDED = [["Velkommen! Hva jobber du med?","audio/vo/rp-ahmed/001.mp3"],
  ["begynner","audio/vo/teacher-part-1-units-1-9/171.mp3"],
  ["å slutte","audio/vo/teacher-part-1-units-1-9/172.mp3"],
  ["slutter","audio/vo/teacher-part-1-units-1-9/173.mp3"],
+ ["når","audio/vo/teacher-part-1-units-1-9/174.mp3"],
  ["etterpå","audio/vo/teacher-part-1-units-1-9/175.mp3"],
+ ["å trene","audio/vo/teacher-part-1-units-1-9/176.mp3"],
+ ["trener","audio/vo/teacher-part-1-units-1-9/177.mp3"],
+ ["å lage","audio/vo/teacher-part-1-units-1-9/178.mp3"],
+ ["lager","audio/vo/teacher-part-1-units-1-9/179.mp3"],
+ ["å lese","audio/vo/teacher-part-1-units-1-9/180.mp3"],
  ["leser","audio/vo/teacher-part-1-units-1-9/181.mp3"],
  ["å se på TV","audio/vo/teacher-part-1-units-1-9/182.mp3"],
  ["ser på TV","audio/vo/teacher-part-1-units-1-9/183.mp3"],
@@ -454,6 +457,7 @@ const RECORDED = [["Velkommen! Hva jobber du med?","audio/vo/rp-ahmed/001.mp3"],
  ["i fritiden","audio/vo/teacher-part-1-units-1-9/258.mp3"],
  ["å like","audio/vo/teacher-part-1-units-1-9/259.mp3"],
  ["liker","audio/vo/teacher-part-1-units-1-9/260.mp3"],
+ ["å elske","audio/vo/teacher-part-1-units-1-9/261.mp3"],
  ["elsker","audio/vo/teacher-part-1-units-1-9/262.mp3"],
  ["å gå på tur","audio/vo/teacher-part-1-units-1-9/263.mp3"],
  ["gå på tur","audio/vo/teacher-part-1-units-1-9/264.mp3"],
@@ -748,5 +752,3 @@ const RECORDED = [["Velkommen! Hva jobber du med?","audio/vo/rp-ahmed/001.mp3"],
  ["hans","audio/vo/teacher-part-2-units-10-18/266.mp3"],
  ["Ja, jeg gleder meg veldig!","audio/vo/teacher-part-2-units-10-18/267.mp3"],
  ["Takk! Nå er jeg i mye bedre humør.","audio/vo/teacher-part-2-units-10-18/268.mp3"]];
-
-export const VOICEOVERS = [...Object.entries(CLIPS), ...RECORDED];
