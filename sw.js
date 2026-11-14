@@ -1,7 +1,7 @@
 // Offline support. Network first (so updates show up immediately when online),
 // falling back to the cached copy when offline or when the network is very slow.
 // Keep VERSION in sync with APP_VERSION in js/core/version.js.
-const VERSION = 'norsk-na-v34';
+const VERSION = 'norsk-na-v35';
 const SHELL = [
   './', './index.html', './css/app.css', './manifest.webmanifest', './icons/icon.svg',
   './js/main.js', './js/ui/dom.js', './js/ui/router.js', './js/ui/components.js', './js/ui/celebrate.js', './js/ui/icons.js', './js/ui/tour.js',
