@@ -129,7 +129,7 @@ for li, l in enumerate(lines):
     subprocess.run(['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-ss', f'{a:.3f}', '-t', f'{b - a:.3f}', '-i', audio_path, tmp], check=True)
     subprocess.run(['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', tmp, '-af', trim, '-ac', '1', '-ar', '44100', '-c:a', 'libmp3lame', '-b:a', '128k', os.path.join(out_dir, name)], check=True)
     os.remove(tmp)
-    segs, _ = model.transcribe(load(os.path.join(out_dir, name)), language='no', beam_size=5, condition_on_previous_text=False, without_timestamps=True)
+    segs, _ = model.transcribe(load(os.path.join(out_dir, name)), language='no', beam_size=1, condition_on_previous_text=False, without_timestamps=True)
     got = norm(' '.join(x.text for x in segs))
     score = difflib.SequenceMatcher(None, got, norm(l)).ratio()
     results.append([l, name, round(score, 2)])
