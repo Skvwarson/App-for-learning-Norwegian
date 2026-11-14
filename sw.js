@@ -10,7 +10,7 @@ const SHELL = [
   './js/views/home.js', './js/views/learn.js', './js/views/lesson.js', './js/views/review.js', './js/views/read.js',
   './js/views/speak.js', './js/views/roleplay.js', './js/views/practice.js', './js/views/words.js',
   './js/views/progress.js', './js/views/settings.js', './js/views/onboarding.js', './js/views/friends.js',
-  './data/units.js', './data/units-a2.js', './data/recordings.js', './data/clips.js', './data/stories.js', './data/dictionary.js', './data/habits.js',
+  './data/units.js', './data/units-a2.js', './data/recordings.js', './data/voiceovers.js', './data/clips.js', './data/stories.js', './data/dictionary.js', './data/habits.js',
   './vendor/fonts/nunito-latin-wght-normal.woff2', './vendor/fonts/literata-latin-wght-normal.woff2',
 ];
 const NETWORK_TIMEOUT_MS = 4000;
