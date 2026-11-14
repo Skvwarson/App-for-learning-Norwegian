@@ -20,7 +20,7 @@ lines = [l.strip() for l in open(script_path, encoding='utf-8-sig') if l.strip()
 
 model = WhisperModel('small', device='cpu', compute_type='int8')
 def load(path, ss=None, t=None):
-    cmd = ['ffmpeg', '-v', 'error'] + (['-ss', f'{ss:.3f}', '-t', f'{t:.3f}'] if ss is not None else []) + ['-i', path, '-f', 's16le', '-ac', '1', '-ar', '16000', '-']
+    cmd = ['ffmpeg', '-nostdin', '-v', 'error'] + (['-ss', f'{ss:.3f}', '-t', f'{t:.3f}'] if ss is not None else []) + ['-i', path, '-f', 's16le', '-ac', '1', '-ar', '16000', '-']
     return np.frombuffer(subprocess.run(cmd, capture_output=True, check=True).stdout, np.int16).astype(np.float32) / 32768.0
 def duration(p):
     return float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', p], capture_output=True, text=True).stdout)
@@ -31,7 +31,7 @@ def norm(t):
 
 dur = duration(audio_path)
 def silences(path, db=-40, d=0.15):
-    r = subprocess.run(['ffmpeg', '-hide_banner', '-nostats', '-i', path, '-af', f'silencedetect=noise={db}dB:d={d}', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    r = subprocess.run(['ffmpeg', '-nostdin', '-hide_banner', '-nostats', '-i', path, '-af', f'silencedetect=noise={db}dB:d={d}', '-f', 'null', '-'], capture_output=True, text=True).stderr
     out, s0 = [], None
     for k, v in re.findall(r'silence_(start|end): ([\d.]+)', r):
         if k == 'start': s0 = float(v)
@@ -126,8 +126,8 @@ for li, l in enumerate(lines):
     a, b = max(a, s - 0.4), min(b, e + 0.6)
     name = f'{li + 1:03d}.mp3'
     tmp = os.path.join(out_dir, name + '.wav')
-    subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-ss', f'{a:.3f}', '-t', f'{b - a:.3f}', '-i', audio_path, tmp], check=True)
-    subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-i', tmp, '-af', trim, '-ac', '1', '-ar', '44100', '-c:a', 'libmp3lame', '-b:a', '128k', os.path.join(out_dir, name)], check=True)
+    subprocess.run(['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-ss', f'{a:.3f}', '-t', f'{b - a:.3f}', '-i', audio_path, tmp], check=True)
+    subprocess.run(['ffmpeg', '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', tmp, '-af', trim, '-ac', '1', '-ar', '44100', '-c:a', 'libmp3lame', '-b:a', '128k', os.path.join(out_dir, name)], check=True)
     os.remove(tmp)
     segs, _ = model.transcribe(load(os.path.join(out_dir, name)), language='no', beam_size=5, condition_on_previous_text=False, without_timestamps=True)
     got = norm(' '.join(x.text for x in segs))
