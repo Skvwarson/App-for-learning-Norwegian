@@ -36,7 +36,7 @@ const speak = (page, text) => page.evaluate(async (t) => (await import('/js/core
   // 1. Only an English voice: Norwegian must NOT be read by it, and the user is told why.
   {
     const { page, errors, ctx } = await freshPage(browser, [{ name: 'Microsoft David', lang: 'en-US', voiceURI: 'david' }]);
-    const ok = await speak(page, 'Vi sees!');
+    const ok = await speak(page, 'Denne setningen har ikke noe opptak.');
     assert.equal(ok, false);
     assert.deepEqual(await page.evaluate(() => window.__spoken), []);
     await page.waitForSelector('text=No Norwegian voice on this device.');
@@ -69,7 +69,7 @@ const speak = (page, text) => page.evaluate(async (t) => (await import('/js/core
       { name: 'Microsoft Pernille Online (Natural) - Norwegian (Bokmål) (Norway)', lang: 'nb-NO', voiceURI: 'pernille' },
       { name: 'Microsoft David', lang: 'en-US', voiceURI: 'david' },
     ]);
-    assert.equal(await speak(page, 'Vi sees!'), true);
+    assert.equal(await speak(page, 'Denne setningen har ikke noe opptak.'), true);
     const spoken = await page.evaluate(() => window.__spoken);
     assert.equal(spoken[0].voice, 'Microsoft Pernille Online (Natural) - Norwegian (Bokmål) (Norway)');
     assert.equal(spoken[0].lang, 'nb-NO');
