@@ -1,6 +1,7 @@
 // Tiny DOM toolkit + feedback effects (toasts, modals, confetti, sounds, haptics).
 
 import { settings } from '../core/store.js';
+import { audioContext, masterOut } from '../core/audio.js';
 
 /** h('div.card#id', {onclick, class, ...}, ...children) */
 export function h(sel, attrs, ...children) {
@@ -124,16 +125,8 @@ export function confetti(pieces = 120) {
 }
 
 // ---------- Sounds (synthesised, no audio files needed) ----------
-let actx = null;
-function audio() {
-  if (!actx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    actx = new AC();
-  }
-  if (actx.state === 'suspended') actx.resume();
-  return actx;
-}
+// Sound effects share the app's one audio engine (and its volume) with the voices.
+const audio = () => audioContext();
 
 function tone(freq, start, dur, { type = 'sine', vol = 0.12 } = {}) {
   const a = audio();
@@ -141,11 +134,9 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.12 } = {}) {
   const o = a.createOscillator(), g = a.createGain();
   o.type = type; o.frequency.value = freq;
   g.gain.setValueAtTime(0, a.currentTime + start);
-  vol *= Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
-  if (vol <= 0) return;
   g.gain.linearRampToValueAtTime(vol, a.currentTime + start + 0.01);
   g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + start + dur);
-  o.connect(g).connect(a.destination);
+  o.connect(g).connect(masterOut());
   o.start(a.currentTime + start); o.stop(a.currentTime + start + dur + 0.05);
 }
 
@@ -153,18 +144,16 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.12 } = {}) {
 function click(start, { freq = 2500, q = 6, dur = 0.03, vol = 0.12 } = {}) {
   const a = audio();
   if (!a) return;
-  vol *= Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
-  if (vol <= 0) return;
   const n = Math.ceil(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
   for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 3; // sharp attack, quick decay
   const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
   src.buffer = buf; bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = q; g.gain.value = vol;
-  src.connect(bp).connect(g).connect(a.destination);
+  src.connect(bp).connect(g).connect(masterOut());
   src.start(a.currentTime + start);
 }
 
 // ---- UI sound designs: short, soft and "physical" rather than beeps ----
-function out(a, vol) { const g = a.createGain(); g.gain.value = vol * Math.max(0, Math.min(1, Number(settings().volume ?? 1))); g.connect(a.destination); return g; }
+function out(a, vol) { const g = a.createGain(); g.gain.value = vol; g.connect(masterOut()); return g; }
 /** A sine (plus optional overtones) with a fast attack, exponential decay and an optional pitch glide. */
 function blip(start, { f0, f1 = f0, glide = 0.02, decay = 0.02, vol = 0.2, partials = [[1, 1]] }) {
   const a = audio(); if (!a) return;

@@ -6,7 +6,7 @@ import { tappable, speakBtn, answerInput, tilesWidget, choicesWidget, diffView, 
 import { unitById, UNITS, STEPS, STEP_LABELS, lesson, setLesson, completeLesson, cardForWord, exampleFor } from '../core/course.js';
 import { rateCard, allCards } from '../core/deck.js';
 import { checkAnswer, makeCloze, shuffle, words as wordsOf } from '../core/text.js';
-import { speak, stopSpeaking, canSpeakNorwegian, hasRecording, playFile, preload } from '../core/speech.js';
+import { speak, stopSpeaking, canSpeakNorwegian, hasRecording, playFile, preload, preloadAll } from '../core/speech.js';
 import { addXp, createCombo } from '../core/gamify.js';
 import { Rating, State } from '../core/fsrs.js';
 import { settings } from '../core/store.js';
@@ -92,11 +92,9 @@ function listenStep(el, unit, next) {
     onclick: async () => {
       if (playing) { playing = false; stopSpeaking(); playAll.textContent = '▶ Play conversation'; return; }
       playing = true; playAll.textContent = '■ Stop';
-      unit.dialogue.slice(0, 2).forEach(([, no]) => preload(no));
       for (let i = 0; i < unit.dialogue.length && playing; i++) {
         lines.forEach((l) => l.classList.toggle('playing', l === lines[i]));
         lines[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        if (unit.dialogue[i + 1]) preload(unit.dialogue[i + 1][1]); // next line loads while this one plays
         await speak(unit.dialogue[i][1], { pitch: pitch(unit.dialogue[i][0]) });
         // A short, natural turn-taking gap: longer only when the same person keeps talking.
         if (unit.dialogue[i + 1]) await new Promise((r) => setTimeout(r, unit.dialogue[i + 1][0] === unit.dialogue[i][0] ? 350 : 220));
@@ -105,6 +103,16 @@ function listenStep(el, unit, next) {
       playing = false; playAll.textContent = '▶ Play conversation';
     },
   }, '▶ Play conversation');
+  // Only playable once every line is loaded, so it starts at once and never stops halfway.
+  playAll.disabled = true;
+  playAll.classList.add('loading');
+  preloadAll(unit.dialogue.map((d) => d[1]), (done, total) => {
+    if (!playing && done < total) playAll.textContent = `Loading audio… ${done}/${total}`;
+  }).then(() => {
+    playAll.disabled = false;
+    playAll.classList.remove('loading');
+    if (!playing) playAll.textContent = '▶ Play conversation';
+  });
   const showAll = h('button.btn.ghost', { onclick: () => el.querySelectorAll('.line-en').forEach((e) => e.classList.toggle('hidden')) }, 'Show/hide English');
   const dialogue = h('div.dialogue', ...lines);
   // Listening without reading trains the ear for real conversations.
@@ -154,7 +162,7 @@ function wordsStep(el, unit, next) {
 
   // 1) Study a small group of words with audio + example (encoding)
   const study = (chunk) => {
-    chunk.forEach((w) => cardForWord(unit, w));
+    chunk.forEach((w) => { cardForWord(unit, w); preload(w.no); });
     const items = chunk.map((w) => {
       const ex = exampleFor(unit, w);
       return h('div.word-card',

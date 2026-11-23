@@ -8,6 +8,7 @@
 
 import { settings } from './store.js';
 import { normalize } from './text.js';
+import { loadBuffer, playBuffer, stopBuffer, applyMasterVolume } from './audio.js';
 import { recordingEntries } from '../../data/recordings.js';
 import { VOICEOVERS } from '../../data/voiceovers.js';
 
@@ -76,45 +77,19 @@ export function onVoiceProblem(fn) { problemListeners.add(fn); return () => prob
 function problem(kind, message = '') { for (const fn of problemListeners) fn({ kind, message }); }
 
 // ---------- Playback ----------
+// Recordings play as decoded buffers through the shared audio engine (js/core/audio.js).
+// A plain <audio> element is only used for slowed-down playback, which keeps the pitch.
 const audioEl = hasWindow && typeof Audio !== 'undefined' ? new Audio() : null;
-let unlocked = false;
-// iOS only lets audio play after a tap; "unlock" our single audio element on the first one.
-const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 /** The app's own volume (Settings), 0-1. */
 export const appVolume = () => Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
-
-// iPhone Safari ignores <audio>.volume, so recordings go through a Web Audio gain
-// node once the first tap allows it. Elsewhere the element volume is enough.
-let gctx = null, gainNode = null;
-function routeThroughGain() {
-  if (gainNode || !audioEl) return;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return;
-  try {
-    gctx = new AC();
-    gainNode = gctx.createGain();
-    gctx.createMediaElementSource(audioEl).connect(gainNode).connect(gctx.destination);
-  } catch { gctx = null; gainNode = null; }
-}
 /** Apply the volume setting right away (also to a recording that's playing). */
-export function applyVolume() {
-  const v = appVolume();
-  if (gainNode) { gainNode.gain.value = v; if (audioEl) audioEl.volume = 1; } else if (audioEl) audioEl.volume = v;
-}
-function unlockAudio() {
-  if (gctx && gctx.state !== 'running') gctx.resume().catch(() => {});
-  if (!audioEl || unlocked) return;
-  routeThroughGain();
-  applyVolume();
-  unlocked = true;
-  audioEl.src = SILENT_WAV;
-  audioEl.play().then(() => audioEl.pause()).catch(() => { unlocked = false; });
-}
-if (hasWindow && typeof document !== 'undefined') document.addEventListener('pointerdown', unlockAudio, { capture: true, passive: true });
-// unlockAudio also wakes the volume node after the phone suspended it.
+export function applyVolume() { applyMasterVolume(); if (audioEl) audioEl.volume = appVolume(); }
 
+let playId = 0; // every new speak() makes older, still-loading ones give up
 export function stopSpeaking() {
+  playId++;
   synth?.cancel();
+  stopBuffer();
   if (audioEl) { audioEl.pause(); audioEl.onended = null; }
 }
 
@@ -128,10 +103,16 @@ export async function speak(text, { rate, pitch = 1 } = {}) {
   // A real recording of this exact sentence beats any synthetic voice.
   const recorded = recordingFor(t);
   if (recorded) {
-    try {
-      const ready = preloaded.has(recorded) ? await preloaded.get(recorded) : null;
-      return await playUrl(ready || recorded, rate ?? 1); // natural speed unless slowed on purpose
-    } catch { /* missing file, fall back to a voice */ }
+    const id = playId;
+    const r = rate ?? 1; // natural speed unless slowed on purpose
+    if (Math.abs(r - 1) < 0.01) {
+      const buf = await loadBuffer(recorded);
+      if (id !== playId) return false;          // something else started meanwhile
+      if (buf) return playBuffer(buf);
+    } else {
+      try { return await playUrl(recorded, r); } catch { /* fall back to a voice */ }
+    }
+    if (id !== playId) return false;
   }
   return speakDevice(t, rate ?? settings().ttsRate ?? 0.9, pitch);
 }
@@ -170,30 +151,32 @@ function recordingFor(text) {
 }
 export const hasRecording = (text) => !!recordingFor(clean(text));
 
-// Recordings fetched ahead of time (e.g. the next dialogue line while this one plays),
-// so there's no gap while a file downloads. Kept small; oldest dropped first.
-const preloaded = new Map(); // url → Promise<objectURL | null>
 /** Start loading the recording of this text now, so it plays without delay later. */
 export function preload(text) {
   const url = recordingFor(clean(text));
-  if (!url || preloaded.has(url)) return;
-  preloaded.set(url, fetch(url).then((r) => (r.ok ? r.blob() : null)).then((b) => (b ? URL.createObjectURL(b) : null)).catch(() => null));
-  if (preloaded.size > 24) {
-    const [old, p] = preloaded.entries().next().value;
-    preloaded.delete(old);
-    p.then((u) => u && URL.revokeObjectURL(u));
-  }
+  return url ? loadBuffer(url) : Promise.resolve(null);
+}
+
+/** Load all these recordings; onProgress(done, total). Resolves when every one is ready (or failed). */
+export async function preloadAll(texts, onProgress = () => {}) {
+  const urls = [...new Set(texts.map((t) => recordingFor(clean(t))).filter(Boolean))];
+  let done = 0;
+  onProgress(0, urls.length);
+  await Promise.all(urls.map((u) => loadBuffer(u).then(() => onProgress(++done, urls.length))));
+  return urls.length;
 }
 
 /** Play an audio file from the app (e.g. a unit's spoken title). Resolves false if it can't play. */
 export async function playFile(url, rate = 1) {
   stopSpeaking();
-  try { return await playUrl(url, rate); } catch { return false; }
+  const id = playId;
+  const buf = await loadBuffer(url);
+  if (id !== playId) return false;
+  return buf ? playBuffer(buf, rate) : false;
 }
 
 function playUrl(url, rate) {
   applyVolume();
-  if (gctx && gctx.state !== 'running') gctx.resume().catch(() => {});
   return new Promise((resolve, reject) => {
     if (!audioEl) return reject(new Error('Audio playback is not available.'));
     audioEl.src = url;
