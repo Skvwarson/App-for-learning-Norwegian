@@ -1,12 +1,12 @@
 // Offline support. Network first (so updates show up immediately when online),
 // falling back to the cached copy when offline or when the network is very slow.
 // Keep VERSION in sync with APP_VERSION in js/core/version.js.
-const VERSION = 'norsk-na-v39';
+const VERSION = 'norsk-na-v40';
 const SHELL = [
   './', './index.html', './css/app.css', './manifest.webmanifest', './icons/icon.svg',
   './js/main.js', './js/ui/dom.js', './js/ui/router.js', './js/ui/components.js', './js/ui/celebrate.js', './js/ui/icons.js', './js/ui/tour.js',
   './js/core/fsrs.js', './js/core/text.js', './js/core/store.js', './js/core/deck.js', './js/core/gamify.js',
-  './js/core/course.js', './js/core/speech.js', './js/core/lexicon.js', './js/core/version.js', './js/core/today.js', './js/core/social.js',
+  './js/core/course.js', './js/core/speech.js', './js/core/audio.js', './js/core/lexicon.js', './js/core/version.js', './js/core/today.js', './js/core/social.js',
   './js/views/home.js', './js/views/learn.js', './js/views/lesson.js', './js/views/review.js', './js/views/read.js',
   './js/views/speak.js', './js/views/roleplay.js', './js/views/practice.js', './js/views/words.js',
   './js/views/progress.js', './js/views/settings.js', './js/views/onboarding.js', './js/views/friends.js',

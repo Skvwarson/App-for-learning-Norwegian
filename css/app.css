@@ -841,3 +841,6 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
   .tabbar.away .tab.center:not(.tab-ctx):hover > * { opacity: 1; }
   .tabbar.away .tab.center:not(.tab-ctx):hover ~ .tab-ctx { opacity: 0; }
 }
+
+/* "Play conversation" while its audio is still loading */
+.btn.loading { opacity: .55; cursor: progress; }
