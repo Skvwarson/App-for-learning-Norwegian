@@ -18,6 +18,7 @@
   </script>
   <style>
     /* Ghost view: the shape of the app, shown until the real screen replaces it. */
+    html, body { overscroll-behavior: none; }
     .gh { background: var(--surface-2, #e9e6df); border-radius: 10px; position: relative; overflow: hidden; }
     .gh::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%);
       background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface, #fff) 55%, transparent), transparent);

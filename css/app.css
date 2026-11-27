@@ -844,3 +844,6 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
 
 /* "Play conversation" while its audio is still loading */
 .btn.loading { opacity: .55; cursor: progress; }
+
+/* No rubber-band overscroll: the page stops at its top and bottom like a native app (iOS 16+). */
+html, body { overscroll-behavior: none; }
