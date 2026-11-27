@@ -663,8 +663,15 @@ body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
   color: #fff; transform: translateY(-17px) scale(1.6);
   /* Lit from above: lighter at the top, deeper at the bottom, with a thin inner rim. */
   background: radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, #fff 22%, var(--accent)) 0%, var(--accent) 55%, color-mix(in srgb, #000 22%, var(--accent)) 100%);
-  box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .25), inset 0 -1px 1px rgba(0, 0, 0, .18),
-    0 0 0 2px var(--surface), 0 4px 10px color-mix(in srgb, var(--accent) 35%, transparent);
+  /* (the bubble is scaled ×1.6, so these are small on purpose)
+     crisp ring cut into the bar · tight contact shadow · soft lift · faint coloured glow · glossy rim */
+  box-shadow:
+    0 0 0 2.5px var(--surface),
+    0 1px 1.5px rgba(0, 0, 0, .22),
+    0 3px 6px -1px rgba(0, 0, 0, .2),
+    0 7px 14px -4px color-mix(in srgb, var(--accent) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, .28),
+    inset 0 -1.5px 2px rgba(0, 0, 0, .14);
 }
 /* Side tabs sit in recessed "chambers": darker than the bar, shaded along the top inner edge. */
 .tab:not(.center) .tab-bubble {
@@ -847,3 +854,7 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
 
 /* No rubber-band overscroll: the page stops at its top and bottom like a native app (iOS 16+). */
 html, body { overscroll-behavior: none; }
+
+/* Streak chip: slightly see-through so the glow behind shows */
+.chip-streak { background: color-mix(in srgb, var(--surface) 55%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.chip-streak.on { background: color-mix(in srgb, #e8590c 10%, color-mix(in srgb, var(--surface) 50%, transparent)); }
