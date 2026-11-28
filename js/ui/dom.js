@@ -298,7 +298,8 @@ if (Object.keys(SFX_FILES).length) {
 const OLD = { tick: 'click', wood: 'thock', pop: 'drop', revolver: 'dial', whoosh: 'swipe', chime: 'notes' };
 /** The sound id in use for 'tap' or 'nav' (falls back to the first choice). */
 export function soundChoice(kind, id) {
-  const table = kind === 'tap' ? TAP : NAV, x = OLD[id] ?? id;
+  const table = kind === 'tap' ? TAP : NAV;
+  const x = id in OLD && table.rec ? 'rec' : OLD[id] ?? id; // the old sounds give way to a recording
   return x in table && table[x] ? x : SOUND_CHOICES[kind][0][0];
 }
 export const playSound = (kind, id, dir) => (kind === 'tap' ? TAP : NAV)[soundChoice(kind, id)]?.(dir);

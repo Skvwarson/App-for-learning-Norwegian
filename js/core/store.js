@@ -8,8 +8,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   retention: 0.9,         // desired retention for FSRS
   reviewMode: 'adaptive', // adaptive | production | recognition
   ttsRate: 0.9,
-  tapSound: 'thock',      // sound for pressing things: thock | drop | marimba | click | off
-  navSound: 'notes',      // sound for changing page: notes | swipe | dial | off
+  tapSound: 'rec',        // sound for pressing things: rec (recorded, if any) | thock | drop | marimba | click | off
+  navSound: 'rec',        // sound for changing page: rec (recorded, if any) | notes | swipe | dial | off
   volume: 1,              // 0-1: recordings, the device voice and sound effects
   sfxVolume: 0.7,         // 0-1: sound effects only (on top of volume)
   voiceURI: '',
