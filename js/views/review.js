@@ -117,7 +117,7 @@ export function reviewView(root, params = {}) {
       h('div.row.center', speakBtn(card.no)),
       h('p.small.muted', 'Say it out loud once. It’ll come back in a minute for you to recall.'),
       h('button.btn.primary.big', { onclick: go }, 'Got it ▸')));
-    if (settings().autoplay) speak(card.no);
+    if (settings().autoplay) speak(card.no, { wait: true });
     function go() { markSeen(card.id); doneIds.add(card.id); show(); }
     keys({ Enter: go, ' ': go });
   }
@@ -134,7 +134,7 @@ export function reviewView(root, params = {}) {
       h('div.face-no.no', card.no, ' ', speakBtn(card.no)),
       card.ex?.no ? h('div.face-ex.no', tappable(card.ex.no, { mark: false })) : null,
       answer, showBtn));
-    if (settings().autoplay) speak(card.no);
+    if (settings().autoplay) speak(card.no, { wait: true });
     keys({ ' ': reveal, Enter: reveal });
     function reveal() {
       answer.classList.remove('hidden'); showBtn.remove();
@@ -204,7 +204,7 @@ export function reviewView(root, params = {}) {
         h('button.btn.big.listen-btn', { onclick: () => speak(target) }, '🔊 Play'),
         h('button.btn.ghost', { onclick: () => speak(target, { rate: 0.6 }) }, '🐢 Slow')),
       inp.el));
-    setTimeout(() => speak(target), 250);
+    setTimeout(() => speak(target, { wait: true }), 250);
   }
 
   function tiles(card, done) {

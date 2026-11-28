@@ -8,7 +8,7 @@
 
 import { settings } from './store.js';
 import { normalize } from './text.js';
-import { loadBuffer, playBuffer, stopBuffer, applyMasterVolume } from './audio.js';
+import { loadBuffer, playBuffer, stopBuffer, applyMasterVolume, untilQuiet } from './audio.js';
 import { recordingEntries } from '../../data/recordings.js';
 import { VOICEOVERS } from '../../data/voiceovers.js';
 
@@ -96,9 +96,17 @@ export function stopSpeaking() {
 const clean = (text) => String(text ?? '').replace(/[«»“”]/g, '').replace(/\s*…\s*/g, ' … ').replace(/\s+/g, ' ').trim();
 
 /** Speak Norwegian text. Resolves true when finished, false if nothing could be played. */
-export async function speak(text, { rate, pitch = 1 } = {}) {
+export async function speak(text, { rate, pitch = 1, wait = false } = {}) {
   const t = clean(text);
   if (!t) return false;
+  if (wait) {
+    // Automatic sounds (a new card, the next exercise) never cut off a voice that's
+    // still speaking: they wait for it (at most a few seconds). Taps still interrupt.
+    const id = playId;
+    preload(t);
+    await Promise.race([untilQuiet(), new Promise((r) => setTimeout(r, 4000))]);
+    if (id !== playId) return false; // something else was played meanwhile
+  }
   stopSpeaking();
   // A real recording of this exact sentence beats any synthetic voice.
   const recorded = recordingFor(t);
