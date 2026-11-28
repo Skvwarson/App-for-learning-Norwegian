@@ -344,7 +344,7 @@ function doneStep(el, unit, next, go) {
   const gained = completeLesson(unit.id);
   const i = UNITS.indexOf(unit);
   const nextUnit = UNITS[i + 1];
-  if (gained) { confetti(); sfx.levelUp(); }
+  if (gained) { confetti(); sfx.lessonDone(); }
   add(el, h('div.stack.center-col',
     h('div.big-emoji', '🎉'),
     h('h2', `Unit ${i + 1} complete!`),

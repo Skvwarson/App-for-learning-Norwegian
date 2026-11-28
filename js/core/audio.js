@@ -5,7 +5,7 @@
 import { settings } from './store.js';
 
 const hasWindow = typeof window !== 'undefined';
-let ctx = null, master = null, unlocked = false;
+let ctx = null, master = null, fx = null, unlocked = false;
 
 /** The shared AudioContext (created on first use), or null if the browser has none. */
 export function audioContext() {
@@ -16,6 +16,8 @@ export function audioContext() {
     ctx = new AC();
     master = ctx.createGain();
     master.connect(ctx.destination);
+    fx = ctx.createGain(); // sound effects get their own level on top of the master volume
+    fx.connect(master);
     applyMasterVolume();
   }
   if (ctx.state !== 'running') ctx.resume().catch(() => {});
@@ -25,8 +27,13 @@ export function audioContext() {
 /** Everything app-made goes through here: the Settings volume applies to all of it. */
 export function masterOut() { audioContext(); return master; }
 
+/** Sound effects go through here: master volume × the effects volume. */
+export function effectsOut() { audioContext(); return fx; }
+
+const clamp01 = (v, d) => Math.max(0, Math.min(1, Number(v ?? d)));
 export function applyMasterVolume() {
-  if (master) master.gain.value = Math.max(0, Math.min(1, Number(settings().volume ?? 1)));
+  if (master) master.gain.value = clamp01(settings().volume, 1);
+  if (fx) fx.gain.value = clamp01(settings().sfxVolume, 0.7);
 }
 
 // On iPhone, play app audio even when the ringer switch is on silent (Safari 16.4+).

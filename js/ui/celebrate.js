@@ -38,7 +38,7 @@ function streakPop({ streak, week }) {
       h('button.btn.primary', { type: 'button', onclick: close }, 'Fortsett ▸')));
   document.body.append(el);
   requestAnimationFrame(() => el.classList.add('show'));
-  sfx.goal(); haptic([20, 40, 20]); confetti(90);
+  sfx.streak(); haptic([20, 40, 20]); confetti(90);
   timer = setTimeout(close, 5000);
 }
 
@@ -56,7 +56,7 @@ export function nextStepBlock(except = null) {
   if (getGame().dayDone !== today) {
     update(() => { getGame().dayDone = today; });
     setTimeout(() => {
-      confetti(140); sfx.levelUp(); haptic([20, 40, 20, 40, 60]);
+      confetti(140); sfx.dayDone(); haptic([20, 40, 20, 40, 60]);
       toast(h('span', h('b', 'Dagens plan er fullført! 🎉'), h('br'), h('span.small', 'Everything for today is done. Extra practice is a bonus.')), { icon: '🏁', kind: 'gold', ms: 4500 });
     }, 300);
   }

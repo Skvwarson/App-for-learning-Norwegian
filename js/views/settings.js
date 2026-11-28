@@ -1,7 +1,7 @@
 // Settings: the few things people actually change, plus backup. Learning
 // tweaks sit folded away under "Advanced".
 
-import { h, toast, download, confirmModal, add, clear, sfx, SOUND_CHOICES, playSound } from '../ui/dom.js';
+import { h, toast, download, confirmModal, add, clear, sfx, SOUND_CHOICES, playSound, soundChoice } from '../ui/dom.js';
 import { settings, update, exportData, importData, resetAll } from '../core/store.js';
 import { voicesReady, voiceStatus, deviceTip, speak, applyVolume } from '../core/speech.js';
 import { APP_VERSION } from '../core/version.js';
@@ -46,6 +46,8 @@ export function settingsView(root) {
   });
   const retLabel = h('b', `${Math.round(s.retention * 100)}%`);
   const volLabel = h('b', `${Math.round((s.volume ?? 1) * 100)}%`);
+  const fxLabel = h('b', `${Math.round((s.sfxVolume ?? 0.7) * 100)}%`);
+  let previewDir = 1; // page-change previews alternate right / left
 
   add(root, h('div.stack.settings',
     h('a.back-link.sticky-back', { href: '#/me' }, '‹ Me'),
@@ -67,10 +69,15 @@ export function settingsView(root) {
       h('button.btn', { type: 'button', onclick: () => speak(TEST_SENTENCE) }, '▶ Test voice'),
       toggle('autoplay', 'Play Norwegian automatically'),
       toggle('sound', 'Sound effects'),
+      field(h('span', 'Effects volume ', fxLabel), h('input.volume', {
+        id: 'sfx-volume', type: 'range', min: 0, max: 1, step: 0.05, value: s.sfxVolume ?? 0.7,
+        oninput: (e) => { fxLabel.textContent = `${Math.round(e.target.value * 100)}%`; update((st) => { st.settings.sfxVolume = Number(e.target.value); }); applyVolume(); },
+        onchange: () => playSound('tap', settings().tapSound),
+      }), 'Taps, page changes and answer sounds, on top of the volume above.'),
       ...[['tap', 'tapSound', 'Tapping things'], ['nav', 'navSound', 'Changing page']].map(([kind, key, label]) => {
         const seg = h('div.segmented.sound-pick', ...SOUND_CHOICES[kind].map(([id, name]) => h('button', {
-          type: 'button', class: (s[key] ?? SOUND_CHOICES[kind][0][0]) === id ? 'on' : '', 'data-quiet': '',
-          onclick: (e) => { set(key, id); seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === e.currentTarget)); playSound(kind, id); },
+          type: 'button', class: soundChoice(kind, s[key]) === id ? 'on' : '', 'data-quiet': '',
+          onclick: (e) => { set(key, id); seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === e.currentTarget)); playSound(kind, id, previewDir = -previewDir); },
         }, name)));
         return field(label, seg);
       }),
