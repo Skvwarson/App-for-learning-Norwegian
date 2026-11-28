@@ -177,7 +177,7 @@ function wordsStep(el, unit, next) {
       h('div.card.tip.small', '📖 Read each one out loud, and imagine yourself saying it. Then you’ll be asked to recall them. That recall is what moves them into long-term memory.'),
       h('div.word-list', ...items),
       h('div.row.end', h('button.btn.primary.big', { onclick: () => quiz(chunk) }, 'I’m ready, test me ▸')));
-    if (settings().autoplay) speak(chunk[0].no);
+    if (settings().autoplay) speak(chunk[0].no, { wait: true });
   };
 
   // 2) Immediate retrieval: EN → pick the Norwegian (first FSRS rating)
@@ -327,7 +327,7 @@ function practiceStep(el, unit, next) {
     } else if (t.type === 'listen') {
       const inp = answerInput({ placeholder: 'Type what you hear…', expected: t.w.no, onSubmit: (v) => { inp.setDisabled(true); after(checkAnswer(v, t.w.no, t.w.alt).verdict !== 'wrong', t.w.no, v); } });
       add(el, h('div.prompt', h('div.small.muted', 'Listen and type'), h('button.btn.big.listen-btn', { onclick: () => speak(t.w.no) }, '🔊 Play again')), inp.el, fb);
-      setTimeout(() => speak(t.w.no), 200);
+      setTimeout(() => speak(t.w.no, { wait: true }), 200);
     }
   };
   run();
