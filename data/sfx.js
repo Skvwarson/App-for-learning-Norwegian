@@ -18,5 +18,5 @@
 //   level-up    reached a new level
 //   day-done    everything in today's plan is done
 export const SFX_FILES = {
-  // tap: 4,
+  'page-right': 1,
 };
