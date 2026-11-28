@@ -75,6 +75,9 @@ export function loadBuffer(url) {
 }
 
 let current = null; // the buffer source playing now
+let currentEnd = null; // Promise that resolves when it has finished (or was stopped)
+/** Resolves when the recording that's playing now ends (at once if nothing is playing). */
+export const untilQuiet = () => (current && currentEnd) || Promise.resolve();
 /** Stop whatever recording is playing. */
 export function stopBuffer() {
   if (current) { try { current.onended = null; current.stop(); } catch { /* already stopped */ } current = null; }
@@ -85,7 +88,7 @@ export function playBuffer(buffer, rate = 1) {
   const c = audioContext();
   if (!c || !buffer) return Promise.resolve(false);
   stopBuffer();
-  return new Promise((resolve) => {
+  const done = new Promise((resolve) => {
     const s = c.createBufferSource();
     s.buffer = buffer;
     s.playbackRate.value = rate;
@@ -96,4 +99,6 @@ export function playBuffer(buffer, rate = 1) {
     s.stop = (...a) => { resolve(false); return prevStop(...a); };
     s.start(0);
   });
+  currentEnd = done;
+  return done;
 }

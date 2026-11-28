@@ -89,7 +89,7 @@ export function practiceView(root, { kind }) {
       inp.input.inputMode = 'numeric';
       add(body, h('div.chunk-head', h('div.small.muted', `${i + 1} / ${rounds}`), progressBar(i / rounds), combo.value >= 3 ? h('div.combo', `🔥 ×${combo.value}`) : null),
         h('div.prompt', h('div.small.muted', 'Listen: which number?'), h('button.btn.big.listen-btn', { onclick: () => speak(t.ans) }, '🔊 Play')), inp.el, fb);
-      setTimeout(() => speak(t.ans), 200);
+      setTimeout(() => speak(t.ans, { wait: true }), 200);
     } else {
       inp = answerInput({
         placeholder: isTime ? 'e.g. halv sju' : 'Write it in Norwegian…',
