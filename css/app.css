@@ -837,7 +837,8 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
 /* Space between the pinned lesson/review header and what comes under it. */
 #view.focus-view > .lesson-head + *, #view.focus-view > .session-head + * { margin-top: 20px; }
 
-.sound-pick button { font-size: .82rem; padding: 0 4px; }
+.sound-pick { flex-wrap: wrap; }
+.sound-pick button { font-size: .82rem; padding: 0 6px; flex: 1 0 auto; }
 
 /* On Settings / Me / Progress / My words the middle slot shows that page; hover reveals the tab
    you came from (tap goes back to it). */

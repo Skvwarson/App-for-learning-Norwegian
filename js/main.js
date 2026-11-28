@@ -2,7 +2,7 @@
 
 import { load, subscribe, settings, getState } from './core/store.js';
 import { route, start, navigate, current } from './ui/router.js';
-import { h, $, clear, toast, confetti, sfx, modal, haptic, add } from './ui/dom.js';
+import { h, $, clear, toast, confetti, sfx, modal, haptic, add, preloadSfx } from './ui/dom.js';
 import { icon } from './ui/icons.js';
 import * as G from './core/gamify.js';
 import { homeView } from './views/home.js';
@@ -132,9 +132,10 @@ function renderTabs(bar, path) {
   } else if (hit >= 0 && hit !== centerTab) {
     // Turn one step the short way round (right tab → turn right, left tab → turn left).
     const diff = ((hit - centerTab + n) % n);
-    spin += diff === 1 ? 1 : diff === n - 1 ? -1 : diff;
+    const step = diff === 1 ? 1 : diff === n - 1 ? -1 : diff;
+    spin += step;
     centerTab = hit;
-    sfx.spin();
+    sfx.spin(Math.sign(step));
     turnTo(spin);
   }
   const away = hit < 0 && AWAY.find(([re]) => re.test(path));
@@ -157,13 +158,22 @@ const markScrolled = () => $('#topbar')?.classList.toggle('scrolled', scrollY > 
 addEventListener('scroll', markScrolled, { passive: true });
 addEventListener('hashchange', () => requestAnimationFrame(markScrolled));
 
-// A soft click for everything you press. Answers keep their own right/wrong sounds,
-// and the bottom menu has its own revolver sound.
+// A soft sound for everything you press. Answers keep their own right/wrong sounds,
+// and the bottom menu has its own page-change sound. It plays when the finger lifts
+// off a real tap, not when a scroll happens to start on a button (iPhone cancels the
+// pointer then), so scrolling through lists stays silent.
 const PRESSABLE = 'button, a[href], [role="button"], summary, label.toggle-row, .tile';
 const QUIET = '.tab, .answer-row .btn.primary, .choice, [data-quiet]';
+let pressAt = null;
 document.addEventListener('pointerdown', (e) => {
+  preloadSfx(); // recorded effects (if any) load on the first touch, once
   const el = e.target.closest?.(PRESSABLE);
-  if (!el || el.closest(QUIET) || el.disabled) return;
+  pressAt = el && !el.closest(QUIET) && !el.disabled ? { el, x: e.clientX, y: e.clientY } : null;
+}, { capture: true, passive: true });
+document.addEventListener('pointercancel', () => { pressAt = null; }, { capture: true, passive: true });
+document.addEventListener('pointerup', (e) => {
+  const p = pressAt; pressAt = null;
+  if (!p || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 12 || !p.el.contains(e.target)) return;
   sfx.press();
 }, { capture: true, passive: true });
 
